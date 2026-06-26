@@ -1,0 +1,78 @@
+[
+    {
+        "merged": "com.newritage.app-mergeDebugResources-51:/layout/item_calendar_cell.xml",
+        "source": "com.newritage.app-main-54:/layout/item_calendar_cell.xml"
+    },
+    {
+        "merged": "com.newritage.app-mergeDebugResources-51:/layout/fragment_daily_analysis.xml",
+        "source": "com.newritage.app-main-54:/layout/fragment_daily_analysis.xml"
+    },
+    {
+        "merged": "com.newritage.app-mergeDebugResources-51:/layout/activity_signup.xml",
+        "source": "com.newritage.app-main-54:/layout/activity_signup.xml"
+    },
+    {
+        "merged": "com.newritage.app-mergeDebugResources-51:/layout/fragment_weekly_analysis.xml",
+        "source": "com.newritage.app-main-54:/layout/fragment_weekly_analysis.xml"
+    },
+    {
+        "merged": "com.newritage.app-mergeDebugResources-51:/layout/item_calendar_cell_knot.xml",
+        "source": "com.newritage.app-main-54:/layout/item_calendar_cell_knot.xml"
+    },
+    {
+        "merged": "com.newritage.app-mergeDebugResources-51:/layout/activity_baseline_measurement.xml",
+        "source": "com.newritage.app-main-54:/layout/activity_baseline_measurement.xml"
+    },
+    {
+        "merged": "com.newritage.app-mergeDebugResources-51:/layout/fragment_onboarding_page.xml",
+        "source": "com.newritage.app-main-54:/layout/fragment_onboarding_page.xml"
+    },
+    {
+        "merged": "com.newritage.app-mergeDebugResources-51:/layout/activity_main.xml",
+        "source": "com.newritage.app-main-54:/layout/activity_main.xml"
+    },
+    {
+        "merged": "com.newritage.app-mergeDebugResources-51:/layout/fragment_monthly_analysis.xml",
+        "source": "com.newritage.app-main-54:/layout/fragment_monthly_analysis.xml"
+    },
+    {
+        "merged": "com.newritage.app-mergeDebugResources-51:/layout/dialog_measurement_guide.xml",
+        "source": "com.newritage.app-main-54:/layout/dialog_measurement_guide.xml"
+    },
+    {
+        "merged": "com.newritage.app-mergeDebugResources-51:/layout/activity_start.xml",
+        "source": "com.newritage.app-main-54:/layout/activity_start.xml"
+    },
+    {
+        "merged": "com.newritage.app-mergeDebugResources-51:/layout/fragment_knot_storage.xml",
+        "source": "com.newritage.app-main-54:/layout/fragment_knot_storage.xml"
+    },
+    {
+        "merged": "com.newritage.app-mergeDebugResources-51:/layout/fragment_thread_storage.xml",
+        "source": "com.newritage.app-main-54:/layout/fragment_thread_storage.xml"
+    },
+    {
+        "merged": "com.newritage.app-mergeDebugResources-51:/layout/activity_measurement.xml",
+        "source": "com.newritage.app-main-54:/layout/activity_measurement.xml"
+    },
+    {
+        "merged": "com.newritage.app-mergeDebugResources-51:/layout/fragment_analysis.xml",
+        "source": "com.newritage.app-main-54:/layout/fragment_analysis.xml"
+    },
+    {
+        "merged": "com.newritage.app-mergeDebugResources-51:/layout/fragment_record.xml",
+        "source": "com.newritage.app-main-54:/layout/fragment_record.xml"
+    },
+    {
+        "merged": "com.newritage.app-mergeDebugResources-51:/layout/activity_onboarding.xml",
+        "source": "com.newritage.app-main-54:/layout/activity_onboarding.xml"
+    },
+    {
+        "merged": "com.newritage.app-mergeDebugResources-51:/layout/activity_login.xml",
+        "source": "com.newritage.app-main-54:/layout/activity_login.xml"
+    },
+    {
+        "merged": "com.newritage.app-mergeDebugResources-51:/layout/activity_session_complete.xml",
+        "source": "com.newritage.app-main-54:/layout/activity_session_complete.xml"
+    }
+]

@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">NewRitage</string>
+    <string name="app_subtitle">마음을 다스리는 시간</string>
+
+    <!-- 온보딩 -->
+    <string name="onboarding_title_1">한 가닥의 실이 마음의 여정을 이어줍니다</string>
+    <string name="onboarding_title_2">압력 변화를 통해 당신의 긴장도를 측정합니다\n툴을 쥐고 명상을 시작해보세요</string>
+    <string name="onboarding_title_3">오늘의 명상을 피드백 해드립니다</string>
+    <string name="onboarding_title_4">당신의 마음을 선물해드립니다</string>
+    <string name="onboarding_skip">건너뛰기</string>
+    <string name="onboarding_next">다음</string>
+    <string name="onboarding_start">시작하기</string>
+
+    <!-- 시작 페이지 -->
+    <string name="btn_signup">회원가입</string>
+    <string name="btn_login">로그인</string>
+
+    <!-- 로그인 -->
+    <string name="login_title">로그인</string>
+    <string name="hint_username">아이디</string>
+    <string name="hint_password">비밀번호(숫자,영문,특수문자 조합 8-12자리)</string>
+    <string name="auto_login">자동로그인</string>
+    <string name="btn_do_login">로그인</string>
+    <string name="find_id">아이디 찾기</string>
+    <string name="find_password">비밀번호 찾기</string>
+    <string name="go_signup">회원가입</string>
+    <string name="sns_login">SNS 간편로그인</string>
+
+    <!-- 회원가입 -->
+    <string name="signup_title">회원가입</string>
+    <string name="hint_new_username">아이디</string>
+    <string name="btn_check_duplicate">중복확인</string>
+    <string name="hint_new_password">비밀번호</string>
+    <string name="hint_confirm_password">비밀번호 확인</string>
+    <string name="hint_email">이메일</string>
+    <string name="hint_phone">휴대폰 번호</string>
+    <string name="btn_send_verification">인증번호 받기</string>
+    <string name="btn_do_signup">가입하기</string>
+    <string name="signup_complete">가입이 완료되었습니다</string>
+    <string name="password_hint_desc">영문, 숫자, 특수문자 중 2가지 이상 조합하여 8-20자리 입력해주세요.</string>
+    <string name="email_hint_desc">더 많은 계정을 개설하고자 하는 경우 가입 후 [내정보 > 회원정보 수정]에서 이메일 인증을 진행해주세요.</string>
+
+    <!-- 기준 압력 측정 -->
+    <string name="baseline_title">나만의 기준 압력 측정</string>
+    <string name="baseline_desc">기기의 연결이 완료되면 기기를 쥐고\n편안하게 긴장을 풀어주세요.</string>
+    <string name="baseline_measuring">측정 중…</string>
+    <string name="baseline_complete_title">나만의 기준 압력을\n설정했어요</string>
+    <string name="baseline_complete_desc">앞으로 이 수치를 기반으로 긴장도를 분석합니다</string>
+    <string name="btn_go_home">메인화면으로</string>
+
+    <!-- 측정 안내 -->
+    <string name="guide_title">측정 안내</string>
+    <string name="guide_step_1">기기를 손에 쥐고 올바른 자세로 앉아주세요.</string>
+    <string name="guide_step_2">눈을 감게 되고, 어깨에 힘을 빼주세요.</string>
+    <string name="guide_step_3">가천히 눈을 감고 자연스럽게 집중합니다.</string>
+    <string name="guide_step_4">측정은 약 3분간 진행됩니다.</string>
+    <string name="guide_tip">조용하고 안락한 곳을 찾는 환경에서 측정하면 더 정확한 결과를 얻을 수 있습니다.</string>
+    <string name="btn_start_measure">시작하기</string>
+
+    <!-- 압력 측정 -->
+    <string name="measurement_title">나의 압력 측정</string>
+    <string name="measuring_label">측정 중…</string>
+    <string name="btn_stop">완료</string>
+    <string name="realtime_chart_label">실시간 압력 그래프</string>
+    <string name="unit_kpa">kPa</string>
+
+    <!-- 세션 완료 -->
+    <string name="session_complete_title">측정이 완료되었습니다</string>
+    <string name="btn_go_main">메인화면으로</string>
+
+    <!-- 오늘의 기록 -->
+    <string name="record_title">오늘의 기록</string>
+    <string name="label_meditation_time">명상 시간</string>
+    <string name="label_avg_pressure">평균 긴장도</string>
+    <string name="label_max_min_pressure">최고/최저 압력</string>
+    <string name="label_session_count">측정 횟수</string>
+    <string name="label_emotion">오늘의 감정</string>
+    <string name="hint_emotion">오늘의 감정을 작성해 주세요</string>
+    <string name="btn_save_record">저장하기</string>
+    <string name="btn_next">다음</string>
+    <string name="no_emotion_yet">오늘 아직 감정이 없습니다.</string>
+
+    <!-- 실 제공 -->
+    <string name="thread_provide_title">오늘의 실이 생성되었어요</string>
+    <string name="thread_provide_subtitle">오늘 명상 데이터를 바탕으로 실 색상이 결정되었습니다.</string>
+    <string name="btn_view_thread">실 설명 보기</string>
+
+    <!-- 하단 내비 -->
+    <string name="nav_record">기록</string>
+    <string name="nav_thread">실보관함</string>
+    <string name="nav_knot">매듭보관함</string>
+    <string name="nav_analysis">명상분석</string>
+    <string name="nav_settings">설정</string>
+
+    <!-- 기록 Fragment -->
+    <string name="today_record">오늘의 기록</string>
+    <string name="review_title">REVIEW</string>
+    <string name="no_record_today">오늘 기록이 없습니다.\n명상을 시작해보세요!</string>
+
+    <!-- 실 보관함 -->
+    <string name="thread_storage_title">실 보관함</string>
+    <string name="today_thread_title">오늘의 실</string>
+    <string name="thread_color_label">색 이름</string>
+    <string name="btn_view_thread_storage">실 보관함 보기</string>
+    <string name="no_thread_today">오늘의 실이 아직 없습니다.</string>
+
+    <!-- 매듭 보관함 -->
+    <string name="knot_storage_title">매듭 보관함</string>
+    <string name="knot_provide_title">매듭 제공</string>
+    <string name="btn_view_knot_storage">매듭 보관함 보기</string>
+    <string name="no_knot_yet">이번 달 매듭이 아직 없습니다.</string>
+
+    <!-- 분석 -->
+    <string name="analysis_title">명상분석</string>
+    <string name="my_meditation">나의 명상</string>
+    <string name="analysis_desc">나의 명상 분석을 확인해보세요.</string>
+    <string name="daily_analysis">일간 분석</string>
+    <string name="weekly_analysis">주간 분석</string>
+    <string name="monthly_analysis">월간 분석</string>
+    <string name="feedback_title">피드백</string>
+
+    <!-- 분석 공통 -->
+    <string name="label_avg_tension">평균 압력</string>
+    <string name="label_max_tension">최고 압력</string>
+    <string name="label_med_time">명상 시간</string>
+    <string name="label_med_count">명상 횟수</string>
+    <string name="at_a_glance">한눈에 보기</string>
+    <string name="pressure_change">압력 변화 요약</string>
+    <string name="today_comment">오늘의 코멘트</string>
+    <string name="week_comment">이번 주 코멘트</string>
+    <string name="month_comment">이번달 코멘트</string>
+    <string name="daily_avg_pressure">일별 평균 압력</string>
+    <string name="compare_last_week">지난주와 비교</string>
+    <string name="compare_last_month">지난달 비교</string>
+    <string name="no_data">데이터가 없습니다.</string>
+    <string name="times_unit">회</string>
+
+    <!-- 설정 -->
+    <string name="settings_title">설정</string>
+
+    <!-- 공통 -->
+    <string name="btn_back">뒤로</string>
+    <string name="ok">확인</string>
+    <string name="cancel">취소</string>
+    <string name="error_fill_all">모든 항목을 입력해주세요.</string>
+    <string name="error_password_mismatch">비밀번호가 일치하지 않습니다.</string>
+    <string name="error_invalid_id">아이디는 영문 소문자로 시작하며 4-12자리를 입력해주세요.</string>
+</resources>

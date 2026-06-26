@@ -1,0 +1,282 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background">
+
+    <!-- 1. 안내 화면 -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layoutGuide"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="24dp">
+
+        <TextView
+            android:id="@+id/tvGuideTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/baseline_title"
+            android:textSize="20sp"
+            android:textColor="@color/text_primary"
+            android:textStyle="bold"
+            android:layout_marginTop="16dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <TextView
+            android:id="@+id/tvGuideDesc"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/baseline_desc"
+            android:textSize="15sp"
+            android:textColor="@color/text_secondary"
+            android:lineSpacingMultiplier="1.5"
+            android:layout_marginTop="16dp"
+            app:layout_constraintTop_toBottomOf="@id/tvGuideTitle"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- 측정 안내 카드 -->
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cardGuide"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="2dp"
+            app:cardBackgroundColor="@color/surface"
+            app:layout_constraintTop_toBottomOf="@id/tvGuideDesc"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/guide_title"
+                    android:textSize="16sp"
+                    android:textColor="@color/primary"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="12dp" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="1. 기기를 손에 쥐고 올바른 자세로 앉아주세요."
+                    android:textSize="14sp"
+                    android:textColor="@color/text_secondary"
+                    android:lineSpacingMultiplier="1.4"
+                    android:layout_marginBottom="8dp" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="2. 눈을 감고, 어깨에 힘을 빼주세요."
+                    android:textSize="14sp"
+                    android:textColor="@color/text_secondary"
+                    android:lineSpacingMultiplier="1.4"
+                    android:layout_marginBottom="8dp" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="3. 가천히 눈을 감고 자연스럽게 집중합니다."
+                    android:textSize="14sp"
+                    android:textColor="@color/text_secondary"
+                    android:lineSpacingMultiplier="1.4"
+                    android:layout_marginBottom="8dp" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="4. 측정은 약 30초간 진행됩니다."
+                    android:textSize="14sp"
+                    android:textColor="@color/text_secondary"
+                    android:lineSpacingMultiplier="1.4" />
+
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <Button
+            android:id="@+id/btnStartMeasure"
+            android:layout_width="0dp"
+            android:layout_height="52dp"
+            android:text="@string/btn_start_measure"
+            android:background="@drawable/btn_primary_bg"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            android:stateListAnimator="@null"
+            android:layout_marginBottom="40dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- 2. 측정 중 화면 -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layoutMeasuring"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/baseline_measuring"
+            android:textSize="16sp"
+            android:textColor="@color/text_secondary"
+            android:layout_marginTop="32dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- 원형 게이지 -->
+        <FrameLayout
+            android:id="@+id/gaugeCircle"
+            android:layout_width="200dp"
+            android:layout_height="200dp"
+            android:background="@drawable/bg_circle_green"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintVertical_bias="0.4">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:layout_gravity="center">
+
+                <TextView
+                    android:id="@+id/tvPressureValue"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0.0"
+                    android:textSize="36sp"
+                    android:textColor="@color/text_primary"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="kPa"
+                    android:textSize="14sp"
+                    android:textColor="@color/text_secondary" />
+            </LinearLayout>
+        </FrameLayout>
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            style="@android:style/Widget.ProgressBar.Horizontal"
+            android:layout_width="0dp"
+            android:layout_height="8dp"
+            android:progressTint="@color/primary"
+            android:progressBackgroundTint="@color/primary_light"
+            android:layout_marginStart="40dp"
+            android:layout_marginEnd="40dp"
+            android:layout_marginTop="32dp"
+            app:layout_constraintTop_toBottomOf="@id/gaugeCircle"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintVertical_bias="0.7" />
+
+        <TextView
+            android:id="@+id/tvTimer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0:00"
+            android:textSize="18sp"
+            android:textColor="@color/text_secondary"
+            android:layout_marginTop="16dp"
+            app:layout_constraintTop_toBottomOf="@id/progressBar"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- 3. 완료 화면 -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layoutComplete"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/tvCompleteTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/baseline_complete_title"
+            android:textSize="22sp"
+            android:textColor="@color/text_primary"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:lineSpacingMultiplier="1.4"
+            android:layout_marginStart="32dp"
+            android:layout_marginEnd="32dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/tvBaselineResult"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintVertical_chainStyle="packed" />
+
+        <TextView
+            android:id="@+id/tvBaselineResult"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="-- kPa"
+            android:textSize="32sp"
+            android:textColor="@color/primary"
+            android:textStyle="bold"
+            android:layout_marginTop="16dp"
+            app:layout_constraintTop_toBottomOf="@id/tvCompleteTitle"
+            app:layout_constraintBottom_toTopOf="@id/tvCompleteDesc"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <TextView
+            android:id="@+id/tvCompleteDesc"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/baseline_complete_desc"
+            android:textSize="14sp"
+            android:textColor="@color/text_secondary"
+            android:gravity="center"
+            android:layout_marginTop="12dp"
+            android:layout_marginStart="32dp"
+            android:layout_marginEnd="32dp"
+            app:layout_constraintTop_toBottomOf="@id/tvBaselineResult"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <Button
+            android:id="@+id/btnGoHome"
+            android:layout_width="0dp"
+            android:layout_height="52dp"
+            android:text="@string/btn_go_home"
+            android:background="@drawable/btn_primary_bg"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            android:stateListAnimator="@null"
+            android:layout_marginStart="24dp"
+            android:layout_marginEnd="24dp"
+            android:layout_marginBottom="60dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</FrameLayout>

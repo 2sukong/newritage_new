@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.NewRitage">
+
+        <!-- 스플래시 / 진입점 -->
+        <activity
+            android:name=".ui.onboarding.SplashActivity"
+            android:exported="true"
+            android:theme="@style/Theme.NewRitage.Splash">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- 온보딩 -->
+        <activity
+            android:name=".ui.onboarding.OnboardingActivity"
+            android:exported="false" />
+
+        <!-- 시작 페이지 (로그인 전) -->
+        <activity
+            android:name=".ui.auth.StartActivity"
+            android:exported="false" />
+
+        <!-- 로그인 -->
+        <activity
+            android:name=".ui.auth.LoginActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <!-- 회원가입 -->
+        <activity
+            android:name=".ui.auth.SignupActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <!-- 기준 압력 측정 (최초 1회) -->
+        <activity
+            android:name=".ui.baseline.BaselineMeasurementActivity"
+            android:exported="false" />
+
+        <!-- 메인 (하단 내비) -->
+        <activity
+            android:name=".ui.main.MainActivity"
+            android:exported="false" />
+
+        <!-- 명상 측정 세션 -->
+        <activity
+            android:name=".ui.measurement.MeasurementActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
+        <!-- 세션 완료 (기록 + 실 제공) -->
+        <activity
+            android:name=".ui.measurement.SessionCompleteActivity"
+            android:exported="false" />
+
+    </application>
+
+</manifest>

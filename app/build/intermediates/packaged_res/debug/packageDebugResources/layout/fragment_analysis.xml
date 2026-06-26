@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/background">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:text="@string/analysis_title"
+        android:textSize="18sp"
+        android:textColor="@color/text_primary"
+        android:textStyle="bold"
+        android:gravity="center_vertical"
+        android:paddingStart="24dp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/my_meditation"
+        android:textSize="20sp"
+        android:textColor="@color/text_primary"
+        android:textStyle="bold"
+        android:paddingStart="24dp"
+        android:paddingEnd="24dp"
+        android:paddingTop="8dp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/analysis_desc"
+        android:textSize="14sp"
+        android:textColor="@color/text_secondary"
+        android:paddingStart="24dp"
+        android:paddingEnd="24dp"
+        android:paddingTop="4dp"
+        android:paddingBottom="24dp" />
+
+    <!-- 일간 분석 -->
+    <LinearLayout
+        android:id="@+id/rowDailyAnalysis"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingStart="24dp"
+        android:paddingEnd="16dp"
+        android:background="@color/surface"
+        android:foreground="?attr/selectableItemBackground">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/daily_analysis"
+            android:textSize="16sp"
+            android:textColor="@color/text_primary" />
+
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@android:drawable/ic_media_next"
+            android:tint="@color/text_hint" />
+    </LinearLayout>
+
+    <View android:layout_width="match_parent" android:layout_height="1dp"
+        android:background="@color/divider" android:layout_marginStart="24dp" />
+
+    <!-- 주간 분석 -->
+    <LinearLayout
+        android:id="@+id/rowWeeklyAnalysis"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingStart="24dp"
+        android:paddingEnd="16dp"
+        android:background="@color/surface"
+        android:foreground="?attr/selectableItemBackground">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/weekly_analysis"
+            android:textSize="16sp"
+            android:textColor="@color/text_primary" />
+
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@android:drawable/ic_media_next"
+            android:tint="@color/text_hint" />
+    </LinearLayout>
+
+    <View android:layout_width="match_parent" android:layout_height="1dp"
+        android:background="@color/divider" android:layout_marginStart="24dp" />
+
+    <!-- 월간 분석 -->
+    <LinearLayout
+        android:id="@+id/rowMonthlyAnalysis"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingStart="24dp"
+        android:paddingEnd="16dp"
+        android:background="@color/surface"
+        android:foreground="?attr/selectableItemBackground">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/monthly_analysis"
+            android:textSize="16sp"
+            android:textColor="@color/text_primary" />
+
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@android:drawable/ic_media_next"
+            android:tint="@color/text_hint" />
+    </LinearLayout>
+
+    <View android:layout_width="match_parent" android:layout_height="1dp"
+        android:background="@color/divider" android:layout_marginStart="24dp" />
+
+</LinearLayout>

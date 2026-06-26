@@ -1,0 +1,280 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background">
+
+    <!-- ─── 1. 측정 완료 화면 ─── -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layoutComplete"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/tvCompleteTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/session_complete_title"
+            android:textSize="24sp"
+            android:textColor="@color/text_primary"
+            android:textStyle="bold"
+            android:gravity="center"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/btnGoRecord"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <Button
+            android:id="@+id/btnGoRecord"
+            android:layout_width="0dp"
+            android:layout_height="52dp"
+            android:text="오늘의 기록 보기"
+            android:background="@drawable/btn_primary_bg"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            android:stateListAnimator="@null"
+            android:layout_marginStart="24dp"
+            android:layout_marginEnd="24dp"
+            android:layout_marginBottom="60dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- ─── 2. 기록 / 감정 화면 ─── -->
+    <ScrollView
+        android:id="@+id/layoutRecord"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:paddingBottom="40dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:text="오늘의 기록"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="@color/text_primary"
+                android:gravity="center_vertical"
+                android:paddingStart="8dp" />
+
+            <!-- 통계 카드 -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="2dp"
+                app:cardBackgroundColor="@color/surface">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="20dp">
+
+                        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                            android:layout_weight="1" android:orientation="vertical" android:gravity="center">
+                            <TextView android:id="@+id/tvRecordMedTime"
+                                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                                android:text="--:--" android:textSize="22sp"
+                                android:textStyle="bold" android:textColor="@color/text_primary" />
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                                android:text="명상 시간" android:textSize="12sp" android:textColor="@color/text_secondary" />
+                        </LinearLayout>
+
+                        <View android:layout_width="1dp" android:layout_height="match_parent"
+                            android:background="@color/divider" />
+
+                        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                            android:layout_weight="1" android:orientation="vertical" android:gravity="center">
+                            <TextView android:id="@+id/tvRecordAvgPressure"
+                                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                                android:text="-- kPa" android:textSize="22sp"
+                                android:textStyle="bold" android:textColor="@color/text_primary" />
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                                android:text="평균 긴장도" android:textSize="12sp" android:textColor="@color/text_secondary" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                            android:layout_weight="1" android:orientation="vertical" android:gravity="center">
+                            <TextView android:id="@+id/tvRecordMaxPressure"
+                                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                                android:text="-- kPa" android:textSize="18sp"
+                                android:textStyle="bold" android:textColor="@color/text_primary" />
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                                android:text="최고 압력" android:textSize="12sp" android:textColor="@color/text_secondary" />
+                        </LinearLayout>
+
+                        <View android:layout_width="1dp" android:layout_height="match_parent"
+                            android:background="@color/divider" />
+
+                        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                            android:layout_weight="1" android:orientation="vertical" android:gravity="center">
+                            <TextView android:id="@+id/tvRecordMinPressure"
+                                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                                android:text="-- kPa" android:textSize="18sp"
+                                android:textStyle="bold" android:textColor="@color/text_primary" />
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                                android:text="최저 압력" android:textSize="12sp" android:textColor="@color/text_secondary" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- 감정 카드 -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="2dp"
+                app:cardBackgroundColor="@color/surface">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="오늘의 감정"
+                        android:textSize="14sp"
+                        android:textColor="@color/text_secondary"
+                        android:layout_marginBottom="12dp" />
+
+                    <EditText
+                        android:id="@+id/etEmotion"
+                        android:layout_width="match_parent"
+                        android:layout_height="100dp"
+                        android:hint="오늘의 감정을 작성해 주세요"
+                        android:background="@drawable/bg_input_rounded"
+                        android:padding="12dp"
+                        android:gravity="top"
+                        android:inputType="textMultiLine"
+                        android:textSize="14sp" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <Button
+                android:id="@+id/btnSaveRecord"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:text="저장하기"
+                android:background="@drawable/btn_primary_bg"
+                android:textColor="@color/white"
+                android:textSize="16sp"
+                android:stateListAnimator="@null" />
+
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- ─── 3. 실 제공 화면 ─── -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layoutThread"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/tvThreadTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/thread_provide_title"
+            android:textSize="20sp"
+            android:textColor="@color/text_primary"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:layout_marginStart="32dp"
+            android:layout_marginEnd="32dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/threadColorView"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintVertical_chainStyle="packed" />
+
+        <!-- 실 색상 박스 -->
+        <View
+            android:id="@+id/threadColorView"
+            android:layout_width="160dp"
+            android:layout_height="160dp"
+            android:background="@drawable/bg_thread_square"
+            android:layout_marginTop="24dp"
+            app:layout_constraintTop_toBottomOf="@id/tvThreadTitle"
+            app:layout_constraintBottom_toTopOf="@id/tvThreadColorName"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <TextView
+            android:id="@+id/tvThreadColorName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:textSize="16sp"
+            android:textColor="@color/text_secondary"
+            android:layout_marginTop="12dp"
+            app:layout_constraintTop_toBottomOf="@id/threadColorView"
+            app:layout_constraintBottom_toTopOf="@id/tvThreadSubtitle"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <TextView
+            android:id="@+id/tvThreadSubtitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/thread_provide_subtitle"
+            android:textSize="13sp"
+            android:textColor="@color/text_hint"
+            android:gravity="center"
+            android:layout_marginStart="32dp"
+            android:layout_marginEnd="32dp"
+            android:layout_marginTop="8dp"
+            app:layout_constraintTop_toBottomOf="@id/tvThreadColorName"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <Button
+            android:id="@+id/btnGoMain"
+            android:layout_width="0dp"
+            android:layout_height="52dp"
+            android:text="@string/btn_go_main"
+            android:background="@drawable/btn_primary_bg"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            android:stateListAnimator="@null"
+            android:layout_marginStart="24dp"
+            android:layout_marginEnd="24dp"
+            android:layout_marginBottom="60dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</FrameLayout>
