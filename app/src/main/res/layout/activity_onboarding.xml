@@ -2,9 +2,21 @@
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@drawable/bg_onboarding_gradient">
+    android:layout_height="match_parent">
+
+    <ImageView
+        android:id="@+id/bg_image_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:src="@drawable/background"
+        android:scaleType="centerCrop"
+        android:background="@drawable/bg_onboarding_gradient" app:tint="#80000000" app:tintMode="src_atop"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/viewPager"
@@ -34,37 +46,12 @@
         android:id="@+id/layoutButtons"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:gravity="center_vertical"
         android:orientation="horizontal"
         android:paddingStart="24dp"
         android:paddingEnd="24dp"
         android:paddingBottom="40dp"
-        android:gravity="center_vertical"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
-
-        <TextView
-            android:id="@+id/btnSkip"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/onboarding_skip"
-            android:textColor="@color/white"
-            android:textSize="15sp"
-            android:alpha="0.8"
-            android:padding="8dp" />
-
-        <Button
-            android:id="@+id/btnNext"
-            android:layout_width="wrap_content"
-            android:layout_height="48dp"
-            android:text="@string/onboarding_next"
-            android:paddingStart="32dp"
-            android:paddingEnd="32dp"
-            android:background="@drawable/btn_outline_bg"
-            android:textColor="@color/white"
-            android:textSize="15sp" />
-
-    </LinearLayout>
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+        app:layout_constraintBottom_toBottomOf="parent" /> </androidx.constraintlayout.widget.ConstraintLayout>

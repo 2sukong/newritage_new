@@ -23,10 +23,10 @@ class OnboardingActivity : AppCompatActivity() {
     private lateinit var prefs: UserPreferences
 
     private val pages = listOf(
-        OnboardingPage(R.string.onboarding_title_1),
-        OnboardingPage(R.string.onboarding_title_2),
-        OnboardingPage(R.string.onboarding_title_3),
-        OnboardingPage(R.string.onboarding_title_4)
+        OnboardingPage(R.string.onboarding_title_1, R.drawable.logo),
+        OnboardingPage(R.string.onboarding_title_2, R.drawable.onboarding1), // 새로 넣은 png 파일명에 맞게 수정
+        OnboardingPage(R.string.onboarding_title_3, R.drawable.onboarding2), // 새로 넣은 png 파일명에 맞게 수정
+        OnboardingPage(R.string.onboarding_title_4, R.drawable.onboarding3)  // 새로 넣은 png 파일명에 맞게 수정
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -37,7 +37,7 @@ class OnboardingActivity : AppCompatActivity() {
         prefs = UserPreferences(this)
 
         setupViewPager()
-        setupButtons()
+
     }
 
     private fun setupViewPager() {
@@ -45,44 +45,38 @@ class OnboardingActivity : AppCompatActivity() {
 
         TabLayoutMediator(binding.tabIndicator, binding.viewPager) { _, _ -> }.attach()
 
-        binding.viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
-            override fun onPageSelected(position: Int) {
-                updateButtons(position)
-            }
-        })
+
     }
 
-    private fun setupButtons() {
-        binding.btnSkip.setOnClickListener { goToStart() }
-        binding.btnNext.setOnClickListener {
-            val current = binding.viewPager.currentItem
-            if (current < pages.size - 1) {
-                binding.viewPager.currentItem = current + 1
-            } else {
-                goToStart()
-            }
-        }
-        updateButtons(0)
-    }
-
-    private fun updateButtons(position: Int) {
-        if (position == pages.size - 1) {
-            binding.btnNext.text = getString(R.string.onboarding_start)
-            binding.btnSkip.visibility = View.INVISIBLE
-        } else {
-            binding.btnNext.text = getString(R.string.onboarding_next)
-            binding.btnSkip.visibility = View.VISIBLE
-        }
-    }
 
     private fun goToStart() {
         prefs.isOnboardingDone = true
         startActivity(Intent(this, StartActivity::class.java))
         finish()
     }
+    // 화면 아무 데나 터치했을 때 다음 온보딩 페이지로 넘기는 함수 추가
+    override fun dispatchTouchEvent(ev: android.view.MotionEvent?): Boolean {
+        // 손가락을 화면에서 뗄 때(ACTION_UP) 실행
+        if (ev?.action == android.view.MotionEvent.ACTION_UP) {
+            val current = binding.viewPager.currentItem
+
+            if (current < pages.size - 1) {
+                // 마지막 페이지가 아니면 다음 페이지로 이동
+                binding.viewPager.currentItem = current + 1
+            } else {
+                // 마지막 페이지면 로그인/시작 화면으로 이동
+                goToStart()
+            }
+            return true
+        }
+        return super.dispatchTouchEvent(ev)
+    }
 }
 
-data class OnboardingPage(val titleResId: Int)
+
+// 기존: data class OnboardingPage(val titleResId: Int)
+// 변경: 이미지 리소스 ID(Int)를 받을 수 있도록 파라미터 추가
+data class OnboardingPage(val titleResId: Int, val imageResId: Int)
 
 class OnboardingAdapter(private val pages: List<OnboardingPage>) :
     RecyclerView.Adapter<OnboardingAdapter.ViewHolder>() {
@@ -99,8 +93,13 @@ class OnboardingAdapter(private val pages: List<OnboardingPage>) :
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.tvTitle.setText(pages[position].titleResId)
-        // 아이콘 이미지는 페이지별로 다를 수 있음 (현재 기본 아이콘 사용)
+        val page = pages[position]
+
+        // 텍스트 변경 명령
+        holder.tvTitle.setText(page.titleResId)
+
+        // 이미지 변경 명령 (추가된 부분)
+        holder.ivIcon.setImageResource(page.imageResId)   // 아이콘 이미지는 페이지별로 다를 수 있음 (현재 기본 아이콘 사용)
     }
 
     override fun getItemCount() = pages.size

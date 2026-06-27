@@ -12,11 +12,10 @@
     <color name="divider">#E0E0D8</color>
     <color name="dot_active">#FFFFFF</color>
     <color name="dot_inactive">#80FFFFFF</color>
+    <color name="gradient_end">#FFF4DC</color>
+    <color name="gradient_start">#81A68D</color>
     <color name="input_border">#C8C8C8</color>
     <color name="input_border_focused">#8B9E7B</color>
-    <color name="onboarding_bg">#8B9E7B</color>
-    <color name="onboarding_bg_gradient_bottom">#7B8E6B</color>
-    <color name="onboarding_bg_gradient_top">#9BAE8B</color>
     <color name="overlay">#80000000</color>
     <color name="primary">#8B9E7B</color>
     <color name="primary_bg">#C8D8B8</color>
@@ -135,7 +134,7 @@
     <string name="onboarding_title_1">한 가닥의 실이 마음의 여정을 이어줍니다</string>
     <string name="onboarding_title_2">압력 변화를 통해 당신의 긴장도를 측정합니다\n툴을 쥐고 명상을 시작해보세요</string>
     <string name="onboarding_title_3">오늘의 명상을 피드백 해드립니다</string>
-    <string name="onboarding_title_4">당신의 마음을 선물해드립니다</string>
+    <string name="onboarding_title_4">당신의 매듭을 선물해드립니다</string>
     <string name="password_hint_desc">영문, 숫자, 특수문자 중 2가지 이상 조합하여 8-20자리 입력해주세요.</string>
     <string name="pressure_change">압력 변화 요약</string>
     <string name="realtime_chart_label">실시간 압력 그래프</string>
