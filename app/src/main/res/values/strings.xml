@@ -5,9 +5,9 @@
 
     <!-- 온보딩 -->
     <string name="onboarding_title_1">한 가닥의 실이 마음의 여정을 이어줍니다</string>
-    <string name="onboarding_title_2">압력 변화를 통해 당신의 긴장도를 측정합니다\n툴을 쥐고 명상을 시작해보세요</string>
+    <string name="onboarding_title_2">압력 변화를 통해 당신의 긴장도를 측정합니다\돌을 쥐고 명상을 시작해보세요</string>
     <string name="onboarding_title_3">오늘의 명상을 피드백 해드립니다</string>
-    <string name="onboarding_title_4">당신의 마음을 선물해드립니다</string>
+    <string name="onboarding_title_4">당신의 매듭을 선물해드립니다</string>
     <string name="onboarding_skip">건너뛰기</string>
     <string name="onboarding_next">다음</string>
     <string name="onboarding_start">시작하기</string>
@@ -40,6 +40,16 @@
     <string name="signup_complete">가입이 완료되었습니다</string>
     <string name="password_hint_desc">영문, 숫자, 특수문자 중 2가지 이상 조합하여 8-20자리 입력해주세요.</string>
     <string name="email_hint_desc">더 많은 계정을 개설하고자 하는 경우 가입 후 [내정보 > 회원정보 수정]에서 이메일 인증을 진행해주세요.</string>
+
+
+    <string-array name="email_domains">
+        <item>선택</item>
+        <item>naver.com</item>
+        <item>gmail.com</item>
+        <item>daum.net</item>
+        <item>hanmail.net</item>
+        <item>직접 입력</item>
+    </string-array>
 
     <!-- 기준 압력 측정 -->
     <string name="baseline_title">나만의 기준 압력 측정</string>

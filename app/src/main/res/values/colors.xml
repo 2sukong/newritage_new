@@ -16,8 +16,8 @@
     <color name="surface">#FFFFFF</color>
     <color name="card_bg">#FFFFFF</color>
 
-        <color name="gradient_start">#81A68D</color> <color name="gradient_end">#FFF4DC</color>
-
+    <color name="gradient_start">#81A68D</color> <color name="gradient_end">#FFF4DC</color>
+    <color name="onboarding_bg">#81A68D</color>
     <!-- 텍스트 -->
     <color name="text_primary">#2D3A2D</color>
     <color name="text_secondary">#5A6B5A</color>
