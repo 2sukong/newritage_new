@@ -5,31 +5,31 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#F8F9FA"> <FrameLayout
-    android:layout_width="match_parent"
-    android:layout_height="56dp"
     android:background="#F8F9FA">
 
-    <ImageButton
-        android:id="@+id/btnBack"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:background="#F8F9FA">
 
-        android:src="@drawable/back"
+        <ImageButton
+            android:id="@+id/btnBack"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@drawable/back"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:padding="12dp"
+            android:layout_gravity="start|center_vertical"
+            android:layout_marginStart="16dp" />
 
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:padding="12dp"
-        android:layout_gravity="start|center_vertical"
-        android:layout_marginStart="16dp" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="회원가입"
-        android:textSize="18sp"
-        android:textColor="#1A1A1A"
-        android:layout_gravity="center" />
-</FrameLayout>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="회원가입"
+            android:textSize="18sp"
+            android:textColor="#1A1A1A"
+            android:layout_gravity="center" />
+    </FrameLayout>
 
     <ScrollView
         android:id="@+id/layoutSignupForm"
@@ -41,10 +41,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-
             android:background="@drawable/signupcard"
+            android:layout_marginTop="0dp"
 
-            android:paddingTop="32dp"
+            android:paddingTop="48dp"
+
             android:paddingStart="24dp"
             android:paddingEnd="24dp"
             android:paddingBottom="40dp">
@@ -81,7 +82,8 @@
                     android:layout_height="52dp"
                     android:text="중복확인"
                     style="@style/Widget.MaterialComponents.Button"
-                    app:backgroundTint="#89A492" android:textColor="@color/white"
+                    app:backgroundTint="#89A492"
+                    android:textColor="@color/white"
                     android:textSize="14sp"
                     app:cornerRadius="12dp"
                     android:layout_marginStart="12dp"
@@ -92,7 +94,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="영문과 숫자만 사용하여, 영문 대문자로 시작하는 4~12자의 아이디를 입력해주세요."
-                android:textColor="#C08484" android:textSize="12sp"
+                android:textColor="#C08484"
+                android:textSize="12sp"
                 android:layout_marginTop="6dp" />
 
             <TextView
@@ -129,9 +132,7 @@
                     android:textColor="#C08484"
                     android:textSize="13sp"
                     android:layout_alignParentEnd="true"
-
                     android:layout_centerVertical="true"
-
                     android:layout_marginEnd="16dp" />
             </RelativeLayout>
 
@@ -200,7 +201,6 @@
                     android:background="@drawable/grayinput"
                     android:paddingStart="16dp"
                     android:paddingEnd="16dp"
-
                     android:entries="@array/email_domains" />
             </LinearLayout>
 
@@ -245,7 +245,8 @@
                     android:layout_height="52dp"
                     android:text="인증번호 받기"
                     style="@style/Widget.MaterialComponents.Button"
-                    app:backgroundTint="#CBD4C9" android:textColor="@color/white"
+                    app:backgroundTint="#CBD4C9"
+                    android:textColor="@color/white"
                     android:textSize="14sp"
                     app:cornerRadius="12dp"
                     android:layout_marginStart="12dp"
@@ -258,7 +259,8 @@
                 android:layout_height="52dp"
                 android:text="가입하기"
                 style="@style/Widget.MaterialComponents.Button"
-                app:backgroundTint="#CBD4C9" android:textColor="@color/white"
+                app:backgroundTint="#CBD4C9"
+                android:textColor="@color/white"
                 android:textSize="16sp"
                 app:cornerRadius="12dp"
                 android:layout_marginTop="40dp"
