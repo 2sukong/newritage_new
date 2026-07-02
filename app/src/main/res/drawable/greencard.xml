@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <!-- 이미지_6ff97c.png에 맞는 연한 녹색 바탕색 -->
+    <gradient
+        android:startColor="#D3E4CF"
+        android:endColor="#FFFFFF"
+        android:angle="270" />
+    <!-- 상단 좌우 모서리만 둥글게 처리 -->
+    <corners
+        android:topLeftRadius="24dp"
+        android:topRightRadius="24dp" />
+</shape>

@@ -6,126 +6,172 @@
     android:orientation="vertical"
     android:background="@color/background">
 
-    <TextView
+    <!-- 1. 상단 타이틀바 (뒤로가기 + 중앙 타이틀) -->
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="56dp"
-        android:text="@string/analysis_title"
-        android:textSize="18sp"
-        android:textColor="@color/text_primary"
-        android:textStyle="bold"
-        android:gravity="center_vertical"
-        android:paddingStart="24dp" />
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/my_meditation"
-        android:textSize="20sp"
-        android:textColor="@color/text_primary"
-        android:textStyle="bold"
-        android:paddingStart="24dp"
-        android:paddingEnd="24dp"
-        android:paddingTop="8dp" />
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/analysis_desc"
-        android:textSize="14sp"
-        android:textColor="@color/text_secondary"
-        android:paddingStart="24dp"
-        android:paddingEnd="24dp"
-        android:paddingTop="4dp"
-        android:paddingBottom="24dp" />
-
-    <!-- 일간 분석 -->
-    <LinearLayout
-        android:id="@+id/rowDailyAnalysis"
-        android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:paddingStart="24dp"
-        android:paddingEnd="16dp"
-        android:background="@color/surface"
-        android:foreground="?attr/selectableItemBackground">
-
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/daily_analysis"
-            android:textSize="16sp"
-            android:textColor="@color/text_primary" />
+        android:background="@color/background">
 
         <ImageView
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:src="@android:drawable/ic_media_next"
-            android:tint="@color/text_hint" />
-    </LinearLayout>
-
-    <View android:layout_width="match_parent" android:layout_height="1dp"
-        android:background="@color/divider" android:layout_marginStart="24dp" />
-
-    <!-- 주간 분석 -->
-    <LinearLayout
-        android:id="@+id/rowWeeklyAnalysis"
-        android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:paddingStart="24dp"
-        android:paddingEnd="16dp"
-        android:background="@color/surface"
-        android:foreground="?attr/selectableItemBackground">
+            android:id="@+id/btnBack"
+            android:layout_width="48dp"
+            android:layout_height="match_parent"
+            android:layout_alignParentStart="true"
+            android:layout_centerInParent="true"
+            android:scaleType="center"
+            android:src="@drawable/back"
+            android:contentDescription="뒤로가기" />
 
         <TextView
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/weekly_analysis"
+            android:layout_centerInParent="true"
+            android:text="@string/analysis_title"
             android:textSize="16sp"
-            android:textColor="@color/text_primary" />
+            android:textColor="@color/text_primary"
+            android:textStyle="bold" />
+    </RelativeLayout>
 
-        <ImageView
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:src="@android:drawable/ic_media_next"
-            android:tint="@color/text_hint" />
-    </LinearLayout>
-
-    <View android:layout_width="match_parent" android:layout_height="1dp"
-        android:background="@color/divider" android:layout_marginStart="24dp" />
-
-    <!-- 월간 분석 -->
+    <!-- 2. 하단 콘텐츠 카드 영역 (좌우 패딩을 제거하여 화면 끝까지 꽉 차게 만듭니다) -->
     <LinearLayout
-        android:id="@+id/rowMonthlyAnalysis"
         android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:paddingStart="24dp"
-        android:paddingEnd="16dp"
-        android:background="@color/surface"
-        android:foreground="?attr/selectableItemBackground">
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="@drawable/greencard"
+        android:orientation="vertical"
+        android:paddingTop="40dp"> <!-- 상단 패딩 40dp만 유지 -->
 
+        <!-- 나의 명상 타이틀 (개별 좌우 마진 부여) -->
         <TextView
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/monthly_analysis"
-            android:textSize="16sp"
-            android:textColor="@color/text_primary" />
+            android:layout_marginStart="24dp"
+            android:layout_marginEnd="24dp"
+            android:text="@string/my_meditation"
+            android:textColor="#607D67"
+            android:textSize="22sp"
+            android:textStyle="bold" />
 
-        <ImageView
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:src="@android:drawable/ic_media_next"
-            android:tint="@color/text_hint" />
+        <!-- 설명 문구 (개별 좌우 마진 부여) -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:layout_marginEnd="24dp"
+            android:paddingTop="12dp"
+            android:text="@string/analysis_desc"
+            android:textColor="@color/text_secondary"
+            android:textSize="14sp" />
+
+        <!-- 3. 일간 분석 리스트 아이템 (내부에 paddingStart/End를 주어 글자만 안으로 밀기) -->
+        <LinearLayout
+            android:id="@+id/rowDailyAnalysis"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginTop="60dp"
+            android:background="@android:color/transparent"
+            android:foreground="?attr/selectableItemBackground"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="24dp"
+            android:paddingEnd="24dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/daily_analysis"
+                android:textColor="@color/text_primary"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:contentDescription="이동"
+                android:src="@drawable/next" />
+        </LinearLayout>
+
+        <!-- 구분선: 이제 부모인 카드가 패딩이 없으므로 좌우 끝까지 꽉 찹니다 -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginStart="24dp"
+            android:layout_marginEnd="24dp"
+            android:background="#CCE0D0" />
+
+        <!-- 4. 주간 분석 리스트 아이템 -->
+        <LinearLayout
+            android:id="@+id/rowWeeklyAnalysis"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginTop="40dp"
+            android:background="@android:color/transparent"
+            android:foreground="?attr/selectableItemBackground"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="24dp"
+            android:paddingEnd="24dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/weekly_analysis"
+                android:textColor="@color/text_primary"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:contentDescription="이동"
+                android:src="@drawable/next" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginStart="24dp"
+            android:layout_marginEnd="24dp"
+            android:background="#CCE0D0" />
+
+        <!-- 5. 월간 분석 리스트 아이템 -->
+        <LinearLayout
+            android:id="@+id/rowMonthlyAnalysis"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginTop="40dp"
+            android:background="@android:color/transparent"
+            android:foreground="?attr/selectableItemBackground"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="24dp"
+            android:paddingEnd="24dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/monthly_analysis"
+                android:textColor="@color/text_primary"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:contentDescription="이동"
+                android:src="@drawable/next" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginStart="24dp"
+            android:layout_marginEnd="24dp"
+            android:background="#CCE0D0" />
+
     </LinearLayout>
-
-    <View android:layout_width="match_parent" android:layout_height="1dp"
-        android:background="@color/divider" android:layout_marginStart="24dp" />
 
 </LinearLayout>

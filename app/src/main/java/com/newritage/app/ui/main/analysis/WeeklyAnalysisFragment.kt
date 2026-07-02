@@ -36,6 +36,8 @@ class WeeklyAnalysisFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.btnBack.setOnClickListener { parentFragmentManager.popBackStack() }
+
+        // XML 파일의 화살표 ID가 주간용 명칭인 btnPrevWeek / btnNextWeek 인지 체크하세요!
         binding.btnPrevWeek.setOnClickListener {
             currentWeekStart.add(Calendar.WEEK_OF_YEAR, -1)
             loadData()
@@ -55,6 +57,7 @@ class WeeklyAnalysisFragment : Fragment() {
             setTouchEnabled(false)
             xAxis.position = XAxis.XAxisPosition.BOTTOM
             xAxis.textColor = Color.parseColor("#5A6B5A")
+            xAxis.setDrawGridLines(false) // 격자 제거로 일관된 디자인 유지
             axisLeft.textColor = Color.parseColor("#5A6B5A")
             axisRight.isEnabled = false
         }
@@ -67,26 +70,30 @@ class WeeklyAnalysisFragment : Fragment() {
 
         val startStr = sdf.format(currentWeekStart.time)
         val endStr = sdf.format(weekEnd.time)
-        binding.tvWeekLabel.text = "$startStr ~ $endStr"
+
+        // [수정] XML 날짜 라벨 ID 규칙인 tvDateLabel로 명칭 변경
+        binding.tvDateLabel.text = "$startStr ~ $endStr"
 
         lifecycleScope.launch {
             val db = AppDatabase.getInstance(requireContext())
             val sessions = db.sessionDao().getSessionsInRange(startStr, endStr)
 
             if (sessions.isNotEmpty()) {
-                binding.tvNoData.visibility = View.GONE
-                binding.layoutStats.visibility = View.VISIBLE
-
+                // [수정] 데이터가 존재할 때 수치 연산
                 val avgPressure = sessions.map { it.avgPressure }.average().toFloat()
                 val maxPressure = sessions.maxOf { it.maxPressure }
+                val minPressure = sessions.minOf { it.minPressure } // 주간 최저 압력 연산 추가
                 val totalTime = sessions.sumOf { it.durationSeconds }
                 val count = sessions.size
 
-                binding.tvAvg.text = String.format("%.1f", avgPressure)
-                binding.tvMax.text = String.format("%.1f", maxPressure)
+                // [수정] 상단 5개 칸 공통 ID 매핑 규칙 적용
+                binding.tvAvgPressure1.text = String.format("%.1f", avgPressure) // 주간 평균
+                binding.tvAvgPressure2.text = String.format("%.1f", minPressure) // 주간 최저
+                binding.tvAvgPressure3.text = String.format("%.1f", maxPressure) // 주간 최고
+
                 val min = totalTime / 60; val sec = totalTime % 60
-                binding.tvMedTime.text = String.format("%02d:%02d", min, sec)
-                binding.tvCount.text = "${count}회"
+                binding.tvMedTime.text = String.format("%02d:%02d", min, sec)   // 주간 총 시간
+                binding.tvMedCount.text = count.toString()                      // 주간 총 횟수
 
                 // 일별 평균 그래프
                 val entries = sessions.mapIndexed { i, s ->
@@ -106,8 +113,12 @@ class WeeklyAnalysisFragment : Fragment() {
                 binding.lineChart.data = LineData(dataSet)
                 binding.lineChart.invalidate()
             } else {
-                binding.tvNoData.visibility = View.VISIBLE
-                binding.layoutStats.visibility = View.GONE
+                // [수정] 데이터가 없는 기간일 때 크래시 방지 및 안전 처리
+                binding.tvAvgPressure1.text = "--.-"
+                binding.tvAvgPressure2.text = "--.-"
+                binding.tvAvgPressure3.text = "--.-"
+                binding.tvMedTime.text = "--:--"
+                binding.tvMedCount.text = "-"
                 binding.lineChart.clear()
             }
         }
