@@ -19,6 +19,10 @@ class UserPreferences(context: Context) {
         private const val KEY_BASELINE_PRESSURE = "baseline_pressure"
         private const val KEY_AUTO_LOGIN = "auto_login"
         private const val KEY_LAST_SESSION_ID = "last_session_id"
+        private const val KEY_TIMER_VIBRATION_ENABLED = "timer_vibration_enabled"
+        private const val KEY_TENSION_VIBRATION_ENABLED = "tension_vibration_enabled"
+        private const val KEY_TIMER_VIBRATION_PATTERN_ID = "timer_vibration_pattern_id"
+        private const val KEY_TENSION_VIBRATION_PATTERN_ID = "tension_vibration_pattern_id"
     }
 
     /** 온보딩 완료 여부 */
@@ -55,6 +59,26 @@ class UserPreferences(context: Context) {
     var lastSessionId: Long
         get() = prefs.getLong(KEY_LAST_SESSION_ID, -1L)
         set(value) = prefs.edit().putLong(KEY_LAST_SESSION_ID, value).apply()
+
+    /** 타이머 진동 사용 여부 */
+    var isTimerVibrationEnabled: Boolean
+        get() = prefs.getBoolean(KEY_TIMER_VIBRATION_ENABLED, true)
+        set(value) = prefs.edit().putBoolean(KEY_TIMER_VIBRATION_ENABLED, value).apply()
+
+    /** 긴장도 진동 사용 여부 */
+    var isTensionVibrationEnabled: Boolean
+        get() = prefs.getBoolean(KEY_TENSION_VIBRATION_ENABLED, true)
+        set(value) = prefs.edit().putBoolean(KEY_TENSION_VIBRATION_ENABLED, value).apply()
+
+    /** 타이머 진동 패턴 ID */
+    var timerVibrationPatternId: String?
+        get() = prefs.getString(KEY_TIMER_VIBRATION_PATTERN_ID, null)
+        set(value) = prefs.edit().putString(KEY_TIMER_VIBRATION_PATTERN_ID, value).apply()
+
+    /** 긴장도 진동 패턴 ID */
+    var tensionVibrationPatternId: String?
+        get() = prefs.getString(KEY_TENSION_VIBRATION_PATTERN_ID, null)
+        set(value) = prefs.edit().putString(KEY_TENSION_VIBRATION_PATTERN_ID, value).apply()
 
     /** 로그아웃 */
     fun logout() {

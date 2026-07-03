@@ -68,6 +68,21 @@
             android:name=".ui.measurement.SessionCompleteActivity"
             android:exported="false" />
 
+        <!-- 설정 -->
+        <activity
+            android:name=".ui.settings.SettingsActivity"
+            android:exported="false" />
+
+        <!-- 진동 설정 -->
+        <activity
+            android:name=".ui.settings.VibrationSettingsActivity"
+            android:exported="false" />
+
+        <!-- 진동 패턴 선택 -->
+        <activity
+            android:name=".ui.settings.VibrationListActivity"
+            android:exported="false" />
+
     </application>
 
 </manifest>

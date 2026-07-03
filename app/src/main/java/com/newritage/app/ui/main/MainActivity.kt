@@ -10,6 +10,7 @@ import com.newritage.app.ui.main.knot.KnotStorageFragment
 import com.newritage.app.ui.main.record.RecordFragment
 import com.newritage.app.ui.main.thread.ThreadStorageFragment
 import com.newritage.app.ui.measurement.MeasurementActivity
+import com.newritage.app.ui.settings.SettingsActivity
 
 class MainActivity : AppCompatActivity() {
 
@@ -67,8 +68,8 @@ class MainActivity : AppCompatActivity() {
                     true
                 }
                 R.id.nav_settings -> {
-                    // 설정 페이지 미구현
-                    true
+                    startActivity(Intent(this, SettingsActivity::class.java))
+                    false
                 }
                 else -> false
             }

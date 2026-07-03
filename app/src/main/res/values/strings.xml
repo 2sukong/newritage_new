@@ -146,8 +146,34 @@
     <string name="no_data">데이터가 없습니다.</string>
     <string name="times_unit">회</string>
 
+    <!-- 진동 설정 -->
+    <string name="btn_select_complete">선택 완료</string>
+    <string name="vibration_settings_title">진동 설정</string>
+    <string name="vibration_type_select_desc">진동을 울릴 방식을 선택해주세요.</string>
+    <string name="vibration_timer_title">타이머</string>
+    <string name="vibration_timer_desc">설정한 시간이 지나면 진동이 울립니다.</string>
+    <string name="vibration_tension_title">긴장도</string>
+    <string name="vibration_tension_desc">긴장도가 기준을 초과하면 진동이 울립니다.</string>
+    <string name="vibration_timer_select_desc">타이머 진동으로 사용할 패턴을 선택해주세요.</string>
+    <string name="vibration_tension_select_desc">긴장도 진동으로 사용할 패턴을 선택해주세요.</string>
+
     <!-- 설정 -->
     <string name="settings_title">설정</string>
+    <string name="settings_group_account">계정</string>
+    <string name="settings_account_manage">계정 관리</string>
+    <string name="settings_group_security">보안</string>
+    <string name="settings_password">비밀번호 변경</string>
+    <string name="settings_group_app">앱</string>
+    <string name="settings_notification_reset">알림 초기화</string>
+    <string name="settings_group_pressure">압력</string>
+    <string name="settings_measure_standard">측정 기준 설정</string>
+    <string name="settings_group_vibration">진동</string>
+    <string name="settings_vibration_manage">진동 관리</string>
+    <string name="settings_group_help">고객지원</string>
+    <string name="settings_notice">공지사항</string>
+    <string name="settings_cs">고객센터</string>
+    <string name="settings_guide">이용 가이드</string>
+    <string name="feature_in_progress">준비 중인 기능입니다.</string>
 
     <!-- 공통 -->
     <string name="btn_back">뒤로</string>

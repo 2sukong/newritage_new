@@ -1,5 +1,7 @@
 package com.newritage.app.stats
 
+import com.newritage.app.data.SensorReading
+
 data class PressureStats(
     val max: Float,
     val min: Float,
