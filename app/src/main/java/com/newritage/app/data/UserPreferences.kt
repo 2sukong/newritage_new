@@ -45,7 +45,7 @@ class UserPreferences(context: Context) {
         get() = prefs.getBoolean(KEY_BASELINE_DONE, false)
         set(value) = prefs.edit().putBoolean(KEY_BASELINE_DONE, value).apply()
 
-    /** 기준 압력 값 (kPa) */
+    /** 기준 압력 값 — BLE SENSOR 특성의 total(f0+f1+f2, raw ADC 0~12285) 평균 */
     var baselinePressure: Float
         get() = prefs.getFloat(KEY_BASELINE_PRESSURE, 30f)
         set(value) = prefs.edit().putFloat(KEY_BASELINE_PRESSURE, value).apply()

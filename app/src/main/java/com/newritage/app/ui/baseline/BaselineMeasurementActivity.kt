@@ -6,13 +6,14 @@ import android.os.Handler
 import android.os.Looper
 import android.view.View
 import android.widget.Button
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.newritage.app.R
+import com.newritage.app.ble.BleManager
 import com.newritage.app.data.UserPreferences
 import com.newritage.app.databinding.ActivityBaselineMeasurementBinding
 import com.newritage.app.ui.main.MainActivity
-import kotlin.random.Random
 
 class BaselineMeasurementActivity : AppCompatActivity() {
 
@@ -27,6 +28,16 @@ class BaselineMeasurementActivity : AppCompatActivity() {
     private val measureDuration = 180
     private val pressureReadings = mutableListOf<Float>()
 
+    // BLE SENSOR 특성에서 마지막으로 받은 total(f0+f1+f2) 값
+    private var latestTotal = 0
+
+    private val permissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { granted ->
+            if (granted.values.all { it }) {
+                BleManager.startScan(this)
+            }
+        }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityBaselineMeasurementBinding.inflate(layoutInflater)
@@ -35,6 +46,7 @@ class BaselineMeasurementActivity : AppCompatActivity() {
         prefs = UserPreferences(this)
 
         setupUI()
+        connectBle()
 
         // 🌟 수정: 화면 레이아웃 배치가 완전히 끝난 직후(Queue에 들어간 후) 안전하게 팝업을 띄우도록 핸들러 활용
         handler.post {
@@ -42,6 +54,24 @@ class BaselineMeasurementActivity : AppCompatActivity() {
                 showMeasurementGuideDialog()
             }
         }
+    }
+
+    private fun connectBle() {
+        if (BleManager.hasRequiredPermissions(this)) {
+            BleManager.startScan(this)
+        } else {
+            permissionLauncher.launch(BleManager.requiredPermissions())
+        }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        BleManager.onSensorData = { _, _, _, total -> latestTotal = total }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        BleManager.onSensorData = null
     }
 
     private fun setupUI() {
@@ -102,10 +132,8 @@ class BaselineMeasurementActivity : AppCompatActivity() {
 
             elapsedSeconds++
 
-            // 💡 [실제 하드웨어 연결 구간]
-            // 나중에 블루투스로 받아올 실제 압력값(mmHg 단위)이 들어갈 자리입니다.
-            // 현재는 테스트를 위해 랜덤 값(mmHg 가상 데이터)으로 시뮬레이션합니다.
-            val rawPressure = 35f + Random.nextFloat() * 15f
+            // BLE SENSOR 특성에서 흘러들어온 실제 total(f0+f1+f2) 값을 그대로 사용
+            val rawPressure = latestTotal.toFloat()
             pressureReadings.add(rawPressure)
 
             val elapsed = elapsedSeconds

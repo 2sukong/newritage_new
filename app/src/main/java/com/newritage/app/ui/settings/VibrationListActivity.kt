@@ -6,10 +6,12 @@ import android.os.Handler
 import android.os.Looper
 import android.os.VibrationEffect
 import android.os.Vibrator
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.newritage.app.R
+import com.newritage.app.ble.BleManager
 import com.newritage.app.data.UserPreferences
 import com.newritage.app.databinding.ActivityVibrationListBinding
 
@@ -38,6 +40,22 @@ class VibrationListActivity : AppCompatActivity() {
         vibrator = ContextCompat.getSystemService(this, Vibrator::class.java)!!
 
         setupUI()
+        connectBle()
+    }
+
+    private val permissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { granted ->
+            if (granted.values.all { it }) {
+                BleManager.startScan(this)
+            }
+        }
+
+    private fun connectBle() {
+        if (BleManager.hasRequiredPermissions(this)) {
+            BleManager.startScan(this)
+        } else {
+            permissionLauncher.launch(BleManager.requiredPermissions())
+        }
     }
 
     private fun setupUI() {
@@ -89,6 +107,7 @@ class VibrationListActivity : AppCompatActivity() {
         }
         vibrator.cancel()
         vibrator.vibrate(VibrationEffect.createWaveform(pattern.timings, -1))
+        BleManager.sendVibration(pattern.effect)
         adapter.playingId = pattern.id
 
         previewRunnable?.let { previewHandler.removeCallbacks(it) }
