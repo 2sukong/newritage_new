@@ -2,28 +2,28 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:id="@+id/nav_record"
-        android:icon="@android:drawable/ic_menu_recent_history"
-        android:title="@string/nav_record" />
+        android:id="@+id/nav_home"
+        android:icon="@drawable/ic_nav_home"
+        android:title="@string/nav_home" />
 
     <item
         android:id="@+id/nav_thread"
-        android:icon="@android:drawable/ic_menu_gallery"
+        android:icon="@drawable/ic_nav_thread"
         android:title="@string/nav_thread" />
 
     <item
         android:id="@+id/nav_knot"
-        android:icon="@android:drawable/ic_menu_compass"
+        android:icon="@drawable/ic_nav_knot"
         android:title="@string/nav_knot" />
 
     <item
         android:id="@+id/nav_analysis"
-        android:icon="@android:drawable/ic_menu_info_details"
+        android:icon="@drawable/ic_nav_analysis"
         android:title="@string/nav_analysis" />
 
     <item
         android:id="@+id/nav_settings"
-        android:icon="@android:drawable/ic_menu_preferences"
+        android:icon="@drawable/ic_nav_settings"
         android:title="@string/nav_settings" />
 
 </menu>

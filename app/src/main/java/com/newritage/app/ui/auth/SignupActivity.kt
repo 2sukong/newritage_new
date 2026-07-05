@@ -78,7 +78,6 @@ class SignupActivity : AppCompatActivity() {
         prefs.username = id
         prefs.isLoggedIn = true
 
-        // 🛠 [변경 포인트] 기존 layout 숨김 처리를 지우고 예쁜 커스텀 다이얼로그 팝업을 띄웁니다!
         val dialog = SignupCompleteDialog()
         dialog.show(supportFragmentManager, "SignupCompleteDialog")
     }

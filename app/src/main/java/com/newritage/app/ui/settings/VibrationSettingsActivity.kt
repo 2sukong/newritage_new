@@ -3,6 +3,7 @@ package com.newritage.app.ui.settings
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import com.newritage.app.ble.VibrationType
 import com.newritage.app.databinding.ActivityVibrationSettingsBinding
 
 class VibrationSettingsActivity : AppCompatActivity() {

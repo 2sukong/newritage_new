@@ -7,12 +7,12 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
-import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.newritage.app.data.AppDatabase
 import com.newritage.app.databinding.FragmentMonthlyAnalysisBinding
+import com.newritage.app.ui.util.applyAnalysisStyle
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -56,21 +56,11 @@ class MonthlyAnalysisFragment : Fragment() {
     }
 
     private fun setupChart() {
-        binding.lineChart.apply {
-            description.isEnabled = false
-            legend.isEnabled = false
-            setTouchEnabled(false)
-            xAxis.position = XAxis.XAxisPosition.BOTTOM
-            xAxis.textColor = Color.parseColor("#5A6B5A")
-            xAxis.setDrawGridLines(false) // 격자 제거로 스크롤 레이아웃과 디자인 통일
-            axisLeft.textColor = Color.parseColor("#5A6B5A")
-            axisRight.isEnabled = false
-        }
+        binding.lineChart.applyAnalysisStyle()
     }
 
     private fun loadData() {
         val yearMonth = SimpleDateFormat("yyyy-MM", Locale.getDefault()).format(currentMonth.time)
-        // [수정] XML의 날짜 라벨 ID인 tvDateLabel로 명칭 변경 (2026.05 형식으로 깔끔하게 노출)
         binding.tvDateLabel.text = SimpleDateFormat("yyyy.MM", Locale.getDefault()).format(currentMonth.time)
 
         lifecycleScope.launch {
@@ -78,17 +68,16 @@ class MonthlyAnalysisFragment : Fragment() {
             val sessions = db.sessionDao().getSessionsByMonth(yearMonth)
 
             if (sessions.isNotEmpty()) {
-                // [수정] 한 달 동안 누적된 데이터를 조건대로 연산 가공
                 val avgPressure = sessions.map { it.avgPressure }.average().toFloat()
                 val maxPressure = sessions.maxOf { it.maxPressure }
-                val minPressure = sessions.minOf { it.minPressure } // 월간 최저 압력 연산 추가
+                val minPressure = sessions.minOf { it.minPressure }
                 val totalTime = sessions.sumOf { it.durationSeconds }
                 val count = sessions.size
 
-                // [수정] 월간 XML 구조와 완벽히 동일한 ID 규칙으로 그릇 채우기
+                // 월간 XML 구조와 동일한 ID 규칙(2=최저, 3=최고)으로 채우기
                 binding.tvAvgPressure1.text = String.format("%.1f", avgPressure) // 월간 평균
-                binding.tvAvgPressure2.text = String.format("%.1f", maxPressure) // 월간 최고
-                binding.tvAvgPressure3.text = String.format("%.1f", minPressure) // 월간 최저
+                binding.tvAvgPressure2.text = String.format("%.1f", minPressure) // 월간 최저
+                binding.tvAvgPressure3.text = String.format("%.1f", maxPressure) // 월간 최고
 
                 val min = totalTime / 60; val sec = totalTime % 60
                 binding.tvMedTime.text = String.format("%02d:%02d", min, sec)   // 월간 총 명상 시간
@@ -107,7 +96,6 @@ class MonthlyAnalysisFragment : Fragment() {
                 binding.lineChart.data = LineData(dataSet)
                 binding.lineChart.invalidate()
             } else {
-                // [수정] 해당 월에 데이터가 전혀 없을 때 튕기거나 숨기지 않고 빈 값 방어 처리
                 binding.tvAvgPressure1.text = "--.-"
                 binding.tvAvgPressure2.text = "--.-"
                 binding.tvAvgPressure3.text = "--.-"

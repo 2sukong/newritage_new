@@ -49,7 +49,8 @@ class KnotStorageFragment : Fragment() {
         lifecycleScope.launch {
             val db = AppDatabase.getInstance(requireContext())
             val sessions = db.sessionDao().getSessionsByMonth(yearMonth)
-            val dateSet = sessions.map { it.date }.toSet()
+            // 매듭은 하루 첫 세션(hasThread=true)에만 생김
+            val dateSet = sessions.filter { it.hasThread }.map { it.date }.toSet()
             renderCalendar(yearMonth, dateSet)
         }
     }
@@ -69,6 +70,15 @@ class KnotStorageFragment : Fragment() {
             cellView.findViewById<TextView>(R.id.tvDay).text = day.toString()
             cellView.findViewById<View>(R.id.knotIndicator).visibility =
                 if (hasKnot) View.VISIBLE else View.INVISIBLE
+
+            if (hasKnot) {
+                cellView.setOnClickListener {
+                    parentFragmentManager.beginTransaction()
+                        .replace(R.id.fragmentContainer, KnotDetailFragment.newInstance(dateStr))
+                        .addToBackStack(null)
+                        .commit()
+                }
+            }
             grid.addView(cellView)
         }
     }

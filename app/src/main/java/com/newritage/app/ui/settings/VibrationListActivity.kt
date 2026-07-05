@@ -12,6 +12,9 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.newritage.app.R
 import com.newritage.app.ble.BleManager
+import com.newritage.app.ble.VibrationPattern
+import com.newritage.app.ble.VibrationPatterns
+import com.newritage.app.ble.VibrationType
 import com.newritage.app.data.UserPreferences
 import com.newritage.app.databinding.ActivityVibrationListBinding
 

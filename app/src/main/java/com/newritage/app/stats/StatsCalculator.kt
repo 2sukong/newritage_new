@@ -12,6 +12,10 @@ data class PressureStats(
 class StatsCalculator {
 
     fun calculate(values: List<Float>): PressureStats {
+        if (values.isEmpty()) {
+            return PressureStats(max = 0f, min = 0f, avg = 0f, median = 0f)
+        }
+
         val sorted = values.sorted()
         val median = if (sorted.size % 2 == 0) {
             (sorted[sorted.size / 2 - 1] + sorted[sorted.size / 2]) / 2f

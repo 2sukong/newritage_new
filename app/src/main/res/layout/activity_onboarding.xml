@@ -5,15 +5,19 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <View
+        android:id="@+id/bgGradient"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/bg_onboarding_page_gradient" />
+
     <ImageView
-        android:id="@+id/bg_image_view"
+        android:id="@+id/bgImage"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:src="@drawable/background"
         android:scaleType="centerCrop"
-        android:background="@drawable/bg_onboarding_gradient"
-        app:tint="#80000000"
-        app:tintMode="src_atop" />
+        android:alpha="0.45" />
 
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/viewPager"

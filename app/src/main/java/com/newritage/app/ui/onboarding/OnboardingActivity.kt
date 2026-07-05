@@ -9,13 +9,12 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
-import androidx.viewpager2.widget.ViewPager2
-import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import com.newritage.app.R
 import com.newritage.app.data.UserPreferences
 import com.newritage.app.databinding.ActivityOnboardingBinding
 import com.newritage.app.ui.auth.StartActivity
+
 
 class OnboardingActivity : AppCompatActivity() {
 
@@ -24,9 +23,9 @@ class OnboardingActivity : AppCompatActivity() {
 
     private val pages = listOf(
         OnboardingPage(R.string.onboarding_title_1, R.drawable.logo),
-        OnboardingPage(R.string.onboarding_title_2, R.drawable.onboarding1), // 새로 넣은 png 파일명에 맞게 수정
-        OnboardingPage(R.string.onboarding_title_3, R.drawable.onboarding2), // 새로 넣은 png 파일명에 맞게 수정
-        OnboardingPage(R.string.onboarding_title_4, R.drawable.onboarding3)  // 새로 넣은 png 파일명에 맞게 수정
+        OnboardingPage(R.string.onboarding_title_2, R.drawable.onboarding1),
+        OnboardingPage(R.string.onboarding_title_3, R.drawable.onboarding2),
+        OnboardingPage(R.string.onboarding_title_4, R.drawable.onboarding3)
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {

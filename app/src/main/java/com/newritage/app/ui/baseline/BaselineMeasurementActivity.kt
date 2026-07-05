@@ -5,15 +5,13 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.view.View
-import android.widget.Button
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import com.google.android.material.bottomsheet.BottomSheetDialog
-import com.newritage.app.R
 import com.newritage.app.ble.BleManager
 import com.newritage.app.data.UserPreferences
 import com.newritage.app.databinding.ActivityBaselineMeasurementBinding
 import com.newritage.app.ui.main.MainActivity
+import com.newritage.app.ui.util.WaveStyle
 
 class BaselineMeasurementActivity : AppCompatActivity() {
 
@@ -27,8 +25,14 @@ class BaselineMeasurementActivity : AppCompatActivity() {
     // 30초에서 3분(180초) 측정으로 변경
     private val measureDuration = 180
     private val pressureReadings = mutableListOf<Float>()
+    private val thumbReadings = mutableListOf<Float>()
+    private val imReadings = mutableListOf<Float>()
+    private val palmReadings = mutableListOf<Float>()
 
-    // BLE SENSOR 특성에서 마지막으로 받은 total(f0+f1+f2) 값
+    // BLE SENSOR 특성에서 마지막으로 받은 f0(엄지)/f1(검지·중지)/f2(손바닥)/total 값
+    private var latestThumb = 0
+    private var latestIm = 0
+    private var latestPalm = 0
     private var latestTotal = 0
 
     private val permissionLauncher =
@@ -47,13 +51,6 @@ class BaselineMeasurementActivity : AppCompatActivity() {
 
         setupUI()
         connectBle()
-
-        // 🌟 수정: 화면 레이아웃 배치가 완전히 끝난 직후(Queue에 들어간 후) 안전하게 팝업을 띄우도록 핸들러 활용
-        handler.post {
-            if (!isFinishing) { // 액티비티가 살아있는지 검증
-                showMeasurementGuideDialog()
-            }
-        }
     }
 
     private fun connectBle() {
@@ -66,7 +63,12 @@ class BaselineMeasurementActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-        BleManager.onSensorData = { _, _, _, total -> latestTotal = total }
+        BleManager.onSensorData = { f0, f1, f2, total ->
+            latestThumb = f0
+            latestIm = f1
+            latestPalm = f2
+            latestTotal = total
+        }
     }
 
     override fun onStop() {
@@ -92,36 +94,17 @@ class BaselineMeasurementActivity : AppCompatActivity() {
         }
     }
 
-    /**
-     * 팝업 다이얼로그를 생성하고 띄우는 함수
-     */
-    private fun showMeasurementGuideDialog() {
-        val dialog = BottomSheetDialog(this)
-
-        // 미리 만들어둔 dialog_baseline_measurement_complete.xml 주입
-        val dialogView = layoutInflater.inflate(R.layout.dialog_baseline_measurement_complete, null)
-        dialog.setContentView(dialogView)
-
-        // 🌟 1. 팝업 화면 전체(최상위 레이아웃)를 터치하면 닫히도록 설정
-        dialogView.setOnClickListener {
-            dialog.dismiss() // 팝업창 닫기 ➔ 뒤에 있던 준비 화면이 보임
-        }
-
-        // 🌟 2. 팝업창 바깥의 어두운 빈 공간을 터치해도 자동으로 꺼지도록 변경 (true)
-        dialog.setCanceledOnTouchOutside(true)
-
-        dialog.show()
-    }
-
     private fun startMeasurement() {
         showScreen(Screen.MEASURING)
         measuring = true
         elapsedSeconds = 0
         pressureReadings.clear()
+        thumbReadings.clear()
+        imReadings.clear()
+        palmReadings.clear()
 
-        // 새로 교체한 원형 프로그레스 바(circularProgressBar) 맥스값 설정
-        binding.circularProgressBar.max = measureDuration
-        binding.circularProgressBar.progress = 0
+        binding.waveView.setWaveStyle(WaveStyle.MEASURING)
+        binding.waveView.startWave()
 
         measureLoop.run()
     }
@@ -132,24 +115,24 @@ class BaselineMeasurementActivity : AppCompatActivity() {
 
             elapsedSeconds++
 
-            // BLE SENSOR 특성에서 흘러들어온 실제 total(f0+f1+f2) 값을 그대로 사용
+            // BLE SENSOR 특성에서 흘러들어온 실제 f0/f1/f2/total 값을 그대로 사용
             val rawPressure = latestTotal.toFloat()
             pressureReadings.add(rawPressure)
+            thumbReadings.add(latestThumb.toFloat())
+            imReadings.add(latestIm.toFloat())
+            palmReadings.add(latestPalm.toFloat())
 
             val elapsed = elapsedSeconds
 
             // 1. 하단 흰색 박스 안의 타이머 분:초 갱신 (tvLiveTimer)
             binding.tvLiveTimer.text = String.format("%d:%02d", elapsed / 60, elapsed % 60)
 
-            // 2. 원형 프로그레스 바 테두리 1초씩 차오르게 하기
-            binding.circularProgressBar.progress = elapsed
-
-            // 3. 중앙에 실시간 수신된 단일 압력값 표기 (정수형 예시)
+            // 2. 중앙에 실시간 수신된 단일 압력값 표기 (정수형 예시)
             binding.tvLivePressureValue.text = String.format("%d", rawPressure.toInt())
 
-            // 4. 원 내부의 물결 애니메이션 수위 실시간 조절 (진행률 0.0 ~ 1.0)
-            val currentProgressLevel = elapsed.toFloat() / measureDuration
-            binding.waveAnimationView.setWaveProgress(currentProgressLevel)
+            // 3. 원 내부의 물결 높이를 실시간 압력에 맞춰 조절 (센서 이론상 최댓값 12285 기준 0~80 스케일로 정규화)
+            val waveInput = (rawPressure / 12285f).coerceIn(0f, 1f) * 80f
+            binding.waveView.setPressure(waveInput)
 
             if (elapsedSeconds >= measureDuration) {
                 completeMeasurement()
@@ -162,9 +145,12 @@ class BaselineMeasurementActivity : AppCompatActivity() {
     private fun completeMeasurement() {
         measuring = false
         handler.removeCallbacks(measureLoop)
+        binding.waveView.stopWave()
 
-        val baselinePressure = pressureReadings.average().toFloat()
-        prefs.baselinePressure = baselinePressure
+        prefs.baselineOverall = pressureReadings.average().toFloat()
+        prefs.baselineThumb = thumbReadings.average().toFloat()
+        prefs.baselineIM = imReadings.average().toFloat()
+        prefs.baselinePalm = palmReadings.average().toFloat()
         prefs.isBaselineDone = true
 
         // 세 번째 완료 화면 중앙 원 안에 최종 결과 표기

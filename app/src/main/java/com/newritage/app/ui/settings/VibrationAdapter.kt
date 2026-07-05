@@ -4,6 +4,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.newritage.app.R
+import com.newritage.app.ble.VibrationPattern
 import com.newritage.app.databinding.ItemVibrationBinding
 
 class VibrationAdapter(

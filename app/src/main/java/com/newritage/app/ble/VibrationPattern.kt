@@ -1,4 +1,4 @@
-package com.newritage.app.ui.settings
+package com.newritage.app.ble
 
 /** 진동 설정 유형 */
 enum class VibrationType {
