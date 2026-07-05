@@ -5,9 +5,9 @@
 
     <!-- 온보딩 -->
     <string name="onboarding_title_1">한 가닥의 실이 마음의 여정을 이어줍니다</string>
-    <string name="onboarding_title_2">압력 변화를 통해 당신의 긴장도를 측정합니다\n툴을 쥐고 명상을 시작해보세요</string>
+    <string name="onboarding_title_2">압력 변화를 통해 당신의 긴장도를 측정합니다\돌을 쥐고 명상을 시작해보세요</string>
     <string name="onboarding_title_3">오늘의 명상을 피드백 해드립니다</string>
-    <string name="onboarding_title_4">당신의 마음을 선물해드립니다</string>
+    <string name="onboarding_title_4">당신의 매듭을 선물해드립니다</string>
     <string name="onboarding_skip">건너뛰기</string>
     <string name="onboarding_next">다음</string>
     <string name="onboarding_start">시작하기</string>
@@ -41,6 +41,16 @@
     <string name="password_hint_desc">영문, 숫자, 특수문자 중 2가지 이상 조합하여 8-20자리 입력해주세요.</string>
     <string name="email_hint_desc">더 많은 계정을 개설하고자 하는 경우 가입 후 [내정보 > 회원정보 수정]에서 이메일 인증을 진행해주세요.</string>
 
+
+    <string-array name="email_domains">
+        <item>선택</item>
+        <item>naver.com</item>
+        <item>gmail.com</item>
+        <item>daum.net</item>
+        <item>hanmail.net</item>
+        <item>직접 입력</item>
+    </string-array>
+
     <!-- 기준 압력 측정 -->
     <string name="baseline_title">나만의 기준 압력 측정</string>
     <string name="baseline_desc">기기의 연결이 완료되면 기기를 쥐고\n편안하게 긴장을 풀어주세요.</string>
@@ -67,36 +77,29 @@
 
     <!-- 세션 완료 -->
     <string name="session_complete_title">측정이 완료되었습니다</string>
+    <string name="streak_days_format">누적 %1$d일째 실천 중이에요</string>
     <string name="btn_go_main">메인화면으로</string>
-
-    <!-- 오늘의 기록 -->
-    <string name="record_title">오늘의 기록</string>
-    <string name="label_meditation_time">명상 시간</string>
-    <string name="label_avg_pressure">평균 긴장도</string>
-    <string name="label_max_min_pressure">최고/최저 압력</string>
-    <string name="label_session_count">측정 횟수</string>
-    <string name="label_emotion">오늘의 감정</string>
-    <string name="hint_emotion">오늘의 감정을 작성해 주세요</string>
-    <string name="btn_save_record">저장하기</string>
-    <string name="btn_next">다음</string>
-    <string name="no_emotion_yet">오늘 아직 감정이 없습니다.</string>
 
     <!-- 실 제공 -->
     <string name="thread_provide_title">오늘의 실이 생성되었어요</string>
     <string name="thread_provide_subtitle">오늘 명상 데이터를 바탕으로 실 색상이 결정되었습니다.</string>
     <string name="btn_view_thread">실 설명 보기</string>
 
+    <!-- 매듭 상세 -->
+    <string name="content_desc_back">뒤로</string>
+    <string name="content_desc_prev">이전</string>
+    <string name="content_desc_next">다음</string>
+    <string name="knot_detail_header">이달의 매듭</string>
+    <string name="knot_dummy_date"></string>
+    <string name="knot_dummy_name"></string>
+    <string name="knot_description_placeholder"></string>
+
     <!-- 하단 내비 -->
-    <string name="nav_record">기록</string>
+    <string name="nav_home">홈</string>
     <string name="nav_thread">실보관함</string>
     <string name="nav_knot">매듭보관함</string>
     <string name="nav_analysis">명상분석</string>
     <string name="nav_settings">설정</string>
-
-    <!-- 기록 Fragment -->
-    <string name="today_record">오늘의 기록</string>
-    <string name="review_title">REVIEW</string>
-    <string name="no_record_today">오늘 기록이 없습니다.\n명상을 시작해보세요!</string>
 
     <!-- 실 보관함 -->
     <string name="thread_storage_title">실 보관함</string>
@@ -136,8 +139,34 @@
     <string name="no_data">데이터가 없습니다.</string>
     <string name="times_unit">회</string>
 
+    <!-- 진동 설정 -->
+    <string name="btn_select_complete">선택 완료</string>
+    <string name="vibration_settings_title">진동 설정</string>
+    <string name="vibration_type_select_desc">진동을 울릴 방식을 선택해주세요.</string>
+    <string name="vibration_timer_title">타이머</string>
+    <string name="vibration_timer_desc">설정한 시간이 지나면 진동이 울립니다.</string>
+    <string name="vibration_tension_title">긴장도</string>
+    <string name="vibration_tension_desc">긴장도가 기준을 초과하면 진동이 울립니다.</string>
+    <string name="vibration_timer_select_desc">타이머 진동으로 사용할 패턴을 선택해주세요.</string>
+    <string name="vibration_tension_select_desc">긴장도 진동으로 사용할 패턴을 선택해주세요.</string>
+
     <!-- 설정 -->
     <string name="settings_title">설정</string>
+    <string name="settings_group_account">계정</string>
+    <string name="settings_account_manage">계정 관리</string>
+    <string name="settings_group_security">보안</string>
+    <string name="settings_password">비밀번호 변경</string>
+    <string name="settings_group_app">앱</string>
+    <string name="settings_notification_reset">알림 초기화</string>
+    <string name="settings_group_pressure">압력</string>
+    <string name="settings_measure_standard">측정 기준 설정</string>
+    <string name="settings_group_vibration">진동</string>
+    <string name="settings_vibration_manage">진동 관리</string>
+    <string name="settings_group_help">고객지원</string>
+    <string name="settings_notice">공지사항</string>
+    <string name="settings_cs">고객센터</string>
+    <string name="settings_guide">이용 가이드</string>
+    <string name="feature_in_progress">준비 중인 기능입니다.</string>
 
     <!-- 공통 -->
     <string name="btn_back">뒤로</string>

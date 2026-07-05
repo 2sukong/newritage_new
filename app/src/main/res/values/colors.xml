@@ -7,41 +7,28 @@
     <color name="primary_bg">#C8D8B8</color>
 
     <!-- 온보딩/시작 배경 -->
-    <color name="onboarding_bg">#8B9E7B</color>
-    <color name="onboarding_bg_gradient_top">#9BAE8B</color>
-    <color name="onboarding_bg_gradient_bottom">#7B8E6B</color>
+    <color name="onboarding_bg">#81A68D</color>
+    <color name="gradient_start">#81A68D</color>
+    <color name="gradient_end">#FFF4DC</color>
 
     <!-- 배경 -->
     <color name="background">#F5F5F0</color>
     <color name="surface">#FFFFFF</color>
-    <color name="card_bg">#FFFFFF</color>
 
     <!-- 텍스트 -->
     <color name="text_primary">#2D3A2D</color>
     <color name="text_secondary">#5A6B5A</color>
     <color name="text_hint">#9AAA9A</color>
-    <color name="text_white">#FFFFFF</color>
+    <color name="text_other">#82A68D</color>
 
-    <!-- 버튼 -->
-    <color name="btn_primary">#8B9E7B</color>
-    <color name="btn_primary_pressed">#6B7E5B</color>
-    <color name="btn_outline_border">#8B9E7B</color>
-    <color name="btn_disabled">#C8C8C8</color>
 
     <!-- 구분선 -->
     <color name="divider">#E0E0D8</color>
     <color name="input_border">#C8C8C8</color>
-    <color name="input_border_focused">#8B9E7B</color>
-
-    <!-- 그래프 -->
-    <color name="chart_line">#8B9E7B</color>
-    <color name="chart_fill">#408B9E7B</color>
+    <color name="btn_disabled">#C8C8C8</color>
 
     <!-- 기타 -->
     <color name="white">#FFFFFF</color>
-    <color name="black">#000000</color>
     <color name="transparent">#00000000</color>
-    <color name="overlay">#80000000</color>
     <color name="dot_inactive">#80FFFFFF</color>
-    <color name="dot_active">#FFFFFF</color>
 </resources>

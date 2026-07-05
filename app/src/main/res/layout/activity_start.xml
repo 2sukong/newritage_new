@@ -2,36 +2,47 @@
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://tools.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@drawable/bg_onboarding_gradient">
+    android:layout_height="match_parent">
 
     <ImageView
-        android:id="@+id/ivLogo"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
-        android:src="@android:drawable/star_on"
-        android:tint="@color/white"
+        android:id="@+id/bgImageView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:src="@drawable/background"
+        android:scaleType="centerCrop"
+        android:background="@drawable/bg_onboarding_gradient"
+        app:tint="#80000000"
+        app:tintMode="src_atop"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/tvSubtitle"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:src="@drawable/logo"
+        android:contentDescription="앱 로고"
+        app:layout_constraintBottom_toTopOf="@id/tvSubtitle"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintVertical_chainStyle="packed"
-        android:layout_marginBottom="16dp" />
+        app:layout_constraintStart_toStartOf="parent" />
 
     <TextView
         android:id="@+id/tvSubtitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="212dp"
+        android:letterSpacing="0.05"
         android:text="@string/app_subtitle"
         android:textColor="@color/white"
         android:textSize="20sp"
-        android:letterSpacing="0.05"
-        app:layout_constraintTop_toBottomOf="@id/ivLogo"
         app:layout_constraintBottom_toTopOf="@id/layoutButtons"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintVertical_bias="0.45" />
+        app:layout_constraintStart_toStartOf="parent" />
 
     <LinearLayout
         android:id="@+id/layoutButtons"
@@ -51,10 +62,12 @@
             android:layout_width="match_parent"
             android:layout_height="52dp"
             android:text="@string/btn_signup"
-            android:background="@drawable/btn_outline_bg"
             android:textColor="@color/white"
             android:textSize="16sp"
-            android:stateListAnimator="@null" />
+            android:stateListAnimator="@null"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            app:strokeColor="@color/white"
+            app:cornerRadius="16dp" />
 
         <Button
             android:id="@+id/btnLogin"
@@ -62,10 +75,12 @@
             android:layout_height="52dp"
             android:layout_marginTop="12dp"
             android:text="@string/btn_login"
-            android:background="@drawable/btn_outline_bg"
-            android:textColor="@color/white"
             android:textSize="16sp"
-            android:stateListAnimator="@null" />
+            android:stateListAnimator="@null"
+            style="@style/Widget.MaterialComponents.Button"
+            app:backgroundTint="@color/white"
+            android:textColor="#7C9D86"
+            app:cornerRadius="16dp" />
 
     </LinearLayout>
 

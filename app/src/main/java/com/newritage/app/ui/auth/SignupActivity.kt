@@ -74,15 +74,16 @@ class SignupActivity : AppCompatActivity() {
             }
         }
 
-        // 가입 완료 처리
+        // 가입 정보 로컬 저장
         prefs.username = id
         prefs.isLoggedIn = true
 
-        binding.layoutSignupForm.visibility = View.GONE
-        binding.layoutSignupComplete.visibility = View.VISIBLE
+        val dialog = SignupCompleteDialog()
+        dialog.show(supportFragmentManager, "SignupCompleteDialog")
     }
 
-    fun onGoToBaseline(view: View) {
+    // 💡 팝업의 '확인' 버튼을 눌렀을 때 Baseline 화면으로 넘어가도록 이 메서드를 호출할 것입니다.
+    fun navigateToBaseline() {
         val intent = Intent(this, BaselineMeasurementActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         startActivity(intent)

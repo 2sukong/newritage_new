@@ -16,9 +16,19 @@ class UserPreferences(context: Context) {
         private const val KEY_LOGGED_IN = "logged_in"
         private const val KEY_USERNAME = "username"
         private const val KEY_BASELINE_DONE = "baseline_done"
-        private const val KEY_BASELINE_PRESSURE = "baseline_pressure"
+
+        // 부위별 기준 압력 (BLE SENSOR 특성의 f0/f1/f2/total 각각의 평균, raw ADC 0~12285)
+        private const val KEY_BASELINE_THUMB = "baseline_thumb"
+        private const val KEY_BASELINE_IM = "baseline_im"
+        private const val KEY_BASELINE_PALM = "baseline_palm"
+        private const val KEY_BASELINE_OVERALL = "baseline_overall"
+
         private const val KEY_AUTO_LOGIN = "auto_login"
         private const val KEY_LAST_SESSION_ID = "last_session_id"
+        private const val KEY_TIMER_VIBRATION_ENABLED = "timer_vibration_enabled"
+        private const val KEY_TENSION_VIBRATION_ENABLED = "tension_vibration_enabled"
+        private const val KEY_TIMER_VIBRATION_PATTERN_ID = "timer_vibration_pattern_id"
+        private const val KEY_TENSION_VIBRATION_PATTERN_ID = "tension_vibration_pattern_id"
     }
 
     /** 온보딩 완료 여부 */
@@ -41,10 +51,25 @@ class UserPreferences(context: Context) {
         get() = prefs.getBoolean(KEY_BASELINE_DONE, false)
         set(value) = prefs.edit().putBoolean(KEY_BASELINE_DONE, value).apply()
 
-    /** 기준 압력 값 (kPa) */
-    var baselinePressure: Float
-        get() = prefs.getFloat(KEY_BASELINE_PRESSURE, 30f)
-        set(value) = prefs.edit().putFloat(KEY_BASELINE_PRESSURE, value).apply()
+    /** 기준 압력 값 - 엄지 */
+    var baselineThumb: Float
+        get() = prefs.getFloat(KEY_BASELINE_THUMB, 30f)
+        set(value) = prefs.edit().putFloat(KEY_BASELINE_THUMB, value).apply()
+
+    /** 기준 압력 값 - 검지·중지 */
+    var baselineIM: Float
+        get() = prefs.getFloat(KEY_BASELINE_IM, 30f)
+        set(value) = prefs.edit().putFloat(KEY_BASELINE_IM, value).apply()
+
+    /** 기준 압력 값 - 손바닥 */
+    var baselinePalm: Float
+        get() = prefs.getFloat(KEY_BASELINE_PALM, 30f)
+        set(value) = prefs.edit().putFloat(KEY_BASELINE_PALM, value).apply()
+
+    /** 기준 압력 값 - 전체 (f0+f1+f2) */
+    var baselineOverall: Float
+        get() = prefs.getFloat(KEY_BASELINE_OVERALL, 30f)
+        set(value) = prefs.edit().putFloat(KEY_BASELINE_OVERALL, value).apply()
 
     /** 자동로그인 여부 */
     var autoLogin: Boolean
@@ -55,6 +80,26 @@ class UserPreferences(context: Context) {
     var lastSessionId: Long
         get() = prefs.getLong(KEY_LAST_SESSION_ID, -1L)
         set(value) = prefs.edit().putLong(KEY_LAST_SESSION_ID, value).apply()
+
+    /** 타이머 진동 사용 여부 */
+    var isTimerVibrationEnabled: Boolean
+        get() = prefs.getBoolean(KEY_TIMER_VIBRATION_ENABLED, true)
+        set(value) = prefs.edit().putBoolean(KEY_TIMER_VIBRATION_ENABLED, value).apply()
+
+    /** 긴장도 진동 사용 여부 */
+    var isTensionVibrationEnabled: Boolean
+        get() = prefs.getBoolean(KEY_TENSION_VIBRATION_ENABLED, true)
+        set(value) = prefs.edit().putBoolean(KEY_TENSION_VIBRATION_ENABLED, value).apply()
+
+    /** 타이머 진동 패턴 ID */
+    var timerVibrationPatternId: String?
+        get() = prefs.getString(KEY_TIMER_VIBRATION_PATTERN_ID, null)
+        set(value) = prefs.edit().putString(KEY_TIMER_VIBRATION_PATTERN_ID, value).apply()
+
+    /** 긴장도 진동 패턴 ID */
+    var tensionVibrationPatternId: String?
+        get() = prefs.getString(KEY_TENSION_VIBRATION_PATTERN_ID, null)
+        set(value) = prefs.edit().putString(KEY_TENSION_VIBRATION_PATTERN_ID, value).apply()
 
     /** 로그아웃 */
     fun logout() {

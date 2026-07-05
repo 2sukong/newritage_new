@@ -5,15 +5,13 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.view.View
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import com.github.mikephil.charting.data.Entry
-import com.github.mikephil.charting.data.LineData
-import com.github.mikephil.charting.data.LineDataSet
-import com.newritage.app.R
+import com.newritage.app.ble.BleManager
 import com.newritage.app.data.UserPreferences
 import com.newritage.app.databinding.ActivityBaselineMeasurementBinding
 import com.newritage.app.ui.main.MainActivity
-import kotlin.random.Random
+import com.newritage.app.ui.util.WaveStyle
 
 class BaselineMeasurementActivity : AppCompatActivity() {
 
@@ -23,8 +21,26 @@ class BaselineMeasurementActivity : AppCompatActivity() {
     private val handler = Handler(Looper.getMainLooper())
     private var measuring = false
     private var elapsedSeconds = 0
-    private val measureDuration = 30 // 30초 측정
+
+    // 30초에서 3분(180초) 측정으로 변경
+    private val measureDuration = 180
     private val pressureReadings = mutableListOf<Float>()
+    private val thumbReadings = mutableListOf<Float>()
+    private val imReadings = mutableListOf<Float>()
+    private val palmReadings = mutableListOf<Float>()
+
+    // BLE SENSOR 특성에서 마지막으로 받은 f0(엄지)/f1(검지·중지)/f2(손바닥)/total 값
+    private var latestThumb = 0
+    private var latestIm = 0
+    private var latestPalm = 0
+    private var latestTotal = 0
+
+    private val permissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { granted ->
+            if (granted.values.all { it }) {
+                BleManager.startScan(this)
+            }
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,17 +50,43 @@ class BaselineMeasurementActivity : AppCompatActivity() {
         prefs = UserPreferences(this)
 
         setupUI()
+        connectBle()
+    }
+
+    private fun connectBle() {
+        if (BleManager.hasRequiredPermissions(this)) {
+            BleManager.startScan(this)
+        } else {
+            permissionLauncher.launch(BleManager.requiredPermissions())
+        }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        BleManager.onSensorData = { f0, f1, f2, total ->
+            latestThumb = f0
+            latestIm = f1
+            latestPalm = f2
+            latestTotal = total
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        BleManager.onSensorData = null
     }
 
     private fun setupUI() {
-        // 초기: 안내 화면
+        // 최초 상태는 준비 화면(Screen.GUIDE)으로 세팅
         showScreen(Screen.GUIDE)
 
+        // 아까 바꾼 새로운 XML 디자인 속 '시작하기' 버튼 연결
         binding.btnStartMeasure.setOnClickListener {
             startMeasurement()
         }
 
-        binding.btnGoHome.setOnClickListener {
+        // 아까 바꾼 새로운 XML 디자인 속 '메인화면으로' 버튼 연결
+        binding.btnGoMain.setOnClickListener {
             val intent = Intent(this, MainActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             startActivity(intent)
@@ -57,9 +99,12 @@ class BaselineMeasurementActivity : AppCompatActivity() {
         measuring = true
         elapsedSeconds = 0
         pressureReadings.clear()
+        thumbReadings.clear()
+        imReadings.clear()
+        palmReadings.clear()
 
-        binding.progressBar.max = measureDuration
-        binding.progressBar.progress = 0
+        binding.waveView.setWaveStyle(WaveStyle.MEASURING)
+        binding.waveView.startWave()
 
         measureLoop.run()
     }
@@ -69,17 +114,25 @@ class BaselineMeasurementActivity : AppCompatActivity() {
             if (!measuring) return
 
             elapsedSeconds++
-            // 시뮬레이션: 편안한 상태 기준 압력 (낮은 편)
-            val pressure = 20f + Random.nextFloat() * 15f
-            pressureReadings.add(pressure)
+
+            // BLE SENSOR 특성에서 흘러들어온 실제 f0/f1/f2/total 값을 그대로 사용
+            val rawPressure = latestTotal.toFloat()
+            pressureReadings.add(rawPressure)
+            thumbReadings.add(latestThumb.toFloat())
+            imReadings.add(latestIm.toFloat())
+            palmReadings.add(latestPalm.toFloat())
 
             val elapsed = elapsedSeconds
-            binding.tvTimer.text = String.format("%d:%02d", elapsed / 60, elapsed % 60)
-            binding.progressBar.progress = elapsed
 
-            // 측정값 표시 (평균)
-            val avg = pressureReadings.average().toFloat()
-            binding.tvPressureValue.text = String.format("%.1f", avg)
+            // 1. 하단 흰색 박스 안의 타이머 분:초 갱신 (tvLiveTimer)
+            binding.tvLiveTimer.text = String.format("%d:%02d", elapsed / 60, elapsed % 60)
+
+            // 2. 중앙에 실시간 수신된 단일 압력값 표기 (정수형 예시)
+            binding.tvLivePressureValue.text = String.format("%d", rawPressure.toInt())
+
+            // 3. 원 내부의 물결 높이를 실시간 압력에 맞춰 조절 (센서 이론상 최댓값 12285 기준 0~80 스케일로 정규화)
+            val waveInput = (rawPressure / 12285f).coerceIn(0f, 1f) * 80f
+            binding.waveView.setPressure(waveInput)
 
             if (elapsedSeconds >= measureDuration) {
                 completeMeasurement()
@@ -92,17 +145,22 @@ class BaselineMeasurementActivity : AppCompatActivity() {
     private fun completeMeasurement() {
         measuring = false
         handler.removeCallbacks(measureLoop)
+        binding.waveView.stopWave()
 
-        val baselinePressure = pressureReadings.average().toFloat()
-        prefs.baselinePressure = baselinePressure
+        prefs.baselineOverall = pressureReadings.average().toFloat()
+        prefs.baselineThumb = thumbReadings.average().toFloat()
+        prefs.baselineIM = imReadings.average().toFloat()
+        prefs.baselinePalm = palmReadings.average().toFloat()
         prefs.isBaselineDone = true
 
-        binding.tvBaselineResult.text = String.format("%.1f kPa", baselinePressure)
+        // 세 번째 완료 화면 중앙 원 안에 최종 결과 표기
+        // 원본 이미지 가이드 멘트에 맞게 최종 평균값 매핑
         showScreen(Screen.COMPLETE)
     }
 
     private fun showScreen(screen: Screen) {
-        binding.layoutGuide.visibility = if (screen == Screen.GUIDE) View.VISIBLE else View.GONE
+        // 새로 매칭된 ID 체계에 따라 화면 가시성 조절
+        binding.layoutReady.visibility = if (screen == Screen.GUIDE) View.VISIBLE else View.GONE
         binding.layoutMeasuring.visibility = if (screen == Screen.MEASURING) View.VISIBLE else View.GONE
         binding.layoutComplete.visibility = if (screen == Screen.COMPLETE) View.VISIBLE else View.GONE
     }

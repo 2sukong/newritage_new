@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import com.newritage.app.R
 import com.newritage.app.data.AppDatabase
 import com.newritage.app.databinding.FragmentThreadStorageBinding
 import kotlinx.coroutines.launch
@@ -52,7 +53,8 @@ class ThreadStorageFragment : Fragment() {
         lifecycleScope.launch {
             val db = AppDatabase.getInstance(requireContext())
             val sessions = db.sessionDao().getSessionsByMonth(yearMonth)
-            val colorMap = sessions.associate { it.date to it.threadColor }
+            // 실은 하루 첫 세션(hasThread=true)에만 부여됨
+            val colorMap = sessions.filter { it.hasThread }.associate { it.date to it.threadColor }
             renderCalendar(colorMap)
         }
     }
@@ -73,10 +75,10 @@ class ThreadStorageFragment : Fragment() {
             val threadColor = colorMap[dateStr]
 
             val cellView = LayoutInflater.from(requireContext())
-                .inflate(com.newritage.app.R.layout.item_calendar_cell, grid, false)
+                .inflate(R.layout.item_calendar_cell, grid, false)
 
-            val tvDay = cellView.findViewById<TextView>(com.newritage.app.R.id.tvDay)
-            val threadSwatch = cellView.findViewById<View>(com.newritage.app.R.id.threadSwatch)
+            val tvDay = cellView.findViewById<TextView>(R.id.tvDay)
+            val threadSwatch = cellView.findViewById<View>(R.id.threadSwatch)
 
             tvDay.text = day.toString()
 

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:gravity="center_horizontal"
+    android:background="@drawable/grayinput"
+    android:backgroundTint="@color/white"
+
+    android:paddingTop="24dp"
+    android:paddingBottom="16dp"
+    android:paddingStart="20dp"
+    android:paddingEnd="20dp">
+
+    <ImageView
+        android:id="@+id/ivDialogLogo"
+        android:layout_width="48dp"
+        android:layout_height="32dp"
+        android:src="@drawable/endlogo"
+        android:scaleType="fitCenter" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="가입이 완료되었습니다"
+        android:textColor="#557560"
+        android:textSize="16sp" android:textStyle="bold"
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="16dp" /> <TextView
+    android:id="@+id/btnDialogConfirm"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="확인"
+    android:textColor="#CBD4C9"
+    android:textSize="13sp"
+    android:paddingTop="6dp"
+    android:paddingBottom="6dp"
+    android:paddingStart="20dp"
+    android:paddingEnd="20dp"
+    android:clickable="true"
+    android:focusable="true"
+    android:background="?attr/selectableItemBackground" />
+
+</LinearLayout>

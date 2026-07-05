@@ -31,18 +31,20 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
-        <!-- 원형 게이지 -->
+        <!-- 원형 게이지 (측정 화면의 원과 동일한 크기·위치를 공유) -->
         <FrameLayout
             android:id="@+id/gaugeContainer"
             android:layout_width="220dp"
             android:layout_height="220dp"
-            android:background="@drawable/bg_circle_white"
             app:layout_constraintTop_toBottomOf="@id/tvToolbarTitle"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toTopOf="@id/btnStartMeditation"
-            app:layout_constraintVertical_bias="0.35"
-            android:layout_marginTop="16dp">
+            android:layout_marginTop="24dp">
+
+            <com.newritage.app.ui.util.WaveView
+                android:id="@+id/waveView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
 
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -54,17 +56,16 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="0"
-                    android:textSize="52sp"
-                    android:textColor="@color/text_primary"
-                    android:textStyle="bold" />
+                    android:text="측정 대기 중"
+                    android:textSize="15sp"
+                    android:textColor="@color/text_secondary"
+                    android:layout_marginBottom="24dp" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="kPa"
-                    android:textSize="16sp"
-                    android:textColor="@color/text_secondary" />
+                <ImageView
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:src="@drawable/ic_play_triangle"
+                    android:contentDescription="@string/btn_start_measure" />
             </LinearLayout>
         </FrameLayout>
 
@@ -106,8 +107,8 @@
         android:background="@color/surface"
         app:menu="@menu/bottom_nav_menu"
         app:itemIconTint="@color/nav_selector"
-        app:itemTextColor="@color/nav_selector"
-        app:labelVisibilityMode="labeled"
+        app:itemIconSize="32dp"
+        app:labelVisibilityMode="unlabeled"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
