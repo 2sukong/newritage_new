@@ -19,6 +19,8 @@
     <color name="text_primary">#2D3A2D</color>
     <color name="text_secondary">#5A6B5A</color>
     <color name="text_hint">#9AAA9A</color>
+    <color name="text_other">#82A68D</color>
+
 
     <!-- 구분선 -->
     <color name="divider">#E0E0D8</color>

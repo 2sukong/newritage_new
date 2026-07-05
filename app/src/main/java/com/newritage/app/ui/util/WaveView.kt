@@ -6,6 +6,12 @@ import android.graphics.*
 import android.util.AttributeSet
 import android.view.View
 import android.view.animation.LinearInterpolator
+import androidx.compose.foundation.layout.size
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
 import kotlin.math.min
 import kotlin.math.sin
 
@@ -110,7 +116,7 @@ class WaveView @JvmOverloads constructor(
 
         val ringRadius = outerRadius - WHITE_BORDER_WIDTH * density
         val ringStroke = RING_STROKE_WIDTH * density
-        val innerRadius = ringRadius - ringStroke
+        val innerRadius = ringRadius - (ringStroke / 2f)
 
         // ===== 가장 바깥 흰 테두리 한 겹 =====
         canvas.drawCircle(cx, cy, outerRadius, backgroundPaint)
@@ -139,13 +145,11 @@ class WaveView @JvmOverloads constructor(
 
     private fun drawRing(canvas: Canvas, cx: Float, cy: Float, radius: Float, strokeWidth: Float) {
         val colors = intArrayOf(
-            Color.parseColor("#5F8A66"),
-            Color.parseColor("#9CBB9A"),
-            Color.parseColor("#EAF1E6"),
-            Color.parseColor("#9CBB9A"),
-            Color.parseColor("#5F8A66")
+            Color.parseColor("#84AB79"), // 0%
+            Color.parseColor("#F6F8F3"), // 50%
+            Color.parseColor("#E0E8DC")  // 100% — 0%와 다른 색이라 여기서 컷이 생김
         )
-        val positions = floatArrayOf(0f, 0.22f, 0.5f, 0.78f, 1f)
+        val positions = floatArrayOf(0f, 0.5f, 1f)
         val shader = SweepGradient(cx, cy, colors, positions)
 
         val rotation = RING_BASE_ROTATION + if (waveStyle == WaveStyle.MEASURING) spinAngle else 0f
@@ -167,26 +171,26 @@ class WaveView @JvmOverloads constructor(
 
         waveBackPaint.shader = LinearGradient(
             0f, topY, 0f, h,
-            Color.parseColor("#BBD0B7"),
-            Color.parseColor("#F6F9F4"),
+            Color.parseColor("#82A68D"),
+            Color.parseColor("#FFFFFF"),
             Shader.TileMode.CLAMP
         )
-        waveBackPaint.alpha = 175
+        waveBackPaint.alpha = 157
 
         waveFrontPaint.shader = LinearGradient(
             0f, topY, 0f, h,
-            Color.parseColor("#8FAD9E"),
-            Color.parseColor("#F6F9F4"),
+            Color.parseColor("#D4DCCC"),
+            Color.parseColor("#FFFFFF"),
             Shader.TileMode.CLAMP
         )
-        waveFrontPaint.alpha = 225
+        waveFrontPaint.alpha = 135
 
         // 뒤쪽 물결: 위상이 앞쪽과 어긋나 있어 서로 교차하는 이중 물결을 만든다
         drawWaveFill(
             canvas, w, h,
             phase * 0.8f + Math.PI.toFloat() * 0.9f,
             1f - fillFactor - 0.03f,
-            h * 0.11f,
+            h * 0.17f,
             0.95,
             waveBackPaint
         )
@@ -269,7 +273,28 @@ class WaveView @JvmOverloads constructor(
 
     private companion object {
         const val WHITE_BORDER_WIDTH = 5f
-        const val RING_STROKE_WIDTH = 5f
+        const val RING_STROKE_WIDTH = 4f
         const val RING_BASE_ROTATION = -100f
     }
+}
+
+@Preview(showBackground = true, backgroundColor = 0xFFCCCCCC)
+@Composable
+fun WaveViewPreview() {
+    AndroidView(
+        factory = { context ->
+            WaveView(context).apply {
+                // 프리뷰 내부에서 뷰가 쪼그라들지 않도록 꽉 채우는 속성 강제 주입
+                layoutParams = android.view.ViewGroup.LayoutParams(
+                    android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+                    android.view.ViewGroup.LayoutParams.MATCH_PARENT
+                )
+
+                setWaveStyle(WaveStyle.MEASURING)
+                setPressure(40f)
+            }
+        },
+        // 바깥 Compose 영역의 크기를 200dp로 지정
+        modifier = Modifier.size(200.dp)
+    )
 }
