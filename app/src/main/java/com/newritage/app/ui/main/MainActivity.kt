@@ -2,16 +2,14 @@ package com.newritage.app.ui.main
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import com.newritage.app.R
 import com.newritage.app.databinding.ActivityMainBinding
 import com.newritage.app.ui.main.analysis.AnalysisFragment
+import com.newritage.app.ui.main.home.HomeFragment
 import com.newritage.app.ui.main.knot.KnotStorageFragment
 import com.newritage.app.ui.main.thread.ThreadStorageFragment
-import com.newritage.app.ui.measurement.MeasurementActivity
 import com.newritage.app.ui.settings.SettingsActivity
-import com.newritage.app.ui.util.WaveStyle
 
 class MainActivity : AppCompatActivity() {
 
@@ -22,19 +20,13 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.waveView.setWaveStyle(WaveStyle.IDLE)
-        setupHomeButton()
         setupBottomNav()
 
-        // 기본: 홈(측정 시작) 화면
+        // 기본: 홈 탭
         if (savedInstanceState == null) {
-            showHome()
-        }
-    }
-
-    private fun setupHomeButton() {
-        binding.btnStartMeditation.setOnClickListener {
-            startActivity(Intent(this, MeasurementActivity::class.java))
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.fragmentContainer, HomeFragment())
+                .commit()
         }
     }
 
@@ -42,25 +34,24 @@ class MainActivity : AppCompatActivity() {
         binding.bottomNav.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.nav_home -> {
-                    showHome()
+                    supportFragmentManager.beginTransaction()
+                        .replace(R.id.fragmentContainer, HomeFragment())
+                        .commit()
                     true
                 }
                 R.id.nav_thread -> {
-                    hideHome()
                     supportFragmentManager.beginTransaction()
                         .replace(R.id.fragmentContainer, ThreadStorageFragment())
                         .commit()
                     true
                 }
                 R.id.nav_knot -> {
-                    hideHome()
                     supportFragmentManager.beginTransaction()
                         .replace(R.id.fragmentContainer, KnotStorageFragment())
                         .commit()
                     true
                 }
                 R.id.nav_analysis -> {
-                    hideHome()
                     supportFragmentManager.beginTransaction()
                         .replace(R.id.fragmentContainer, AnalysisFragment())
                         .commit()
@@ -77,19 +68,9 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun showHome() {
-        binding.layoutHome.visibility = View.VISIBLE
-        binding.fragmentContainer.visibility = View.GONE
-    }
-
-    private fun hideHome() {
-        binding.layoutHome.visibility = View.GONE
-        binding.fragmentContainer.visibility = View.VISIBLE
-    }
-
     /** 홈이 아닌 탭에 있을 때 뒤로가기를 누르면 홈 탭으로 돌아간다. */
     override fun onBackPressed() {
-        if (binding.layoutHome.visibility != View.VISIBLE) {
+        if (binding.bottomNav.selectedItemId != R.id.nav_home) {
             binding.bottomNav.selectedItemId = R.id.nav_home
         } else {
             super.onBackPressed()

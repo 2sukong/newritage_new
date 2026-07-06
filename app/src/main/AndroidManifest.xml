@@ -54,6 +54,11 @@
             android:name=".ui.baseline.BaselineMeasurementActivity"
             android:exported="false" />
 
+        <!-- 기준 측정 완료 후 인트로 -->
+        <activity
+            android:name=".ui.intro.IntroActivity"
+            android:exported="false" />
+
         <!-- 메인 (하단 내비) -->
         <activity
             android:name=".ui.main.MainActivity"

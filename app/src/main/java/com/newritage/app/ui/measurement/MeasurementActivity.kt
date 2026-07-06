@@ -5,252 +5,290 @@ import android.graphics.Color
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import androidx.activity.result.contract.ActivityResultContracts
+import android.view.View
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
+import com.github.mikephil.charting.charts.LineChart
+import com.github.mikephil.charting.components.LimitLine
 import com.github.mikephil.charting.components.XAxis
-import com.github.mikephil.charting.data.Entry
-import com.github.mikephil.charting.data.LineData
-import com.github.mikephil.charting.data.LineDataSet
-import com.newritage.app.ble.BleManager
-import com.newritage.app.ble.VibrationPatterns
-import com.newritage.app.data.SensorReading
-import com.newritage.app.data.SessionDataHolder
-import com.newritage.app.data.UserPreferences
+import com.github.mikephil.charting.data.*
+import com.github.mikephil.charting.formatter.ValueFormatter
+import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.newritage.app.R
 import com.newritage.app.databinding.ActivityMeasurementBinding
-import com.newritage.app.ui.util.WaveStyle
+import com.newritage.app.ui.main.MainActivity
+import com.newritage.app.ui.util.WaveViewNew
+import kotlin.random.Random
+import java.text.SimpleDateFormat
+import java.util.*
 
 class MeasurementActivity : AppCompatActivity() {
 
-    private enum class TensionState { CALM, TENSE }
+    private enum class Screen { WAITING, MEASURING }
+
+    private enum class MeasureMode { AUTO, GUIDE }
 
     private lateinit var binding: ActivityMeasurementBinding
-    private lateinit var prefs: UserPreferences
+    private var currentMode = MeasureMode.AUTO
+
+    // Views
+    private lateinit var screenWaiting: View
+    private lateinit var screenMeasuring: View
+    private lateinit var waveView: WaveViewNew
+    private lateinit var tvPressureValue: TextView
+    private lateinit var tvSessionTime: TextView
+    private lateinit var tvFeedbackStatus: TextView
+    private lateinit var lineChart: LineChart
+    private lateinit var btnComplete: Button
 
     private val handler = Handler(Looper.getMainLooper())
-    private var measuring = false
+    private var countdownLeft = 10
     private var elapsedSeconds = 0
-    private val pressureReadings = mutableListOf<Float>()
-    private val sensorReadings = mutableListOf<SensorReading>()
-    private val chartEntries = mutableListOf<Entry>()
-    private var vibrationCount = 0
+    private var deviationCount = 0       // 안정 상태 이탈 횟수
 
-    // BLE SENSOR 특성에서 마지막으로 받은 f0(엄지)/f1(검지·중지)/f2(손바닥)/total 값
-    private var latestThumb = 0
-    private var latestIm = 0
-    private var latestPalm = 0
-    private var latestTotal = 0
-    private var baselineTotal = 0
-    private var tensionState = TensionState.CALM
+    private val pressureEntries = mutableListOf<Entry>()
+    private var currentPressure = 32f
+    private val allPressures = mutableListOf<Float>()
 
-    private val permissionLauncher =
-        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { granted ->
-            if (granted.values.all { it }) {
-                BleManager.startScan(this)
-            }
-        }
+    private val startTimeStr by lazy {
+        SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date())
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMeasurementBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        prefs = UserPreferences(this)
-        baselineTotal = prefs.baselineOverall.toInt()
+        bindViews()
 
-        binding.waveView.setWaveStyle(WaveStyle.MEASURING)
-        setupChart()
-        connectBle()
-        startMeasurement()
+        findViewById<ImageButton>(R.id.btnBack).setOnClickListener { finish() }
+        btnComplete.setOnClickListener { finishSession() }
 
-        binding.btnBack.setOnClickListener { finish() }
-        binding.btnStop.setOnClickListener { stopMeasurement() }
-    }
+        binding.btnAutoMode.setOnClickListener {
+            currentMode = MeasureMode.AUTO
+            updateModeUI()
+        }
+        binding.btnGuideMode.setOnClickListener {
+            currentMode = MeasureMode.GUIDE
+            updateModeUI()
+        }
+        updateModeUI()
 
-    private fun connectBle() {
-        if (BleManager.hasRequiredPermissions(this)) {
-            BleManager.startScan(this)
+        findViewById<ImageView>(R.id.imgMeasureStart).setOnClickListener {
+            showMeasuring()
+        }
+
+        // 도움말 버튼 로직 추가
+        val helpOverlay = findViewById<View>(R.id.layoutHelpOverlay)
+        findViewById<View>(R.id.btnHelp).setOnClickListener {
+            helpOverlay.visibility = View.VISIBLE
+        }
+        helpOverlay.setOnClickListener {
+            helpOverlay.visibility = View.GONE
+        }
+
+        // 탭바: 다른 메뉴 누르면 MainActivity로 돌아가서 해당 탭 선택
+        findViewById<BottomNavigationView>(R.id.bottomNav).setOnItemSelectedListener { item ->
+            val intent = Intent(this, MainActivity::class.java)
+            if (item.itemId != R.id.nav_home) {
+                intent.putExtra("select_tab", item.itemId)
+            }
+            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
+            startActivity(intent)
+            finish()
+            true
+        }
+
+        val autoStart = intent.getBooleanExtra("auto_start", false)
+        if (autoStart) {
+            showMeasuring()
         } else {
-            permissionLauncher.launch(BleManager.requiredPermissions())
+            showWaiting()
         }
     }
 
-    override fun onStart() {
-        super.onStart()
-        BleManager.onSensorData = { f0, f1, f2, total ->
-            latestThumb = f0
-            latestIm = f1
-            latestPalm = f2
-            latestTotal = total
+    private fun bindViews() {
+        screenWaiting = findViewById(R.id.screenWaiting)
+        screenMeasuring = findViewById(R.id.screenMeasuring)
+        waveView = findViewById(R.id.waveView)
+        tvPressureValue = findViewById(R.id.tvPressureValue)
+        tvSessionTime = findViewById(R.id.tvSessionTime)
+        tvFeedbackStatus = findViewById(R.id.tvFeedbackStatus)
+        lineChart = findViewById(R.id.lineChart)
+        btnComplete = findViewById(R.id.btnSessionComplete)
+    }
+
+    // ── 화면 전환 ──────────────────────────────
+
+    private fun showWaiting() {
+        screenWaiting.visibility = View.VISIBLE
+        screenMeasuring.visibility = View.GONE
+    }
+
+    private fun showMeasuring() {
+        screenWaiting.visibility = View.GONE
+        screenMeasuring.visibility = View.VISIBLE
+        setupChart()
+        startMeasuring()
+    }
+
+    // ── 자율모드 / 가이드모드 토글 ─────────────
+
+    private fun updateModeUI() {
+        when (currentMode) {
+            MeasureMode.AUTO -> {
+                binding.btnAutoMode.setBackgroundResource(R.drawable.bg_mode_selected)
+                binding.btnAutoMode.setTextColor(ContextCompat.getColor(this, R.color.white))
+
+                binding.btnGuideMode.setBackgroundResource(R.drawable.bg_mode_unselected)
+                binding.btnGuideMode.setTextColor(ContextCompat.getColor(this, R.color.text_secondary))
+            }
+            MeasureMode.GUIDE -> {
+                binding.btnGuideMode.setBackgroundResource(R.drawable.bg_mode_selected)
+                binding.btnGuideMode.setTextColor(ContextCompat.getColor(this, R.color.white))
+
+                binding.btnAutoMode.setBackgroundResource(R.drawable.bg_mode_unselected)
+                binding.btnAutoMode.setTextColor(ContextCompat.getColor(this, R.color.text_secondary))
+            }
         }
     }
 
-    override fun onStop() {
-        super.onStop()
-        BleManager.onSensorData = null
+    // ── 10초 카운트다운 → 자동 전환 ──────────────
+
+    private fun startCountdown() {
+        handler.post(object : Runnable {
+            override fun run() {
+                if (countdownLeft > 0) {
+                    countdownLeft--
+                    handler.postDelayed(this, 1000L)
+                } else {
+                    showMeasuring()
+                }
+            }
+        })
     }
+
+    // ── MPAndroidChart 설정 ───────────────────
 
     private fun setupChart() {
-        binding.lineChart.apply {
+        lineChart.apply {
             description.isEnabled = false
-            legend.isEnabled = false
             setTouchEnabled(false)
-            setBackgroundColor(Color.TRANSPARENT)
-            xAxis.position = XAxis.XAxisPosition.BOTTOM
-            xAxis.textColor = Color.parseColor("#5A6B5A")
-            xAxis.setDrawGridLines(false)
-            axisLeft.textColor = Color.parseColor("#5A6B5A")
-            axisLeft.axisMinimum = 0f
-            axisLeft.axisMaximum = 12285f // f0+f1+f2 이론상 최댓값(4095*3)
+            legend.isEnabled = false
+            setDrawGridBackground(false)
+
+            xAxis.apply {
+                position = XAxis.XAxisPosition.BOTTOM
+                setDrawGridLines(false)
+                textColor = Color.parseColor("#AAAAAA")
+                axisLineColor = Color.parseColor("#E0E0E0")
+                textSize = 10f
+                valueFormatter = object : ValueFormatter() {
+                    override fun getFormattedValue(v: Float): String {
+                        val m = (v / 60).toInt(); val s = (v % 60).toInt()
+                        return "%02d:%02d".format(m, s)
+                    }
+                }
+                labelCount = 4
+            }
+            axisLeft.apply {
+                axisMinimum = 0f; axisMaximum = 80f
+                textColor = Color.parseColor("#AAAAAA")
+                textSize = 10f
+                gridColor = Color.parseColor("#F0F0F0")
+                axisLineColor = Color.parseColor("#E0E0E0")
+                // 참조선: 높음 / 적정 / 낮음
+                addLimitLine(LimitLine(60f, "높음").apply {
+                    lineColor = Color.parseColor("#F0E0E0")
+                    lineWidth = 0.8f; textColor = Color.parseColor("#AAAAAA")
+                    textSize = 9f; labelPosition = LimitLine.LimitLabelPosition.RIGHT_TOP
+                })
+                addLimitLine(LimitLine(35f, "적정").apply {
+                    lineColor = Color.parseColor("#E8EDE4")
+                    lineWidth = 0.8f; textColor = Color.parseColor("#8B9E7B")
+                    textSize = 9f; labelPosition = LimitLine.LimitLabelPosition.RIGHT_TOP
+                })
+                addLimitLine(LimitLine(15f, "낮음").apply {
+                    lineColor = Color.parseColor("#D0D0D0")
+                    lineWidth = 0.8f; textColor = Color.parseColor("#AAAAAA")
+                    textSize = 9f; labelPosition = LimitLine.LimitLabelPosition.RIGHT_TOP
+                })
+            }
             axisRight.isEnabled = false
         }
     }
 
-    private fun startMeasurement() {
-        measuring = true
-        elapsedSeconds = 0
-        pressureReadings.clear()
-        sensorReadings.clear()
-        chartEntries.clear()
-        vibrationCount = 0
-        tensionState = TensionState.CALM
-        binding.btnStop.isEnabled = true
-        binding.waveView.startWave()
-        measureLoop.run()
+    // ── 실시간 압력 시뮬레이션 ─────────────────
+
+    private fun startMeasuring() {
+        handler.post(object : Runnable {
+            override fun run() {
+                elapsedSeconds++
+
+                // 압력 시뮬레이션
+                val noise = (Random.nextFloat() - 0.5f) * 7f
+                currentPressure = (currentPressure + noise).coerceIn(8f, 72f)
+                allPressures.add(currentPressure)
+
+                // 이탈 횟수 카운트 (>50kPa 를 '이탈'로 정의)
+                if (currentPressure > 50f) deviationCount++
+
+                // UI 갱신
+                tvPressureValue.text = "%.0f".format(currentPressure)
+                tvFeedbackStatus.text = feedbackText(currentPressure)
+                tvSessionTime.text = "%02d:%02d".format(elapsedSeconds / 60, elapsedSeconds % 60)
+
+                // 차트 갱신 (최근 60포인트)
+                if (pressureEntries.size >= 60) pressureEntries.removeAt(0)
+                pressureEntries.add(Entry(elapsedSeconds.toFloat(), currentPressure))
+                updateChart()
+
+                handler.postDelayed(this, 1000L)
+            }
+        })
     }
 
-    private val measureLoop = object : Runnable {
-        override fun run() {
-            if (!measuring) return
-            elapsedSeconds++
-
-            // BLE SENSOR 특성에서 흘러들어온 실제 total(f0+f1+f2) 값을 baseline과 비교해 분류
-            val pressure = latestTotal.toFloat()
-            pressureReadings.add(pressure)
-            sensorReadings.add(
-                SensorReading(
-                    sessionId = 0L, // SessionCompleteActivity에서 실제 세션 저장 후 채워짐
-                    timestamp = System.currentTimeMillis(),
-                    thumb = latestThumb.toFloat(),
-                    indexMiddle = latestIm.toFloat(),
-                    palm = latestPalm.toFloat(),
-                    overall = pressure
-                )
-            )
-            updateTensionState(latestTotal)
-            if (elapsedSeconds % TIMER_VIBRATION_INTERVAL_SECONDS == 0) {
-                sendTimerVibration()
-            }
-
-            // UI 업데이트
-            val min = elapsedSeconds / 60
-            val sec = elapsedSeconds % 60
-            binding.tvTimer.text = String.format("%02d:%02d", min, sec)
-            binding.tvCurrentPressure.text = String.format("%.0f", pressure)
-
-            // 웨이브뷰: baseline*2를 가득 찬 기준으로 삼아 setPressure()가 기대하는 0~80 스케일에 근사 매핑
-            val waveInput = (pressure / (baselineTotal.coerceAtLeast(1) * 2f)).coerceIn(0f, 1f) * 80f
-            binding.waveView.setPressure(waveInput)
-
-            // 차트 업데이트
-            chartEntries.add(Entry(elapsedSeconds.toFloat(), pressure))
-            updateChart()
-
-            handler.postDelayed(this, 1000L)
-        }
+    private fun feedbackText(p: Float) = when {
+        p < 25f -> "긴장이 많이 완화되었습니다."
+        p < 45f -> "적절 범위 내의 편안한 압력입니다."
+        else    -> "호흡을 고르게 하고 긴장을 풀어보세요."
     }
 
     private fun updateChart() {
-        val visibleEntries = if (chartEntries.size > 60) {
-            chartEntries.takeLast(60)
-        } else {
-            chartEntries.toList()
-        }
-
-        val dataSet = LineDataSet(visibleEntries, "압력").apply {
-            color = Color.parseColor("#8B9E7B")
-            setDrawCircles(false)
-            lineWidth = 2f
-            setDrawFilled(true)
-            fillColor = Color.parseColor("#8B9E7B")
-            fillAlpha = 50
+        val ds = LineDataSet(ArrayList(pressureEntries), "압력").apply {
+            color = Color.parseColor("#9DB18E"); lineWidth = 1.5f
+            setDrawCircles(false); setDrawValues(false)
             mode = LineDataSet.Mode.CUBIC_BEZIER
+            setDrawFilled(false)
         }
-        binding.lineChart.data = LineData(dataSet)
-        binding.lineChart.notifyDataSetChanged()
-        binding.lineChart.invalidate()
+        lineChart.data = LineData(ds)
+        lineChart.invalidate()
     }
 
-    /** baseline 대비 total이 [TENSION_THRESHOLD_RATIO] 이상이면 긴장 상태로 분류한다. */
-    private fun updateTensionState(total: Int) {
-        val newState = if (baselineTotal > 0 && total >= baselineTotal * TENSION_THRESHOLD_RATIO) {
-            TensionState.TENSE
-        } else {
-            TensionState.CALM
-        }
-        if (newState == tensionState) return
-        tensionState = newState
+    // ── 완료 → SessionCompleteActivity ─────────
 
-        binding.tvTensionStatus.text = if (newState == TensionState.TENSE) "긴장 감지" else "이완 상태"
-        binding.tvTensionStatus.setTextColor(
-            Color.parseColor(if (newState == TensionState.TENSE) "#C97B63" else "#5A6B5A")
-        )
+    private fun finishSession() {
+        handler.removeCallbacksAndMessages(null)
+        val endTime = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date())
+        val avg = if (allPressures.isEmpty()) 32f else allPressures.average().toFloat()
+        val max = allPressures.maxOrNull() ?: avg
+        val min = allPressures.minOrNull() ?: avg
 
-        if (newState == TensionState.TENSE) {
-            vibrationCount++
-            sendTensionVibration()
-        }
-    }
-
-    private fun sendTensionVibration() {
-        if (!prefs.isTensionVibrationEnabled) return
-        val patternId = prefs.tensionVibrationPatternId ?: return
-        val pattern = VibrationPatterns.ALL.firstOrNull { it.id == patternId } ?: return
-        BleManager.sendVibration(pattern.effect)
-    }
-
-    /** 설정한 시간(기본 60초)마다 한 번씩 타이머 진동을 울린다. */
-    private fun sendTimerVibration() {
-        if (!prefs.isTimerVibrationEnabled) return
-        val patternId = prefs.timerVibrationPatternId ?: return
-        val pattern = VibrationPatterns.ALL.firstOrNull { it.id == patternId } ?: return
-        BleManager.sendVibration(pattern.effect)
-    }
-
-    private fun stopMeasurement() {
-        measuring = false
-        handler.removeCallbacks(measureLoop)
-        binding.waveView.stopWave()
-
-        if (pressureReadings.isEmpty()) {
-            finish()
-            return
-        }
-
-        val avgPressure = pressureReadings.average().toFloat()
-        val maxPressure = pressureReadings.max()
-        val minPressure = pressureReadings.min()
-
-        SessionDataHolder.sensorReadings = sensorReadings.toList()
-        SessionDataHolder.vibrationCount = vibrationCount
-
-        val intent = Intent(this, SessionCompleteActivity::class.java).apply {
+        startActivity(Intent(this, SessionCompleteActivity::class.java).apply {
             putExtra("duration_seconds", elapsedSeconds)
-            putExtra("avg_pressure", avgPressure)
-            putExtra("max_pressure", maxPressure)
-            putExtra("min_pressure", minPressure)
-        }
-        startActivity(intent)
+            putExtra("avg_pressure", avg)
+            putExtra("max_pressure", max)
+            putExtra("min_pressure", min)
+            putExtra("deviation_count", deviationCount)
+            putExtra("start_time", startTimeStr)
+            putExtra("end_time", endTime)
+        })
         finish()
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        measuring = false
-        handler.removeCallbacks(measureLoop)
-    }
-
-    private companion object {
-        const val TENSION_THRESHOLD_RATIO = 1.2f
-        const val TIMER_VIBRATION_INTERVAL_SECONDS = 60
+        handler.removeCallbacksAndMessages(null)
     }
 }

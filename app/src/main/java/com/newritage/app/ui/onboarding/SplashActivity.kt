@@ -8,7 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.newritage.app.data.UserPreferences
 import com.newritage.app.ui.auth.StartActivity
 import com.newritage.app.ui.baseline.BaselineMeasurementActivity
-import com.newritage.app.ui.main.MainActivity
+import com.newritage.app.ui.intro.IntroActivity
 
 class SplashActivity : AppCompatActivity() {
 
@@ -23,7 +23,7 @@ class SplashActivity : AppCompatActivity() {
                 !prefs.isOnboardingDone -> Intent(this, OnboardingActivity::class.java)
                 !prefs.isLoggedIn -> Intent(this, StartActivity::class.java)
                 !prefs.isBaselineDone -> Intent(this, BaselineMeasurementActivity::class.java)
-                else -> Intent(this, MainActivity::class.java)
+                else -> Intent(this, IntroActivity::class.java)
             }
             startActivity(intent)
             finish()

@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:background="@color/background">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingHorizontal="24dp"
+        android:paddingTop="20dp"
+        android:paddingBottom="16dp">
+
+        <!-- 안내 문구 -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="기기와 연결된 상태에서 가만히 앉아\n편안하게 휴식해주세요."
+            android:textColor="@color/text_secondary"
+            android:textSize="14sp"
+            android:lineSpacingExtra="4dp"/>
+
+        <!-- 원형 대기 -->
+        <FrameLayout
+            android:layout_width="300dp"
+            android:layout_height="300dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="28dp">
+
+            <ImageView
+                android:id="@+id/imgMeasureStart"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:src="@drawable/medi_ready_new"
+                android:clickable="true"
+                android:focusable="true"
+                android:scaleType="fitCenter"/>
+        </FrameLayout>
+
+        <!-- 자율모드 / 가이드모드 선택 -->
+        <LinearLayout
+            android:id="@+id/layoutModeToggle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btnAutoMode"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:layout_marginEnd="6dp"
+                android:background="@drawable/bg_mode_selected"
+                app:backgroundTint="@null"
+                android:gravity="center"
+                android:text="자율모드"
+                android:textAllCaps="false"
+                android:textColor="@color/white"
+                android:textSize="14sp"/>
+
+            <Button
+                android:id="@+id/btnGuideMode"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:layout_marginStart="6dp"
+                android:background="@drawable/bg_mode_unselected"
+                app:backgroundTint="@null"
+                android:gravity="center"
+                android:text="가이드모드"
+                android:textAllCaps="false"
+                android:textColor="@color/text_secondary"
+                android:textSize="14sp"/>
+        </LinearLayout>
+
+        <!-- 임계치 이상 알림 -->
+        <LinearLayout
+            android:id="@+id/layoutThresholdAlert"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="임계치 이상 알림"
+                android:textColor="@color/text_primary"
+                android:textSize="14sp"/>
+
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/switchThresholdAlert"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:trackTint="@color/switch_track_tint"
+                app:thumbTint="@color/white"/>
+        </LinearLayout>
+
+        <!-- 측정 안내 이미지 -->
+        <ImageView
+            android:id="@+id/imgMeasurementGuide"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="12dp"
+            android:adjustViewBounds="true"
+            android:src="@drawable/img_measurement_guide_new"
+            android:scaleType="fitCenter"
+            android:contentDescription="측정 안내"/>
+
+    </LinearLayout>
+</ScrollView>

@@ -10,7 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.newritage.app.ble.BleManager
 import com.newritage.app.data.UserPreferences
 import com.newritage.app.databinding.ActivityBaselineMeasurementBinding
-import com.newritage.app.ui.main.MainActivity
+import com.newritage.app.ui.intro.IntroActivity
 import com.newritage.app.ui.util.WaveStyle
 
 class BaselineMeasurementActivity : AppCompatActivity() {
@@ -85,9 +85,9 @@ class BaselineMeasurementActivity : AppCompatActivity() {
             startMeasurement()
         }
 
-        // 아까 바꾼 새로운 XML 디자인 속 '메인화면으로' 버튼 연결
+        // 아까 바꾼 새로운 XML 디자인 속 '메인화면으로' 버튼 연결 → 인트로 화면으로 이동
         binding.btnGoMain.setOnClickListener {
-            val intent = Intent(this, MainActivity::class.java)
+            val intent = Intent(this, IntroActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             startActivity(intent)
             finish()

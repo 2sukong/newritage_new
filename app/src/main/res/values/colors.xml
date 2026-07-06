@@ -12,7 +12,7 @@
     <color name="gradient_end">#FFF4DC</color>
 
     <!-- 배경 -->
-    <color name="background">#F5F5F0</color>
+    <color name="background">#FFFFFF</color>
     <color name="surface">#FFFFFF</color>
 
     <!-- 텍스트 -->

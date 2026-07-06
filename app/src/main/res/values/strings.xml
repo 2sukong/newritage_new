@@ -59,6 +59,9 @@
     <string name="baseline_complete_desc">앞으로 이 수치를 기반으로 긴장도를 분석합니다</string>
     <string name="btn_go_home">메인화면으로</string>
 
+    <string name="home_subtitle">마음을 다스리는 시간</string>
+    <string name="home_btn_start">시작하기</string>
+
     <!-- 측정 안내 -->
     <string name="guide_title">측정 안내</string>
     <string name="guide_step_1">기기를 손에 쥐고 올바른 자세로 앉아주세요.</string>
@@ -79,6 +82,10 @@
     <string name="session_complete_title">측정이 완료되었습니다</string>
     <string name="streak_days_format">누적 %1$d일째 실천 중이에요</string>
     <string name="btn_go_main">메인화면으로</string>
+
+    <string name="thread_home">HOME</string>
+    <string name="thread_header">오늘의 실</string>
+    <string name="thread_main_title">오늘의 실이 생성되었어요</string>
 
     <!-- 실 제공 -->
     <string name="thread_provide_title">오늘의 실이 생성되었어요</string>
