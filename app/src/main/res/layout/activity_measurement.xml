@@ -285,13 +285,15 @@
                     android:orientation="horizontal"
                     android:paddingHorizontal="16dp">
 
-                    <!-- 일시정지 아이콘 (원형 배경) -->
+                    <!-- 일시정지/재개 아이콘 (원형 배경) -->
                     <FrameLayout
+                        android:id="@+id/btnPauseResume"
                         android:layout_width="32dp"
                         android:layout_height="32dp"
                         android:layout_marginEnd="12dp"
                         android:background="@drawable/bg_circle_white">
                         <ImageView
+                            android:id="@+id/imgPauseResume"
                             android:layout_width="16dp"
                             android:layout_height="16dp"
                             android:layout_gravity="center"
