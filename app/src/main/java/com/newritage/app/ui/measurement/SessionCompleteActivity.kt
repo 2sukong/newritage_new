@@ -10,6 +10,7 @@ import androidx.lifecycle.lifecycleScope
 import com.newritage.app.R
 import com.newritage.app.data.AppDatabase
 import com.newritage.app.data.Session
+import com.newritage.app.data.UserPreferences
 import com.newritage.app.ui.main.MainActivity
 import com.newritage.app.ui.util.WaveViewNew
 import com.newritage.app.util.ThreadColors
@@ -133,7 +134,8 @@ class SessionCompleteActivity : AppCompatActivity() {
 
     private fun saveSession(emotion: String) {
         val today = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
-        val colorObj = ThreadColors.assignColor(avgPressure)
+        val baselineOverall = UserPreferences(this).baselineOverall
+        val colorObj = ThreadColors.assignColor(avgPressure, baselineOverall)
         assignedColor = colorObj
 
         // 키워드 추출 및 피드백 생성
