@@ -31,4 +31,10 @@
     <color name="white">#FFFFFF</color>
     <color name="transparent">#00000000</color>
     <color name="dot_inactive">#80FFFFFF</color>
+
+    <!-- 비교/캘린더 상태 색상 (증가·감소, 안정/보통/긴장/기록없음) -->
+    <color name="trend_green">#6B9B5E</color>
+    <color name="trend_orange">#E0A458</color>
+    <color name="trend_red">#D96C6C</color>
+    <color name="trend_gray">#C8C8C8</color>
 </resources>

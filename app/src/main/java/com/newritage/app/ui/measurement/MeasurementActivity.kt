@@ -16,6 +16,7 @@ import com.github.mikephil.charting.data.*
 import com.github.mikephil.charting.formatter.ValueFormatter
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.newritage.app.R
+import com.newritage.app.data.SensorReading
 import com.newritage.app.databinding.ActivityMeasurementBinding
 import com.newritage.app.ui.main.MainActivity
 import com.newritage.app.ui.util.WaveViewNew
@@ -50,6 +51,7 @@ class MeasurementActivity : AppCompatActivity() {
     private val pressureEntries = mutableListOf<Entry>()
     private var currentPressure = 32f
     private val allPressures = mutableListOf<Float>()
+    private val collectedReadings = mutableListOf<SensorReading>()
 
     private val startTimeStr by lazy {
         SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date())
@@ -231,6 +233,22 @@ class MeasurementActivity : AppCompatActivity() {
                 currentPressure = (currentPressure + noise).coerceIn(8f, 72f)
                 allPressures.add(currentPressure)
 
+                // 센서별 개별 데이터 시뮬레이션 (통계용)
+                val t = (currentPressure * 0.9f + (Random.nextFloat() - 0.5f) * 5f).coerceIn(5f, 80f)
+                val im = (currentPressure * 1.1f + (Random.nextFloat() - 0.5f) * 5f).coerceIn(5f, 80f)
+                val p = (currentPressure * 1.0f + (Random.nextFloat() - 0.5f) * 5f).coerceIn(5f, 80f)
+
+                collectedReadings.add(
+                    SensorReading(
+                        sessionId = 0, // SessionCompleteActivity에서 저장 후 할당됨
+                        timestamp = System.currentTimeMillis(),
+                        thumb = t,
+                        indexMiddle = im,
+                        palm = p,
+                        overall = currentPressure
+                    )
+                )
+
                 // 이탈 횟수 카운트 (>50kPa 를 '이탈'로 정의)
                 if (currentPressure > 50f) deviationCount++
 
@@ -274,6 +292,9 @@ class MeasurementActivity : AppCompatActivity() {
         val avg = if (allPressures.isEmpty()) 32f else allPressures.average().toFloat()
         val max = allPressures.maxOrNull() ?: avg
         val min = allPressures.minOrNull() ?: avg
+
+        // 원시 데이터를 Holder에 저장 (Intent 용량 제한 회피)
+        com.newritage.app.data.SessionDataHolder.sensorReadings = collectedReadings
 
         startActivity(Intent(this, SessionCompleteActivity::class.java).apply {
             putExtra("duration_seconds", elapsedSeconds)

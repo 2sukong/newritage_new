@@ -240,10 +240,10 @@
                 android:textColor="@color/text_primary"
                 android:layout_marginBottom="16dp" />
 
-            <View
+            <com.newritage.app.ui.main.analysis.widget.ComparisonCardView
+                android:id="@+id/comparisonCard"
                 android:layout_width="match_parent"
-                android:layout_height="160dp"
-                android:background="@drawable/acard" />
+                android:layout_height="wrap_content" />
         </LinearLayout>
 
     </LinearLayout>

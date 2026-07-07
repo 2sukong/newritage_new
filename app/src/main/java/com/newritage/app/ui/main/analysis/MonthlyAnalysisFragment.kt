@@ -11,7 +11,10 @@ import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.newritage.app.data.AppDatabase
+import com.newritage.app.data.Session
 import com.newritage.app.databinding.FragmentMonthlyAnalysisBinding
+import com.newritage.app.ui.main.analysis.model.ComparisonSummary
+import com.newritage.app.ui.main.analysis.model.DayIndicatorStatus
 import com.newritage.app.ui.util.applyAnalysisStyle
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -63,9 +66,22 @@ class MonthlyAnalysisFragment : Fragment() {
         val yearMonth = SimpleDateFormat("yyyy-MM", Locale.getDefault()).format(currentMonth.time)
         binding.tvDateLabel.text = SimpleDateFormat("yyyy.MM", Locale.getDefault()).format(currentMonth.time)
 
+        val previousMonth = currentMonth.clone() as Calendar
+        previousMonth.add(Calendar.MONTH, -1)
+        val previousYearMonth = SimpleDateFormat("yyyy-MM", Locale.getDefault()).format(previousMonth.time)
+
         lifecycleScope.launch {
             val db = AppDatabase.getInstance(requireContext())
             val sessions = db.sessionDao().getSessionsByMonth(yearMonth)
+            val previousSessions = db.sessionDao().getSessionsByMonth(previousYearMonth)
+
+            binding.comparisonCard.bind(ComparisonSummary.from(sessions, previousSessions))
+            binding.monthCalendar.bind(
+                year = currentMonth.get(Calendar.YEAR),
+                month = currentMonth.get(Calendar.MONTH) + 1,
+                indicators = buildDayIndicators(sessions)
+            )
+            binding.aiCommentCard.setComment(MonthlyCommentGenerator.generate(sessions))
 
             if (sessions.isNotEmpty()) {
                 val avgPressure = sessions.map { it.avgPressure }.average().toFloat()
@@ -103,6 +119,26 @@ class MonthlyAnalysisFragment : Fragment() {
                 binding.tvMedCount.text = "-"
                 binding.lineChart.clear()
             }
+        }
+    }
+
+    /** 일자별 평균 압력을 기준으로 가장 안정적인 날(초록)/가장 긴장했던 날(빨강)/그 외 기록 있는 날(주황)을 표시한다. */
+    private fun buildDayIndicators(sessions: List<Session>): Map<Int, DayIndicatorStatus> {
+        val avgPressureByDate = sessions.groupBy { it.date }
+            .mapValues { (_, daySessions) -> daySessions.map { it.avgPressure }.average() }
+        if (avgPressureByDate.isEmpty()) return emptyMap()
+
+        val mostStableDate = avgPressureByDate.minByOrNull { it.value }?.key
+        val mostTenseDate = avgPressureByDate.maxByOrNull { it.value }?.key
+
+        return avgPressureByDate.keys.associate { date ->
+            val day = date.substringAfterLast("-").toIntOrNull() ?: 0
+            val status = when (date) {
+                mostStableDate -> DayIndicatorStatus.STABLE
+                mostTenseDate -> DayIndicatorStatus.TENSE
+                else -> DayIndicatorStatus.NORMAL
+            }
+            day to status
         }
     }
 

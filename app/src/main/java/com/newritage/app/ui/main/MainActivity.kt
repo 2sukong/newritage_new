@@ -22,11 +22,23 @@ class MainActivity : AppCompatActivity() {
 
         setupBottomNav()
 
-        // 기본: 홈 탭
         if (savedInstanceState == null) {
+            openInitialTab()
+        }
+    }
+
+    /**
+     * 기본은 홈 탭이지만, 다른 화면(예: 측정 화면)의 하단 메뉴에서 넘어온 경우
+     * "select_tab" extra에 담긴 탭으로 바로 이동한다.
+     */
+    private fun openInitialTab() {
+        val selectTab = intent.getIntExtra("select_tab", R.id.nav_home)
+        if (selectTab == R.id.nav_home) {
             supportFragmentManager.beginTransaction()
                 .replace(R.id.fragmentContainer, HomeFragment())
                 .commit()
+        } else {
+            binding.bottomNav.selectedItemId = selectTab
         }
     }
 

@@ -10,6 +10,8 @@ import androidx.lifecycle.lifecycleScope
 import com.newritage.app.R
 import com.newritage.app.data.AppDatabase
 import com.newritage.app.data.Session
+import com.newritage.app.data.SensorReading
+import com.newritage.app.data.SessionDataHolder
 import com.newritage.app.data.UserPreferences
 import com.newritage.app.ui.main.MainActivity
 import com.newritage.app.ui.util.WaveViewNew
@@ -142,6 +144,16 @@ class SessionCompleteActivity : AppCompatActivity() {
         val keywords = extractKeywords(emotion)
         val feedback = generateAiFeedback(emotion, keywords)
 
+        val rawReadings = SessionDataHolder.sensorReadings
+
+        // 부위별 통계 계산
+        val thumbList = rawReadings.map { it.thumb }.sorted()
+        val imList = rawReadings.map { it.indexMiddle }.sorted()
+        val palmList = rawReadings.map { it.palm }.sorted()
+        val overallList = rawReadings.map { it.overall }.sorted()
+
+        fun List<Float>.median() = if (isEmpty()) 0f else this[size / 2]
+
         lifecycleScope.launch {
             // Get current session index
             val countToday = dao.countSessionsByDate(today)
@@ -156,13 +168,37 @@ class SessionCompleteActivity : AppCompatActivity() {
                 avgPressure = avgPressure,
                 maxPressure = maxPressure,
                 minPressure = minPressure,
+                medianPressure = overallList.median(),
+
+                thumbAvg = thumbList.let { if (it.isEmpty()) 0f else it.average().toFloat() },
+                thumbMin = thumbList.firstOrNull() ?: 0f,
+                thumbMax = thumbList.lastOrNull() ?: 0f,
+                thumbMedian = thumbList.median(),
+
+                imAvg = imList.let { if (it.isEmpty()) 0f else it.average().toFloat() },
+                imMin = imList.firstOrNull() ?: 0f,
+                imMax = imList.lastOrNull() ?: 0f,
+                imMedian = imList.median(),
+
+                palmAvg = palmList.let { if (it.isEmpty()) 0f else it.average().toFloat() },
+                palmMin = palmList.firstOrNull() ?: 0f,
+                palmMax = palmList.lastOrNull() ?: 0f,
+                palmMedian = palmList.median(),
+
                 emotion = emotion,
                 threadColor = colorObj.hex,
                 threadColorName = colorObj.nameKr,
                 aiFeedback = feedback
             )
 
-            dao.insert(session)
+            val sessionId = dao.insert(session)
+
+            // 원시 데이터에 sessionId 부여 후 저장
+            if (rawReadings.isNotEmpty()) {
+                val toSave = rawReadings.map { it.copy(sessionId = sessionId) }
+                dao.insertReadings(toSave)
+            }
+            SessionDataHolder.clear()
 
             if (isFirstSession) {
                 showScreen(Screen.THREAD)
