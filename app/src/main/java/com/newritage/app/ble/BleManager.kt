@@ -114,12 +114,23 @@ object BleManager {
         bluetoothGatt?.disconnect()
     }
 
-    /** effect(1~123) 진동 효과 한 번 재생을 기기에 요청한다. */
+    /** effect(1~123) 진동 효과를 count회, interval(ms) 간격으로 재생을 기기에 요청한다. */
     @SuppressLint("MissingPermission")
-    fun sendVibration(effect: Int) {
+    fun sendVibration(effect: Int, count: Int = 1, interval: Int = 0) {
+        writeCommand("V,$effect,$count,$interval")
+    }
+
+    /** 진행 중인 진동 재생을 중단시킨다. */
+    @SuppressLint("MissingPermission")
+    fun sendStop() {
+        writeCommand("STOP")
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun writeCommand(command: String) {
         val gatt = bluetoothGatt ?: return
         val characteristic = commandCharacteristic ?: return
-        val bytes = "V,$effect".toByteArray(Charsets.UTF_8)
+        val bytes = command.toByteArray(Charsets.UTF_8)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             gatt.writeCharacteristic(characteristic, bytes, BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT)

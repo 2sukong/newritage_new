@@ -43,6 +43,8 @@ class MeasurementActivity : AppCompatActivity() {
     private var latestTotal = 0
     private var baselineTotal = 0
     private var tensionState = TensionState.CALM
+    private var lastTensionVibrationAtMillis = -TENSION_COOLDOWN_MS
+    private var timerVibrationFired = false
 
     private val permissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { granted ->
@@ -140,6 +142,8 @@ class MeasurementActivity : AppCompatActivity() {
         sensorReadings.clear()
         vibrationCount = 0
         tensionState = TensionState.CALM
+        lastTensionVibrationAtMillis = -TENSION_COOLDOWN_MS
+        timerVibrationFired = false
         binding.btnStop.isEnabled = true
         binding.waveView.startWave()
         resetChartData()
@@ -171,7 +175,8 @@ class MeasurementActivity : AppCompatActivity() {
                 lastTimerSecond = elapsedSecondsNow
                 elapsedSeconds = elapsedSecondsNow
                 updateTensionState(latestTotal)
-                if (elapsedSecondsNow > 0 && elapsedSecondsNow % TIMER_VIBRATION_INTERVAL_SECONDS == 0) {
+                if (!timerVibrationFired && elapsedSecondsNow >= prefs.timerDurationMinutes * 60) {
+                    timerVibrationFired = true
                     sendTimerVibration()
                 }
                 val min = elapsedSecondsNow / 60
@@ -202,40 +207,52 @@ class MeasurementActivity : AppCompatActivity() {
         binding.lineChart.invalidate()
     }
 
-    /** baseline 대비 total이 [TENSION_THRESHOLD_RATIO] 이상이면 긴장 상태로 분류한다. */
+    /**
+     * baseline 대비 total이 상향 임계 이상이면 긴장으로 분류한다. 연속 떨림 방지를 위해
+     * 하향 여유선 아래로 내려오기 전까지는 CALM으로 되돌아가지 않는 히스테리시스를 적용하고,
+     * 진동 발동 자체는 별도로 쿨다운을 둬 짧은 시간 내 재발동을 막는다.
+     */
     private fun updateTensionState(total: Int) {
-        val newState = if (baselineTotal > 0 && total >= baselineTotal * TENSION_THRESHOLD_RATIO) {
-            TensionState.TENSE
-        } else {
-            TensionState.CALM
-        }
-        if (newState == tensionState) return
-        tensionState = newState
+        if (baselineTotal <= 0) return
+        val upThreshold = baselineTotal * prefs.tensionThresholdRatio
+        val downThreshold = upThreshold * (1f - TENSION_RELEASE_MARGIN_RATIO)
 
-        binding.tvTensionStatus.text = if (newState == TensionState.TENSE) "긴장 감지" else "이완 상태"
-        binding.tvTensionStatus.setTextColor(
-            Color.parseColor(if (newState == TensionState.TENSE) "#C97B63" else "#5A6B5A")
-        )
-
-        if (newState == TensionState.TENSE) {
-            vibrationCount++
-            sendTensionVibration()
+        when {
+            tensionState == TensionState.CALM && total >= upThreshold -> {
+                tensionState = TensionState.TENSE
+                updateTensionStatusUi()
+                if (elapsedMillis - lastTensionVibrationAtMillis >= TENSION_COOLDOWN_MS) {
+                    lastTensionVibrationAtMillis = elapsedMillis
+                    vibrationCount++
+                    sendTensionVibration()
+                }
+            }
+            tensionState == TensionState.TENSE && total <= downThreshold -> {
+                tensionState = TensionState.CALM
+                updateTensionStatusUi()
+            }
         }
+    }
+
+    private fun updateTensionStatusUi() {
+        val isTense = tensionState == TensionState.TENSE
+        binding.tvTensionStatus.text = if (isTense) "긴장 감지" else "이완 상태"
+        binding.tvTensionStatus.setTextColor(Color.parseColor(if (isTense) "#C97B63" else "#5A6B5A"))
     }
 
     private fun sendTensionVibration() {
         if (!prefs.isTensionVibrationEnabled) return
-        val patternId = prefs.tensionVibrationPatternId ?: return
+        val patternId = prefs.tensionVibrationPatternId ?: VibrationPatterns.TENSION_DEFAULT_ID
         val pattern = VibrationPatterns.ALL.firstOrNull { it.id == patternId } ?: return
-        BleManager.sendVibration(pattern.effect)
+        BleManager.sendVibration(pattern.effect, pattern.count, pattern.intervalMs)
     }
 
-    /** 설정한 시간(기본 60초)마다 한 번씩 타이머 진동을 울린다. */
+    /** 카운트다운(prefs.timerDurationMinutes)이 0에 도달하는 순간 1회만 타이머 진동을 울린다. */
     private fun sendTimerVibration() {
         if (!prefs.isTimerVibrationEnabled) return
-        val patternId = prefs.timerVibrationPatternId ?: return
+        val patternId = prefs.timerVibrationPatternId ?: VibrationPatterns.TIMER_DEFAULT_ID
         val pattern = VibrationPatterns.ALL.firstOrNull { it.id == patternId } ?: return
-        BleManager.sendVibration(pattern.effect)
+        BleManager.sendVibration(pattern.effect, pattern.count, pattern.intervalMs)
     }
 
     private fun stopMeasurement() {
@@ -273,8 +290,11 @@ class MeasurementActivity : AppCompatActivity() {
 
     companion object {
         const val EXTRA_IDLE_RING_ANGLE = "idle_ring_angle"
-        private const val TENSION_THRESHOLD_RATIO = 1.2f
-        private const val TIMER_VIBRATION_INTERVAL_SECONDS = 60
+
+        // TODO: 실기 테스트 후 여유 비율·쿨다운 구체값 조정
+        private const val TENSION_RELEASE_MARGIN_RATIO = 0.1f
+        private const val TENSION_COOLDOWN_MS = 3000L
+
         private const val TICK_INTERVAL_MS = 100L
         private const val CHART_WINDOW_SECONDS = 60f
     }

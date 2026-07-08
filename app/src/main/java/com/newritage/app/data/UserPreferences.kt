@@ -29,6 +29,12 @@ class UserPreferences(context: Context) {
         private const val KEY_TENSION_VIBRATION_ENABLED = "tension_vibration_enabled"
         private const val KEY_TIMER_VIBRATION_PATTERN_ID = "timer_vibration_pattern_id"
         private const val KEY_TENSION_VIBRATION_PATTERN_ID = "tension_vibration_pattern_id"
+
+        private const val KEY_TENSION_THRESHOLD_RATIO = "tension_threshold_ratio"
+        private const val KEY_TIMER_DURATION_MINUTES = "timer_duration_minutes"
+        private const val KEY_GUIDE_ENABLED = "guide_enabled"
+        private const val KEY_GUIDE_TECHNIQUE_ID = "guide_technique_id"
+        private const val KEY_GUIDE_DURATION_MINUTES = "guide_duration_minutes"
     }
 
     /** 온보딩 완료 여부 */
@@ -100,6 +106,31 @@ class UserPreferences(context: Context) {
     var tensionVibrationPatternId: String?
         get() = prefs.getString(KEY_TENSION_VIBRATION_PATTERN_ID, null)
         set(value) = prefs.edit().putString(KEY_TENSION_VIBRATION_PATTERN_ID, value).apply()
+
+    /** 긴장 진동 발동 임계 비율 (baseline * ratio 이상이면 긴장으로 분류) */
+    var tensionThresholdRatio: Float
+        get() = prefs.getFloat(KEY_TENSION_THRESHOLD_RATIO, 1.2f)
+        set(value) = prefs.edit().putFloat(KEY_TENSION_THRESHOLD_RATIO, value).apply()
+
+    /** 타이머 진동 카운트다운 시간(분) */
+    var timerDurationMinutes: Int
+        get() = prefs.getInt(KEY_TIMER_DURATION_MINUTES, 10)
+        set(value) = prefs.edit().putInt(KEY_TIMER_DURATION_MINUTES, value).apply()
+
+    /** 명상 호흡 가이드 사용 여부 */
+    var isGuideEnabled: Boolean
+        get() = prefs.getBoolean(KEY_GUIDE_ENABLED, true)
+        set(value) = prefs.edit().putBoolean(KEY_GUIDE_ENABLED, value).apply()
+
+    /** 명상 호흡 가이드 - 마지막으로 선택한 호흡법 ID */
+    var guideTechniqueId: String
+        get() = prefs.getString(KEY_GUIDE_TECHNIQUE_ID, "coherent") ?: "coherent"
+        set(value) = prefs.edit().putString(KEY_GUIDE_TECHNIQUE_ID, value).apply()
+
+    /** 명상 호흡 가이드 - 마지막으로 선택한 시간(분) */
+    var guideDurationMinutes: Int
+        get() = prefs.getInt(KEY_GUIDE_DURATION_MINUTES, 5)
+        set(value) = prefs.edit().putInt(KEY_GUIDE_DURATION_MINUTES, value).apply()
 
     /** 로그아웃 */
     fun logout() {

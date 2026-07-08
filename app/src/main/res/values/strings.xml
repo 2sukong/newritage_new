@@ -153,6 +153,31 @@
     <string name="vibration_tension_desc">긴장도가 기준을 초과하면 진동이 울립니다.</string>
     <string name="vibration_timer_select_desc">타이머 진동으로 사용할 패턴을 선택해주세요.</string>
     <string name="vibration_tension_select_desc">긴장도 진동으로 사용할 패턴을 선택해주세요.</string>
+    <string name="vibration_timer_duration_format">%d분</string>
+
+    <!-- 호흡 가이드 -->
+    <string name="breathing_guide_card_title">호흡 가이드</string>
+    <string name="breathing_guide_card_desc">진동으로 호흡 리듬을 안내해드립니다.</string>
+    <string name="breathing_setup_title">명상 호흡 가이드</string>
+    <string name="breathing_setup_desc">호흡법과 시간을 선택해주세요.</string>
+    <string name="breathing_duration_format">%d분</string>
+    <string name="breathing_technique_coherent">공명 호흡</string>
+    <string name="breathing_technique_box">박스 호흡</string>
+    <string name="breathing_technique_478">이완 호흡</string>
+    <string name="breathing_note_478">어지러울 수 있으니 앉거나 누워서 진행하세요. 3분부터 권장합니다.</string>
+    <string name="breathing_btn_start">시작하기</string>
+    <string name="breathing_phase_inhale">들이쉬기</string>
+    <string name="breathing_phase_hold">멈추기</string>
+    <string name="breathing_phase_exhale">내쉬기</string>
+    <string name="breathing_cycle_format">%1$d / %2$d 사이클</string>
+    <string name="breathing_preparing">준비해주세요…</string>
+    <string name="breathing_btn_pause">일시정지</string>
+    <string name="breathing_btn_resume">재개</string>
+    <string name="breathing_btn_cancel">중단</string>
+    <string name="breathing_cancel_confirm_title">호흡 가이드를 중단할까요?</string>
+    <string name="breathing_cancel_confirm_desc">지금까지의 세션은 저장되지 않습니다.</string>
+    <string name="breathing_complete_title">호흡 가이드를 마쳤어요</string>
+    <string name="breathing_ble_disconnected">기기 연결이 끊겼어요. 화면 가이드는 계속됩니다.</string>
 
     <!-- 설정 -->
     <string name="settings_title">설정</string>

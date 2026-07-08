@@ -6,26 +6,33 @@ enum class VibrationType {
 }
 
 /**
- * 선택 가능한 진동 패턴.
- * @param timings 로컬 미리듣기(Vibrator.vibrate)용 on/off 패턴
- * @param effect 기기의 DRV2605L 라이브러리 효과 번호(1~123). BleManager.sendVibration()에 전달된다.
+ * 선택 가능한 진동 패턴. 기기의 DRV2605L 라이브러리 효과 번호(1~123)를
+ * [count]회, [intervalMs](ms) 간격으로 BleManager.sendVibration()에 그대로 전달한다.
+ * 폰 자체 진동(Vibrator)은 사용하지 않는다 — 판단·설정은 앱, 실행은 기기라는 원칙에 따름.
  */
 data class VibrationPattern(
     val id: String,
     val name: String,
-    val timings: LongArray,
-    val effect: Int
+    val type: VibrationType,
+    val effect: Int,
+    val count: Int = 1,
+    val intervalMs: Int = 0
 )
 
+// TODO: LRA 실기 테스트 후 효과#/count/interval 최종값 조정
 object VibrationPatterns {
     val ALL = listOf(
-        VibrationPattern("wave", "잔잔한 물결", longArrayOf(0, 120, 100, 120, 100, 200), effect = 51),
-        VibrationPattern("tap", "가벼운 두드림", longArrayOf(0, 60, 80, 60), effect = 1),
-        VibrationPattern("soft", "부드러운 파동", longArrayOf(0, 250), effect = 47),
-        VibrationPattern("short", "짧은 알림", longArrayOf(0, 40), effect = 10),
-        VibrationPattern("rhythm", "리듬 진동", longArrayOf(0, 80, 80, 80, 80, 160, 80, 80), effect = 16),
-        VibrationPattern("rise", "점점 강해지는 진동", longArrayOf(0, 50, 60, 100, 60, 150), effect = 23),
-        VibrationPattern("fall", "점점 약해지는 진동", longArrayOf(0, 150, 60, 100, 60, 50), effect = 24),
-        VibrationPattern("heartbeat", "심장박동 진동", longArrayOf(0, 60, 60, 100, 200, 60, 60, 100), effect = 58)
+        VibrationPattern("soft_tap", "부드러운 툭", VibrationType.TENSION, effect = 7),
+        VibrationPattern("hum", "잔잔한 허밍", VibrationType.TENSION, effect = 119),
+        VibrationPattern("double_tap", "이중 탭", VibrationType.TIMER, effect = 10),
+        VibrationPattern("triple_tap", "삼중 탭", VibrationType.TIMER, effect = 12),
+        VibrationPattern("long_alert", "긴 알림", VibrationType.TIMER, effect = 16),
+        VibrationPattern("repeat_ring", "울림 반복", VibrationType.TIMER, effect = 14, count = 3, intervalMs = 600)
     )
+
+    /** 긴장도 진동 기본값: 부드러운 툭(effect 7) */
+    val TENSION_DEFAULT_ID = "soft_tap"
+
+    /** 타이머 진동 기본값: 이중 탭(effect 10) */
+    val TIMER_DEFAULT_ID = "double_tap"
 }
