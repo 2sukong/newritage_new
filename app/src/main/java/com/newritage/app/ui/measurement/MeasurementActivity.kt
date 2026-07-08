@@ -25,13 +25,15 @@ class MeasurementActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMeasurementBinding
     private lateinit var prefs: UserPreferences
+    private lateinit var chartDataSet: LineDataSet
 
     private val handler = Handler(Looper.getMainLooper())
     private var measuring = false
+    private var elapsedMillis = 0L
     private var elapsedSeconds = 0
+    private var lastTimerSecond = -1
     private val pressureReadings = mutableListOf<Float>()
     private val sensorReadings = mutableListOf<SensorReading>()
-    private val chartEntries = mutableListOf<Entry>()
     private var vibrationCount = 0
 
     // BLE SENSOR 특성에서 마지막으로 받은 f0(엄지)/f1(검지·중지)/f2(손바닥)/total 값
@@ -57,12 +59,20 @@ class MeasurementActivity : AppCompatActivity() {
         prefs = UserPreferences(this)
         baselineTotal = prefs.baselineOverall.toInt()
 
+        // 홈 화면의 대기 링이 돌던 각도를 이어받아, 화면이 바뀌어도 링이 끊김없이 이어서 돌게 한다.
+        val idleAngle = intent.getFloatExtra(EXTRA_IDLE_RING_ANGLE, 0f)
+        binding.waveView.seedIdleAngle(idleAngle)
+
         binding.waveView.setWaveStyle(WaveStyle.MEASURING)
         setupChart()
         connectBle()
         startMeasurement()
 
-        binding.btnBack.setOnClickListener { finish() }
+        binding.btnBack.setOnClickListener {
+            finish()
+            @Suppress("DEPRECATION")
+            overridePendingTransition(0, 0)
+        }
         binding.btnStop.setOnClickListener { stopMeasurement() }
     }
 
@@ -105,23 +115,42 @@ class MeasurementActivity : AppCompatActivity() {
         }
     }
 
+    /** 측정 시작 시 그래프를 빈 데이터셋으로 초기화한다. */
+    private fun resetChartData() {
+        chartDataSet = LineDataSet(mutableListOf(), "압력").apply {
+            color = Color.parseColor("#8B9E7B")
+            setDrawCircles(false)
+            setDrawValues(false)
+            lineWidth = 2f
+            setDrawFilled(true)
+            fillColor = Color.parseColor("#8B9E7B")
+            fillAlpha = 50
+            mode = LineDataSet.Mode.CUBIC_BEZIER
+        }
+        binding.lineChart.data = LineData(chartDataSet)
+        binding.lineChart.invalidate()
+    }
+
     private fun startMeasurement() {
         measuring = true
+        elapsedMillis = 0L
         elapsedSeconds = 0
+        lastTimerSecond = -1
         pressureReadings.clear()
         sensorReadings.clear()
-        chartEntries.clear()
         vibrationCount = 0
         tensionState = TensionState.CALM
         binding.btnStop.isEnabled = true
         binding.waveView.startWave()
+        resetChartData()
         measureLoop.run()
     }
 
     private val measureLoop = object : Runnable {
         override fun run() {
             if (!measuring) return
-            elapsedSeconds++
+            elapsedMillis += TICK_INTERVAL_MS
+            val elapsedSecondsNow = (elapsedMillis / 1000).toInt()
 
             // BLE SENSOR 특성에서 흘러들어온 실제 total(f0+f1+f2) 값을 baseline과 비교해 분류
             val pressure = latestTotal.toFloat()
@@ -136,46 +165,39 @@ class MeasurementActivity : AppCompatActivity() {
                     overall = pressure
                 )
             )
-            updateTensionState(latestTotal)
-            if (elapsedSeconds % TIMER_VIBRATION_INTERVAL_SECONDS == 0) {
-                sendTimerVibration()
+
+            // 긴장 판정·타이머·진동은 노이즈에 흔들리지 않도록 실제 1초 경계에서만 갱신한다.
+            if (elapsedSecondsNow != lastTimerSecond) {
+                lastTimerSecond = elapsedSecondsNow
+                elapsedSeconds = elapsedSecondsNow
+                updateTensionState(latestTotal)
+                if (elapsedSecondsNow > 0 && elapsedSecondsNow % TIMER_VIBRATION_INTERVAL_SECONDS == 0) {
+                    sendTimerVibration()
+                }
+                val min = elapsedSecondsNow / 60
+                val sec = elapsedSecondsNow % 60
+                binding.tvTimer.text = String.format("%02d:%02d", min, sec)
             }
 
-            // UI 업데이트
-            val min = elapsedSeconds / 60
-            val sec = elapsedSeconds % 60
-            binding.tvTimer.text = String.format("%02d:%02d", min, sec)
+            // 압력값·물결·그래프는 바로바로 반영되도록 빠른 주기로 갱신
             binding.tvCurrentPressure.text = String.format("%.0f", pressure)
 
             // 웨이브뷰: baseline*2를 가득 찬 기준으로 삼아 setPressure()가 기대하는 0~80 스케일에 근사 매핑
             val waveInput = (pressure / (baselineTotal.coerceAtLeast(1) * 2f)).coerceIn(0f, 1f) * 80f
             binding.waveView.setPressure(waveInput)
 
-            // 차트 업데이트
-            chartEntries.add(Entry(elapsedSeconds.toFloat(), pressure))
-            updateChart()
+            appendChartEntry(elapsedMillis / 1000f, pressure)
 
-            handler.postDelayed(this, 1000L)
+            handler.postDelayed(this, TICK_INTERVAL_MS)
         }
     }
 
-    private fun updateChart() {
-        val visibleEntries = if (chartEntries.size > 60) {
-            chartEntries.takeLast(60)
-        } else {
-            chartEntries.toList()
+    private fun appendChartEntry(xSeconds: Float, pressure: Float) {
+        chartDataSet.addEntry(Entry(xSeconds, pressure))
+        while (chartDataSet.entryCount > 1 && xSeconds - chartDataSet.getEntryForIndex(0).x > CHART_WINDOW_SECONDS) {
+            chartDataSet.removeFirst()
         }
-
-        val dataSet = LineDataSet(visibleEntries, "압력").apply {
-            color = Color.parseColor("#8B9E7B")
-            setDrawCircles(false)
-            lineWidth = 2f
-            setDrawFilled(true)
-            fillColor = Color.parseColor("#8B9E7B")
-            fillAlpha = 50
-            mode = LineDataSet.Mode.CUBIC_BEZIER
-        }
-        binding.lineChart.data = LineData(dataSet)
+        binding.lineChart.data?.notifyDataChanged()
         binding.lineChart.notifyDataSetChanged()
         binding.lineChart.invalidate()
     }
@@ -249,8 +271,11 @@ class MeasurementActivity : AppCompatActivity() {
         handler.removeCallbacks(measureLoop)
     }
 
-    private companion object {
-        const val TENSION_THRESHOLD_RATIO = 1.2f
-        const val TIMER_VIBRATION_INTERVAL_SECONDS = 60
+    companion object {
+        const val EXTRA_IDLE_RING_ANGLE = "idle_ring_angle"
+        private const val TENSION_THRESHOLD_RATIO = 1.2f
+        private const val TIMER_VIBRATION_INTERVAL_SECONDS = 60
+        private const val TICK_INTERVAL_MS = 100L
+        private const val CHART_WINDOW_SECONDS = 60f
     }
 }

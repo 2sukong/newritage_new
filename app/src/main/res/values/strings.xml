@@ -101,6 +101,10 @@
     <string name="nav_analysis">명상분석</string>
     <string name="nav_settings">설정</string>
 
+    <!-- 실/매듭 보관함 공통 -->
+    <string name="badge_new">NEW</string>
+    <string name="day_number_format">%d일</string>
+
     <!-- 실 보관함 -->
     <string name="thread_storage_title">실 보관함</string>
     <string name="today_thread_title">오늘의 실</string>

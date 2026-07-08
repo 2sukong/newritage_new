@@ -22,6 +22,9 @@
     <color name="text_other">#82A68D</color>
 
 
+    <!-- 새로 얻은 실/매듭 강조색 -->
+    <color name="accent_new">#B5CC3E</color>
+
     <!-- 구분선 -->
     <color name="divider">#E0E0D8</color>
     <color name="input_border">#C8C8C8</color>

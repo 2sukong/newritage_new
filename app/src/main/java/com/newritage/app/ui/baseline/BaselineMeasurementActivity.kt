@@ -20,7 +20,7 @@ class BaselineMeasurementActivity : AppCompatActivity() {
 
     private val handler = Handler(Looper.getMainLooper())
     private var measuring = false
-    private var elapsedSeconds = 0
+    private var elapsedMillis = 0L
 
     // 30초에서 3분(180초) 측정으로 변경
     private val measureDuration = 180
@@ -97,7 +97,7 @@ class BaselineMeasurementActivity : AppCompatActivity() {
     private fun startMeasurement() {
         showScreen(Screen.MEASURING)
         measuring = true
-        elapsedSeconds = 0
+        elapsedMillis = 0L
         pressureReadings.clear()
         thumbReadings.clear()
         imReadings.clear()
@@ -113,7 +113,8 @@ class BaselineMeasurementActivity : AppCompatActivity() {
         override fun run() {
             if (!measuring) return
 
-            elapsedSeconds++
+            elapsedMillis += TICK_INTERVAL_MS
+            val elapsedSecondsNow = (elapsedMillis / 1000).toInt()
 
             // BLE SENSOR 특성에서 흘러들어온 실제 f0/f1/f2/total 값을 그대로 사용
             val rawPressure = latestTotal.toFloat()
@@ -122,22 +123,20 @@ class BaselineMeasurementActivity : AppCompatActivity() {
             imReadings.add(latestIm.toFloat())
             palmReadings.add(latestPalm.toFloat())
 
-            val elapsed = elapsedSeconds
-
             // 1. 하단 흰색 박스 안의 타이머 분:초 갱신 (tvLiveTimer)
-            binding.tvLiveTimer.text = String.format("%d:%02d", elapsed / 60, elapsed % 60)
+            binding.tvLiveTimer.text = String.format("%d:%02d", elapsedSecondsNow / 60, elapsedSecondsNow % 60)
 
-            // 2. 중앙에 실시간 수신된 단일 압력값 표기 (정수형 예시)
+            // 2. 중앙에 실시간 수신된 단일 압력값 표기 (정수형 예시), 물결도 바로바로 반영되도록 빠른 주기로 갱신
             binding.tvLivePressureValue.text = String.format("%d", rawPressure.toInt())
 
             // 3. 원 내부의 물결 높이를 실시간 압력에 맞춰 조절 (센서 이론상 최댓값 12285 기준 0~80 스케일로 정규화)
             val waveInput = (rawPressure / 12285f).coerceIn(0f, 1f) * 80f
             binding.waveView.setPressure(waveInput)
 
-            if (elapsedSeconds >= measureDuration) {
+            if (elapsedSecondsNow >= measureDuration) {
                 completeMeasurement()
             } else {
-                handler.postDelayed(this, 1000L)
+                handler.postDelayed(this, TICK_INTERVAL_MS)
             }
         }
     }
@@ -172,4 +171,8 @@ class BaselineMeasurementActivity : AppCompatActivity() {
     }
 
     enum class Screen { GUIDE, MEASURING, COMPLETE }
+
+    private companion object {
+        const val TICK_INTERVAL_MS = 100L
+    }
 }
