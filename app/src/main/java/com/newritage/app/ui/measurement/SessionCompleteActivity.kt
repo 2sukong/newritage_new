@@ -1,9 +1,11 @@
 package com.newritage.app.ui.measurement
 
+import android.animation.ValueAnimator
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.view.View
+import android.view.animation.DecelerateInterpolator
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.newritage.app.R
@@ -14,11 +16,15 @@ import com.newritage.app.data.UserPreferences
 import com.newritage.app.databinding.ActivitySessionCompleteBinding
 import com.newritage.app.stats.StatsCalculator
 import com.newritage.app.ui.main.MainActivity
+import com.newritage.app.ui.util.WaveStyle
+import com.newritage.app.util.PressureDisplay
 import com.newritage.app.util.ThreadColors
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import kotlin.math.roundToInt
 
 class SessionCompleteActivity : AppCompatActivity() {
 
@@ -32,8 +38,10 @@ class SessionCompleteActivity : AppCompatActivity() {
     private var avgPressure = 0f
     private var maxPressure = 0f
     private var minPressure = 0f
+    private var sessionStartMillis = 0L
+    private var sessionEndMillis = 0L
 
-    enum class Screen { COMPLETE, RECORD, THREAD }
+    enum class Screen { RECORD, SAVED, THREAD }
 
     private val dao by lazy { AppDatabase.getInstance(this).sessionDao() }
 
@@ -49,6 +57,8 @@ class SessionCompleteActivity : AppCompatActivity() {
         avgPressure = intent.getFloatExtra("avg_pressure", 0f)
         maxPressure = intent.getFloatExtra("max_pressure", 0f)
         minPressure = intent.getFloatExtra("min_pressure", 0f)
+        sessionStartMillis = intent.getLongExtra("session_start_millis", 0L)
+        sessionEndMillis = intent.getLongExtra("session_end_millis", 0L)
 
         showScreen(Screen.RECORD)
         populateRecord()
@@ -56,29 +66,36 @@ class SessionCompleteActivity : AppCompatActivity() {
     }
 
     private fun setupButtons() {
-        // 저장 → 하루 첫 세션이면 실 제공 화면, 아니면 완료 화면
-        binding.btnSaveRecord.setOnClickListener {
-            saveSession()
-        }
-
-        // 완료(스트릭) 화면 → 메인
-        binding.btnGoRecord.setOnClickListener { goHome() }
+        binding.btnSaveRecord.setOnClickListener { saveSession(skipEmotion = false) }
+        binding.btnSkipRecord.setOnClickListener { saveSession(skipEmotion = true) }
 
         // 실 제공 → 메인
         binding.btnGoMain.setOnClickListener { goHome() }
     }
 
     private fun populateRecord() {
-        val min = durationSeconds / 60
-        val sec = durationSeconds % 60
-        binding.tvRecordMedTime.text = String.format("%02d:%02d", min, sec)
-        binding.tvRecordAvgPressure.text = String.format("%.1f kPa", avgPressure)
-        binding.tvRecordMaxPressure.text = String.format("%.1f kPa", maxPressure)
-        binding.tvRecordMinPressure.text = String.format("%.1f kPa", minPressure)
+        val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
+        binding.tvRecordMedTime.text = if (sessionStartMillis > 0 && sessionEndMillis > 0) {
+            getString(
+                R.string.review_time_range_format,
+                timeFormat.format(Date(sessionStartMillis)),
+                timeFormat.format(Date(sessionEndMillis))
+            )
+        } else {
+            String.format("%02d:%02d", durationSeconds / 60, durationSeconds % 60)
+        }
+
+        val avgN = PressureDisplay.toDisplayValue(avgPressure).roundToInt()
+        val maxN = PressureDisplay.toDisplayValue(maxPressure).roundToInt()
+        val minN = PressureDisplay.toDisplayValue(minPressure).roundToInt()
+        binding.tvRecordAvgPressure.text = getString(R.string.review_tension_value_format, avgN)
+        binding.tvRecordMinMaxPressure.text = getString(R.string.review_minmax_format, maxN, minN)
+        binding.tvRecordDeviationCount.text =
+            getString(R.string.review_deviation_count_format, SessionDataHolder.vibrationCount)
     }
 
-    private fun saveSession() {
-        val emotion = binding.etEmotion.text?.toString()?.trim() ?: ""
+    private fun saveSession(skipEmotion: Boolean) {
+        val emotion = if (skipEmotion) "" else (binding.etEmotion.text?.toString()?.trim() ?: "")
         val today = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
 
         val readings = SessionDataHolder.sensorReadings
@@ -134,26 +151,51 @@ class SessionCompleteActivity : AppCompatActivity() {
             SessionDataHolder.clear()
 
             runOnUiThread {
-                if (isFirstSession) {
-                    assignedColor = colorObj
-                    showScreen(Screen.THREAD)
-                    showThreadProvide(keywords, feedback)
-                } else {
-                    showScreen(Screen.COMPLETE)
-                    showStreak()
-                }
+                showSavedScreen(isFirstSession, colorObj, vibrationCount)
             }
         }
     }
 
-    private fun showStreak() {
+    /**
+     * 저장 직후 몇 초간 보여주는 애니메이션 화면. 컵에 물이 차오르듯 WaveView를 0에서부터
+     * 채우고, 그 뒤로는 사용자 조작 없이 자동으로 다음 화면(실 제공 또는 메인)으로 넘어간다.
+     */
+    private fun showSavedScreen(
+        isFirstSession: Boolean,
+        colorObj: ThreadColors.ThreadColor,
+        vibrationCount: Int
+    ) {
+        showScreen(Screen.SAVED)
+
+        binding.waveViewSaved.setWaveStyle(WaveStyle.COMPLETE)
+        binding.waveViewSaved.setPressure(0f)
+        binding.waveViewSaved.startWave()
+
+        ValueAnimator.ofFloat(0f, SAVED_FILL_TARGET).apply {
+            duration = SAVED_FILL_DURATION_MS
+            interpolator = DecelerateInterpolator()
+            addUpdateListener { binding.waveViewSaved.setPressure(it.animatedValue as Float) }
+            start()
+        }
+
         lifecycleScope.launch {
             val totalDays = dao.getTotalActiveDays()
-            binding.tvStreakDays.text = getString(R.string.streak_days_format, totalDays)
+            binding.tvStreakDays.text = getString(R.string.streak_record_format, totalDays)
+        }
+
+        lifecycleScope.launch {
+            delay(SAVED_SCREEN_DURATION_MS)
+            if (isFirstSession) {
+                assignedColor = colorObj
+                showScreen(Screen.THREAD)
+                showThreadProvide(vibrationCount)
+            } else {
+                goHome()
+            }
         }
     }
 
-    private fun showThreadProvide(keywords: List<String>, feedback: String) {
+    private fun showThreadProvide(vibrationCount: Int) {
         val color = assignedColor
         if (color != null) {
             try {
@@ -163,9 +205,39 @@ class SessionCompleteActivity : AppCompatActivity() {
             }
             binding.tvThreadColorName.text = color.nameKr
         }
-        binding.tvKeywords.text =
-            if (keywords.isEmpty()) "" else "오늘의 키워드: ${keywords.joinToString(", ")}"
-        binding.tvAiFeedback.text = feedback
+
+        binding.tvThreadDate.text = SimpleDateFormat("yyyy.MM.dd", Locale.getDefault()).format(Date())
+
+        val tensionBadgeValue = ((avgPressure / RAW_PRESSURE_MAX) * TENSION_BADGE_MAX)
+            .roundToInt().coerceIn(0, TENSION_BADGE_MAX.toInt())
+        binding.tvTensionBadge.text = getString(R.string.thread_tension_badge_format, tensionBadgeValue)
+
+        val (para1, para2) = buildThreadFeedback(vibrationCount)
+        binding.tvFeedbackPara1.text = para1
+        binding.tvFeedbackPara2.text = para2
+    }
+
+    /**
+     * baseline 대비 평균 긴장도 수준 + 안정 상태 이탈 빈도, 두 문장을 만든다. 긴장도 수준 경계는
+     * ThreadColors.assignColor()가 실 색상을 나눌 때 쓰는 것과 같은 비율(1.1/1.3)을 재사용해
+     * "이 색 실을 받은 이유"와 "오늘의 피드백"이 서로 어긋나지 않게 했다.
+     */
+    private fun buildThreadFeedback(vibrationCount: Int): Pair<String, String> {
+        val ratio = avgPressure / prefs.baselineOverall.coerceAtLeast(1f)
+        val levelPara = when {
+            ratio < 1.1f -> "평소보다 여유로운 긴장도가 측정되었어요.\n편안한 상태를 잘 유지하셨습니다."
+            ratio < 1.3f -> "평소와 비슷한 안정적인 긴장도가 측정되었어요.\n꾸준한 리듬을 잘 지키고 계세요."
+            else -> "평소보다 비교적 높은 긴장도가 측정되었어요.\n천천히 호흡하면 몸의 긴장을 이완시킬 수 있어요."
+        }
+
+        // TODO: 이탈 빈도 구간(0 / 1~4 / 5+) 기준값은 실기 데이터 쌓이는 대로 조정
+        val deviationPara = when {
+            vibrationCount == 0 -> "긴장도 변화 없이 안정적으로 유지하셨어요.\n오늘도 좋은 흐름이었습니다."
+            vibrationCount < 5 -> "긴장도가 몇 차례 오르내렸지만 곧 다시 안정을 찾으셨어요.\n좋은 회복력이에요."
+            else -> "긴장도의 변화가 평소보다 자주 일어났어요.\n다음에는 좀 더 집중해보아요!"
+        }
+
+        return levelPara to deviationPara
     }
 
     private fun extractKeywords(text: String): List<String> {
@@ -221,8 +293,8 @@ class SessionCompleteActivity : AppCompatActivity() {
     }
 
     private fun showScreen(screen: Screen) {
-        binding.layoutComplete.visibility = if (screen == Screen.COMPLETE) View.VISIBLE else View.GONE
         binding.layoutRecord.visibility = if (screen == Screen.RECORD) View.VISIBLE else View.GONE
+        binding.layoutSaved.visibility = if (screen == Screen.SAVED) View.VISIBLE else View.GONE
         binding.layoutThread.visibility = if (screen == Screen.THREAD) View.VISIBLE else View.GONE
     }
 
@@ -232,5 +304,15 @@ class SessionCompleteActivity : AppCompatActivity() {
         intent.putExtra("NAVIGATE_TO_HOME", true)
         startActivity(intent)
         finish()
+    }
+
+    private companion object {
+        const val SAVED_FILL_TARGET = 65f
+        const val SAVED_FILL_DURATION_MS = 1400L
+        const val SAVED_SCREEN_DURATION_MS = 2600L
+
+        // 원시 total 이론상 최댓값(4095*3)을 0~255 범위의 "긴장도" 배지 표시값으로 환산한다.
+        const val RAW_PRESSURE_MAX = 12285f
+        const val TENSION_BADGE_MAX = 255f
     }
 }

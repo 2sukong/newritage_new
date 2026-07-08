@@ -5,12 +5,15 @@ import android.graphics.Color
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import com.github.mikephil.charting.components.LimitLine
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
+import com.newritage.app.R
 import com.newritage.app.ble.BleManager
 import com.newritage.app.ble.VibrationPatterns
 import com.newritage.app.data.SensorReading
@@ -18,6 +21,7 @@ import com.newritage.app.data.SessionDataHolder
 import com.newritage.app.data.UserPreferences
 import com.newritage.app.databinding.ActivityMeasurementBinding
 import com.newritage.app.ui.util.WaveStyle
+import com.newritage.app.util.PressureDisplay
 
 class MeasurementActivity : AppCompatActivity() {
 
@@ -29,6 +33,7 @@ class MeasurementActivity : AppCompatActivity() {
 
     private val handler = Handler(Looper.getMainLooper())
     private var measuring = false
+    private var paused = false
     private var elapsedMillis = 0L
     private var elapsedSeconds = 0
     private var lastTimerSecond = -1
@@ -45,6 +50,7 @@ class MeasurementActivity : AppCompatActivity() {
     private var tensionState = TensionState.CALM
     private var lastTensionVibrationAtMillis = -TENSION_COOLDOWN_MS
     private var timerVibrationFired = false
+    private var sessionStartAtMillis = 0L
 
     private val permissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { granted ->
@@ -76,6 +82,10 @@ class MeasurementActivity : AppCompatActivity() {
             overridePendingTransition(0, 0)
         }
         binding.btnStop.setOnClickListener { stopMeasurement() }
+        binding.btnPause.setOnClickListener { togglePause() }
+        binding.btnHelp.setOnClickListener {
+            Toast.makeText(this, R.string.feature_in_progress, Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun connectBle() {
@@ -112,8 +122,29 @@ class MeasurementActivity : AppCompatActivity() {
             xAxis.setDrawGridLines(false)
             axisLeft.textColor = Color.parseColor("#5A6B5A")
             axisLeft.axisMinimum = 0f
-            axisLeft.axisMaximum = 12285f // f0+f1+f2 이론상 최댓값(4095*3)
+            axisLeft.axisMaximum = CHART_DISPLAY_MAX_KPA
+            axisLeft.setDrawLimitLinesBehindData(true)
             axisRight.isEnabled = false
+
+            // baseline 대비 낮음/적정/높음 구간 참조선. 경계 비율(1.1/1.3)은 ThreadColors의
+            // 낮음·보통·높음 분류 기준과 동일하게 맞췄다. 낮음 참조선 위치는 고정 경계가 없어
+            // baseline의 60%를 임의 기준으로 표시한다(TODO: 실기 데이터로 조정).
+            val baselineKpa = (baselineTotal / PressureDisplay.SCALE).coerceAtLeast(1f)
+            axisLeft.removeAllLimitLines()
+            axisLeft.addLimitLine(levelLimitLine(baselineKpa * 0.6f, getString(R.string.chart_level_low)))
+            axisLeft.addLimitLine(levelLimitLine(baselineKpa * 1.1f, getString(R.string.chart_level_moderate)))
+            axisLeft.addLimitLine(levelLimitLine(baselineKpa * 1.3f, getString(R.string.chart_level_high)))
+        }
+    }
+
+    private fun levelLimitLine(valueKpa: Float, label: String): LimitLine {
+        return LimitLine(valueKpa, label).apply {
+            lineColor = Color.parseColor("#B5C9A5")
+            lineWidth = 1f
+            enableDashedLine(6f, 4f, 0f)
+            textColor = Color.parseColor("#5A6B5A")
+            textSize = 10f
+            labelPosition = LimitLine.LimitLabelPosition.RIGHT_TOP
         }
     }
 
@@ -135,6 +166,8 @@ class MeasurementActivity : AppCompatActivity() {
 
     private fun startMeasurement() {
         measuring = true
+        paused = false
+        sessionStartAtMillis = System.currentTimeMillis()
         elapsedMillis = 0L
         elapsedSeconds = 0
         lastTimerSecond = -1
@@ -148,6 +181,21 @@ class MeasurementActivity : AppCompatActivity() {
         binding.waveView.startWave()
         resetChartData()
         measureLoop.run()
+    }
+
+    /** 일시정지 중에는 handler에 다음 tick이 예약되지 않으므로 측정 로직 전체가 멈춘다. */
+    private fun togglePause() {
+        if (!measuring) return
+        paused = !paused
+        if (paused) {
+            handler.removeCallbacks(measureLoop)
+            binding.waveView.stopWave()
+            binding.btnPause.setImageResource(R.drawable.ic_play_circle)
+        } else {
+            binding.waveView.startWave()
+            binding.btnPause.setImageResource(R.drawable.ic_pause_circle)
+            handler.postDelayed(measureLoop, TICK_INTERVAL_MS)
+        }
     }
 
     private val measureLoop = object : Runnable {
@@ -184,21 +232,22 @@ class MeasurementActivity : AppCompatActivity() {
                 binding.tvTimer.text = String.format("%02d:%02d", min, sec)
             }
 
-            // 압력값·물결·그래프는 바로바로 반영되도록 빠른 주기로 갱신
-            binding.tvCurrentPressure.text = String.format("%.0f", pressure)
+            // 압력값·물결·그래프는 바로바로 반영되도록 빠른 주기로 갱신 (표시는 kPa 스케일로 환산)
+            val pressureKpa = pressure / PressureDisplay.SCALE
+            binding.tvCurrentPressure.text = String.format("%.0f", pressureKpa)
 
             // 웨이브뷰: baseline*2를 가득 찬 기준으로 삼아 setPressure()가 기대하는 0~80 스케일에 근사 매핑
             val waveInput = (pressure / (baselineTotal.coerceAtLeast(1) * 2f)).coerceIn(0f, 1f) * 80f
             binding.waveView.setPressure(waveInput)
 
-            appendChartEntry(elapsedMillis / 1000f, pressure)
+            appendChartEntry(elapsedMillis / 1000f, pressureKpa)
 
             handler.postDelayed(this, TICK_INTERVAL_MS)
         }
     }
 
-    private fun appendChartEntry(xSeconds: Float, pressure: Float) {
-        chartDataSet.addEntry(Entry(xSeconds, pressure))
+    private fun appendChartEntry(xSeconds: Float, pressureKpa: Float) {
+        chartDataSet.addEntry(Entry(xSeconds, pressureKpa))
         while (chartDataSet.entryCount > 1 && xSeconds - chartDataSet.getEntryForIndex(0).x > CHART_WINDOW_SECONDS) {
             chartDataSet.removeFirst()
         }
@@ -238,6 +287,9 @@ class MeasurementActivity : AppCompatActivity() {
         val isTense = tensionState == TensionState.TENSE
         binding.tvTensionStatus.text = if (isTense) "긴장 감지" else "이완 상태"
         binding.tvTensionStatus.setTextColor(Color.parseColor(if (isTense) "#C97B63" else "#5A6B5A"))
+        binding.tvStatusDesc.text = getString(
+            if (isTense) R.string.pressure_status_tense_desc else R.string.pressure_status_calm_desc
+        )
     }
 
     private fun sendTensionVibration() {
@@ -277,6 +329,8 @@ class MeasurementActivity : AppCompatActivity() {
             putExtra("avg_pressure", avgPressure)
             putExtra("max_pressure", maxPressure)
             putExtra("min_pressure", minPressure)
+            putExtra("session_start_millis", sessionStartAtMillis)
+            putExtra("session_end_millis", System.currentTimeMillis())
         }
         startActivity(intent)
         finish()
@@ -297,5 +351,6 @@ class MeasurementActivity : AppCompatActivity() {
 
         private const val TICK_INTERVAL_MS = 100L
         private const val CHART_WINDOW_SECONDS = 60f
+        private const val CHART_DISPLAY_MAX_KPA = 60f
     }
 }

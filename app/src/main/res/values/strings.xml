@@ -62,16 +62,28 @@
     <!-- 측정 안내 -->
     <string name="guide_title">측정 안내</string>
     <string name="guide_step_1">기기를 손에 쥐고 올바른 자세로 앉아주세요.</string>
-    <string name="guide_step_2">눈을 감게 되고, 어깨에 힘을 빼주세요.</string>
-    <string name="guide_step_3">가천히 눈을 감고 자연스럽게 집중합니다.</string>
+    <string name="guide_step_2">등을 곧게 펴고, 어깨에 힘을 빼주세요.</string>
+    <string name="guide_step_3">가만히 눈을 감고 자연스럽게 호흡합니다.</string>
     <string name="guide_step_4">측정은 약 3분간 진행됩니다.</string>
-    <string name="guide_tip">조용하고 안락한 곳을 찾는 환경에서 측정하면 더 정확한 결과를 얻을 수 있습니다.</string>
+    <string name="guide_tip">조용하고 방해받지 않는 환경에서 측정하면\n더 정확한 결과를 얻을 수 있어요.</string>
     <string name="btn_start_measure">시작하기</string>
 
     <!-- 압력 측정 -->
     <string name="measurement_title">나의 압력 측정</string>
     <string name="measuring_label">측정 중…</string>
-    <string name="btn_stop">완료</string>
+    <string name="measurement_help">도움말</string>
+    <string name="measurement_instruction">기기와 연결된 상태에서 가만히 앉아\n편안하게 휴식해주세요.</string>
+    <string name="measurement_waiting">측정 대기 중</string>
+    <string name="connection_connected">연결됨</string>
+    <string name="connection_disconnected">연결안됨</string>
+    <string name="pressure_status_title">현재 압력 상태</string>
+    <string name="pressure_status_calm_desc">적정 범위 내의 편안한 압력입니다.</string>
+    <string name="pressure_status_tense_desc">평소보다 힘이 많이 들어갔어요. 잠시 손의 긴장을 풀어주세요.</string>
+    <string name="measurement_session_time">명상 시간</string>
+    <string name="chart_level_low">낮음</string>
+    <string name="chart_level_moderate">적정</string>
+    <string name="chart_level_high">높음</string>
+    <string name="btn_stop">명상 완료</string>
     <string name="realtime_chart_label">실시간 압력 그래프</string>
     <string name="unit_kpa">kPa</string>
 
@@ -80,9 +92,31 @@
     <string name="streak_days_format">누적 %1$d일째 실천 중이에요</string>
     <string name="btn_go_main">메인화면으로</string>
 
+    <!-- 기록 리뷰 -->
+    <string name="review_label">REVIEW</string>
+    <string name="review_today_record">오늘의 기록</string>
+    <string name="review_row_med_time">명상 시간</string>
+    <string name="review_row_avg_tension">평균 긴장도</string>
+    <string name="review_row_minmax_tension">최고/최저 긴장도</string>
+    <string name="review_row_deviation_count">안정 상태 이탈 빈도</string>
+    <string name="review_deviation_count_format">%d회</string>
+    <string name="review_tension_value_format">%dN</string>
+    <string name="review_minmax_format">%1$dN/%2$dN</string>
+    <string name="review_time_range_format">%1$s-%2$s</string>
+    <string name="review_today_emotion">오늘의 감정</string>
+    <string name="review_emotion_hint">오늘 하루 무슨 일이 있었나요?</string>
+    <string name="btn_skip_record">건너뛰기</string>
+    <string name="btn_save_record">기록하기</string>
+
+    <!-- 기록 완료(잠깐 보여주는 애니메이션 화면) -->
+    <string name="saved_title">오늘이\n기록되었습니다</string>
+    <string name="streak_record_format">연속 기록 %1$d일째</string>
+
     <!-- 실 제공 -->
+    <string name="thread_eyebrow">오늘의 실</string>
     <string name="thread_provide_title">오늘의 실이 생성되었어요</string>
     <string name="thread_provide_subtitle">오늘 명상 데이터를 바탕으로 실 색상이 결정되었습니다.</string>
+    <string name="thread_tension_badge_format">긴장도 %1$d/255</string>
     <string name="btn_view_thread">실 설명 보기</string>
 
     <!-- 매듭 상세 -->

@@ -23,7 +23,8 @@
         android:id="@+id/threadSquareFrame"
         android:layout_width="64dp"
         android:layout_height="76dp"
-        android:background="@drawable/bg_thread_square">
+        android:background="@drawable/calender_frame"
+        android:padding="8dp">
 
         <View
             android:id="@+id/threadSwatch"

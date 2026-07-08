@@ -2,23 +2,24 @@
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://tools.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <!-- 배경 1: 그라데이션 -->
+    <View
+        android:id="@+id/bgGradient"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/bg_onboarding_page_gradient" />
+
+    <!-- 배경 2: 반투명 사진 -->
     <ImageView
-        android:id="@+id/bgImageView"
+        android:id="@+id/bgImage"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:src="@drawable/background"
         android:scaleType="centerCrop"
-        android:background="@drawable/bg_onboarding_gradient"
-        app:tint="#80000000"
-        app:tintMode="src_atop"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        android:alpha="0.45" />
 
     <ImageView
         android:id="@+id/imageView"

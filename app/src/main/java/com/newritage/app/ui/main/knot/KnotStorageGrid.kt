@@ -1,12 +1,11 @@
 package com.newritage.app.ui.main.knot
 
-import androidx.compose.foundation.border
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -14,14 +13,14 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -38,7 +37,6 @@ data class KnotGridEntry(
     val isNew: Boolean
 )
 
-private val CELL_BORDER_COLOR = Color(0xFFE0E0D8)
 private val NEW_ACCENT_COLOR = Color(0xFFB5CC3E)
 private val DAY_LABEL_COLOR = Color(0xFF5A6B5A)
 
@@ -82,8 +80,6 @@ private fun KnotGridCell(
     modelLoader: io.github.sceneview.loaders.ModelLoader,
     onClick: () -> Unit
 ) {
-    val cellShape = RoundedCornerShape(10.dp)
-
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         if (entry.isNew) {
             Text(
@@ -99,20 +95,22 @@ private fun KnotGridCell(
             modifier = Modifier
                 .width(64.dp)
                 .height(76.dp)
-                .clip(cellShape)
-                .border(
-                    if (entry.isNew) 2.dp else 1.dp,
-                    if (entry.isNew) NEW_ACCENT_COLOR else CELL_BORDER_COLOR,
-                    cellShape
-                )
         ) {
+            Image(
+                painter = painterResource(R.drawable.calender_frame),
+                contentDescription = null,
+                contentScale = ContentScale.FillBounds,
+                modifier = Modifier.fillMaxSize()
+            )
             KnotModelViewer(
                 glbAssetPath = entry.knotType.assetPath,
                 interactive = false,
                 tintColor = knotTintColorOrNull(entry.tintColorHex),
                 engine = engine,
                 modelLoader = modelLoader,
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(8.dp)
             )
             // 3D 썸네일의 SurfaceView가 터치를 먼저 가로채므로, 탭을 확실히 받기 위해
             // 투명한 클릭 레이어를 그 위에 겹쳐 둔다.

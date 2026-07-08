@@ -89,9 +89,7 @@ class ThreadStorageFragment : Fragment() {
             tvDay.text = getString(R.string.day_number_format, day)
             val isNew = dateStr == todayStr
             tvNewBadge.visibility = if (isNew) View.VISIBLE else View.GONE
-            threadSquareFrame.setBackgroundResource(
-                if (isNew) R.drawable.bg_thread_square_new else R.drawable.bg_thread_square
-            )
+            threadSquareFrame.setBackgroundResource(R.drawable.calender_frame)
 
             try {
                 val cornerRadius = resources.displayMetrics.density * 9f

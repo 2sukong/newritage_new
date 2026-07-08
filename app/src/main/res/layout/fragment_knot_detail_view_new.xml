@@ -117,7 +117,7 @@
                 android:layout_width="160dp"
                 android:layout_height="160dp"
                 android:layout_marginTop="40dp"
-                android:background="@drawable/knot_frame"
+                android:background="@drawable/frame"
                 android:padding="12dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
