@@ -270,16 +270,23 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintVertical_chainStyle="packed">
 
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_margin="14dp"
+                android:background="@drawable/bg_circle_inner_ring" />
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:gravity="center"
                 android:text="측정이\n완료되었습니다"
-                android:textSize="18sp"
+                android:textSize="20sp"
                 android:textColor="#5A6E5D"
                 android:textStyle="bold"
                 android:lineSpacingMultiplier="1.3" />
+
         </FrameLayout>
 
         <Button

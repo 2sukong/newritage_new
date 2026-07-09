@@ -66,10 +66,16 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <androidx.compose.ui.platform.ComposeView
-                android:id="@+id/knotComposeGrid"
+            <GridLayout
+                android:id="@+id/calendarGrid"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:columnCount="4"
+                android:rowCount="8"
+                android:layout_gravity="center_horizontal"
+                android:useDefaultMargins="true"
+                android:alignmentMode="alignMargins">
+            </GridLayout>
 
         </ScrollView>
     </FrameLayout>
