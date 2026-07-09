@@ -5,7 +5,6 @@ import android.graphics.Color
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.github.mikephil.charting.components.LimitLine
@@ -83,9 +82,6 @@ class MeasurementActivity : AppCompatActivity() {
         }
         binding.btnStop.setOnClickListener { stopMeasurement() }
         binding.btnPause.setOnClickListener { togglePause() }
-        binding.btnHelp.setOnClickListener {
-            Toast.makeText(this, R.string.feature_in_progress, Toast.LENGTH_SHORT).show()
-        }
     }
 
     private fun connectBle() {

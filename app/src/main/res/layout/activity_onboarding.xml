@@ -27,22 +27,16 @@
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tabIndicator"
         android:layout_width="wrap_content"
-
         android:layout_height="10dp"
-
         android:layout_marginBottom="24dp"
         android:background="@android:color/transparent"
         app:tabBackground="@drawable/tab_selector"
         app:tabGravity="center"
         app:tabIndicatorHeight="0dp"
-        app:tabMinWidth="40dp"
-
-        app:tabContentStart="0dp"
-
+        app:tabMinWidth="10dp"
         app:tabMaxWidth="10dp"
-        app:tabPaddingStart="6dp"
-        app:tabPaddingEnd="6dp"
-
+        app:tabPaddingStart="8dp"
+        app:tabPaddingEnd="8dp"
         app:tabRippleColor="@android:color/transparent"
         app:layout_constraintBottom_toTopOf="@id/layoutButtons"
         app:layout_constraintStart_toStartOf="parent"

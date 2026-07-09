@@ -108,6 +108,40 @@
                 android:layout_marginHorizontal="12dp" />
         </FrameLayout>
 
+        <!-- 기기 연결 상태 배지 (일반 측정 전 화면과 동일한 위치/스타일) -->
+        <LinearLayout
+            android:id="@+id/badgeConnectionReady"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="@drawable/bg_connection_badge"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:paddingTop="6dp"
+            android:paddingLeft="50dp"
+            android:paddingBottom="6dp"
+            android:layout_marginTop="-18dp"
+            android:layout_marginEnd="-50dp"
+            app:layout_constraintTop_toBottomOf="@id/guideCircleReady"
+            app:layout_constraintEnd_toEndOf="@id/guideCircleReady">
+
+            <View
+                android:id="@+id/dotConnectionReady"
+                android:layout_width="8dp"
+                android:layout_height="8dp"
+                android:background="@drawable/bg_dot" />
+
+            <TextView
+                android:id="@+id/tvConnectionStatusReady"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:text="@string/connection_disconnected"
+                android:textSize="13sp"
+                android:textColor="@color/text_primary" />
+        </LinearLayout>
+
         <Button
             android:id="@+id/btnStartMeasure"
             style="@style/Widget.MaterialComponents.Button"

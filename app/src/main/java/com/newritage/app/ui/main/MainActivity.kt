@@ -17,6 +17,7 @@ import com.newritage.app.ui.main.thread.ThreadStorageFragment
 import com.newritage.app.ui.measurement.MeasurementActivity
 import com.newritage.app.ui.settings.SettingsActivity
 import com.newritage.app.ui.util.WaveStyle
+import com.newritage.app.util.FeatureFlags
 
 class MainActivity : AppCompatActivity() {
 
@@ -75,6 +76,10 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupHomeButton() {
         binding.groupIdle.setOnClickListener {
+            if (FeatureFlags.REQUIRE_BLE_CONNECTION_TO_START && !BleManager.isConnected) {
+                Toast.makeText(this, R.string.connection_required_toast, Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
             val intent = Intent(this, MeasurementActivity::class.java).apply {
                 // 대기 링의 회전각을 그대로 이어받아 화면이 바뀌어도 링이 끊김없이 이어서 돌게 한다.
                 putExtra(MeasurementActivity.EXTRA_IDLE_RING_ANGLE, binding.waveView.currentIdleAngle())

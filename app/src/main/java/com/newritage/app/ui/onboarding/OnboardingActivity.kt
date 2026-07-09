@@ -22,10 +22,10 @@ class OnboardingActivity : AppCompatActivity() {
     private lateinit var prefs: UserPreferences
 
     private val pages = listOf(
-        OnboardingPage(R.string.onboarding_title_1, R.drawable.logo),
-        OnboardingPage(R.string.onboarding_title_2, R.drawable.onboarding1),
-        OnboardingPage(R.string.onboarding_title_3, R.drawable.onboarding2),
-        OnboardingPage(R.string.onboarding_title_4, R.drawable.onboarding3)
+        OnboardingPage(R.string.onboarding_title_1, R.drawable.logo, 140),
+        OnboardingPage(R.string.onboarding_title_2, R.drawable.onboarding1, 200),
+        OnboardingPage(R.string.onboarding_title_3, R.drawable.onboarding2, 240),
+        OnboardingPage(R.string.onboarding_title_4, R.drawable.onboarding3, 180)
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -36,7 +36,6 @@ class OnboardingActivity : AppCompatActivity() {
         prefs = UserPreferences(this)
 
         setupViewPager()
-
     }
 
     private fun setupViewPager() {
@@ -72,10 +71,11 @@ class OnboardingActivity : AppCompatActivity() {
     }
 }
 
-
-// 기존: data class OnboardingPage(val titleResId: Int)
-// 변경: 이미지 리소스 ID(Int)를 받을 수 있도록 파라미터 추가
-data class OnboardingPage(val titleResId: Int, val imageResId: Int)
+data class OnboardingPage(
+    val titleResId: Int,
+    val imageResId: Int,
+    val imageHeightDp: Int   // 페이지별 이미지 높이(dp)
+)
 
 class OnboardingAdapter(private val pages: List<OnboardingPage>) :
     RecyclerView.Adapter<OnboardingAdapter.ViewHolder>() {
@@ -94,11 +94,22 @@ class OnboardingAdapter(private val pages: List<OnboardingPage>) :
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val page = pages[position]
 
-        // 텍스트 변경 명령
         holder.tvTitle.setText(page.titleResId)
+        holder.ivIcon.setImageResource(page.imageResId)
 
-        // 이미지 변경 명령 (추가된 부분)
-        holder.ivIcon.setImageResource(page.imageResId)   // 아이콘 이미지는 페이지별로 다를 수 있음 (현재 기본 아이콘 사용)
+        val density = holder.itemView.context.resources.displayMetrics.density
+        val heightPx = (page.imageHeightDp * density).toInt()
+        val lp = holder.ivIcon.layoutParams
+        lp.height = heightPx
+        holder.ivIcon.layoutParams = lp
+
+        if (position == 0) {
+            holder.ivIcon.outlineProvider = android.view.ViewOutlineProvider.BOUNDS
+            holder.ivIcon.elevation = 12f
+        } else {
+            holder.ivIcon.outlineProvider = android.view.ViewOutlineProvider.BACKGROUND
+            holder.ivIcon.elevation = 0f
+        }
     }
 
     override fun getItemCount() = pages.size

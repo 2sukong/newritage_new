@@ -1,17 +1,23 @@
 package com.newritage.app.ui.baseline
 
 import android.content.Intent
+import android.content.res.ColorStateList
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.view.View
+import android.view.animation.DecelerateInterpolator
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
+import com.newritage.app.R
 import com.newritage.app.ble.BleManager
 import com.newritage.app.data.UserPreferences
 import com.newritage.app.databinding.ActivityBaselineMeasurementBinding
 import com.newritage.app.ui.main.MainActivity
 import com.newritage.app.ui.util.WaveStyle
+import com.newritage.app.util.FeatureFlags
 
 class BaselineMeasurementActivity : AppCompatActivity() {
 
@@ -22,8 +28,7 @@ class BaselineMeasurementActivity : AppCompatActivity() {
     private var measuring = false
     private var elapsedMillis = 0L
 
-    // 30초에서 3분(180초) 측정으로 변경
-    private val measureDuration = 180
+    private val measureDuration = 10
     private val pressureReadings = mutableListOf<Float>()
     private val thumbReadings = mutableListOf<Float>()
     private val imReadings = mutableListOf<Float>()
@@ -69,19 +74,40 @@ class BaselineMeasurementActivity : AppCompatActivity() {
             latestPalm = f2
             latestTotal = total
         }
+        updateConnectionBadge(BleManager.isConnected)
+        BleManager.onConnectionChange = { connected -> updateConnectionBadge(connected) }
     }
 
     override fun onStop() {
         super.onStop()
         BleManager.onSensorData = null
+        BleManager.onConnectionChange = null
+    }
+
+    private fun updateConnectionBadge(connected: Boolean) {
+        binding.tvConnectionStatusReady.text = getString(
+            if (connected) R.string.connection_connected else R.string.connection_disconnected
+        )
+        binding.dotConnectionReady.backgroundTintList = ColorStateList.valueOf(
+            ContextCompat.getColor(this, if (connected) R.color.primary else R.color.text_hint)
+        )
     }
 
     private fun setupUI() {
         // 최초 상태는 준비 화면(Screen.GUIDE)으로 세팅
         showScreen(Screen.GUIDE)
 
+        // 초기값 설정에 들어가기 앞서 측정 안내 바텀시트를 자동으로 띄운다
+        binding.root.post { showGuideSheet() }
+        binding.btnMeasureTip.setOnClickListener { showGuideSheet() }
+
         // 아까 바꾼 새로운 XML 디자인 속 '시작하기' 버튼 연결
         binding.btnStartMeasure.setOnClickListener {
+            if (FeatureFlags.REQUIRE_BLE_CONNECTION_TO_START && !BleManager.isConnected) {
+                Toast.makeText(this, R.string.connection_required_toast, Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            animateReadyCircleIntoMeasuring()
             startMeasurement()
         }
 
@@ -94,8 +120,40 @@ class BaselineMeasurementActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * 준비 화면의 원을 측정 화면 원과 같은 위치까지 이동시키며, 다른 준비 화면 요소는
+     * 페이드아웃하고 측정 화면은 페이드인시켜 화면 전환 없이 같은 원이 그대로
+     * 측정 모션으로 이어지는 것처럼 보이게 한다.
+     */
+    private fun animateReadyCircleIntoMeasuring() {
+        val readyCircle = binding.guideCircleReady
+        val measuringCircle = binding.gaugeCircleContainer
+        val deltaY = measuringCircle.top.toFloat() - readyCircle.top.toFloat()
+
+        binding.layoutMeasuring.visibility = View.VISIBLE
+        binding.layoutMeasuring.alpha = 0f
+
+        val fadeOutTargets = listOf(binding.cardReadyNotice, binding.btnMeasureTip, binding.btnStartMeasure)
+        fadeOutTargets.forEach { it.animate().alpha(0f).setDuration(READY_FADE_DURATION_MS).start() }
+
+        readyCircle.animate()
+            .translationY(deltaY)
+            .setDuration(TRANSITION_DURATION_MS)
+            .setInterpolator(DecelerateInterpolator())
+            .withEndAction {
+                binding.layoutReady.visibility = View.INVISIBLE
+                readyCircle.translationY = 0f
+                fadeOutTargets.forEach { it.alpha = 1f }
+            }
+            .start()
+
+        binding.layoutMeasuring.animate()
+            .alpha(1f)
+            .setDuration(TRANSITION_DURATION_MS)
+            .start()
+    }
+
     private fun startMeasurement() {
-        showScreen(Screen.MEASURING)
         measuring = true
         elapsedMillis = 0L
         pressureReadings.clear()
@@ -129,8 +187,9 @@ class BaselineMeasurementActivity : AppCompatActivity() {
             // 2. 중앙에 실시간 수신된 단일 압력값 표기 (정수형 예시), 물결도 바로바로 반영되도록 빠른 주기로 갱신
             binding.tvLivePressureValue.text = String.format("%d", rawPressure.toInt())
 
-            // 3. 원 내부의 물결 높이를 실시간 압력에 맞춰 조절 (센서 이론상 최댓값 12285 기준 0~80 스케일로 정규화)
-            val waveInput = (rawPressure / 12285f).coerceIn(0f, 1f) * 80f
+            // 3. 원 내부의 물결 높이를 실시간 압력에 맞춰 조절 (최댓값을 8000 기준으로 0~80 스케일로 정규화)
+            //    setPressure()가 내부적으로 스프링 보간을 하기 때문에 값이 급변해도 물결 높이는 부드럽게 이어진다.
+            val waveInput = (rawPressure / MEASURING_PRESSURE_SCALE_MAX).coerceIn(0f, 1f) * 80f
             binding.waveView.setPressure(waveInput)
 
             if (elapsedSecondsNow >= measureDuration) {
@@ -157,11 +216,16 @@ class BaselineMeasurementActivity : AppCompatActivity() {
         showScreen(Screen.COMPLETE)
     }
 
+    private fun showGuideSheet() {
+        BaselineGuideBottomSheetDialog(this).show()
+    }
+
     private fun showScreen(screen: Screen) {
-        // 새로 매칭된 ID 체계에 따라 화면 가시성 조절
-        binding.layoutReady.visibility = if (screen == Screen.GUIDE) View.VISIBLE else View.GONE
-        binding.layoutMeasuring.visibility = if (screen == Screen.MEASURING) View.VISIBLE else View.GONE
-        binding.layoutComplete.visibility = if (screen == Screen.COMPLETE) View.VISIBLE else View.GONE
+        // INVISIBLE을 사용해 항상 레이아웃이 계산되도록 유지한다.
+        // (guideCircleReady ↔ gaugeCircleContainer의 위치를 애니메이션에서 정확히 비교하기 위함)
+        binding.layoutReady.visibility = if (screen == Screen.GUIDE) View.VISIBLE else View.INVISIBLE
+        binding.layoutMeasuring.visibility = if (screen == Screen.MEASURING) View.VISIBLE else View.INVISIBLE
+        binding.layoutComplete.visibility = if (screen == Screen.COMPLETE) View.VISIBLE else View.INVISIBLE
     }
 
     override fun onDestroy() {
@@ -174,5 +238,8 @@ class BaselineMeasurementActivity : AppCompatActivity() {
 
     private companion object {
         const val TICK_INTERVAL_MS = 100L
+        const val MEASURING_PRESSURE_SCALE_MAX = 8000f
+        const val TRANSITION_DURATION_MS = 450L
+        const val READY_FADE_DURATION_MS = 260L
     }
 }
