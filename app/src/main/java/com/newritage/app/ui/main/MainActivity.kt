@@ -6,9 +6,9 @@ import androidx.appcompat.app.AppCompatActivity
 import com.newritage.app.R
 import com.newritage.app.databinding.ActivityMainBinding
 import com.newritage.app.ui.main.analysis.AnalysisFragment
-import com.newritage.app.ui.main.home.HomeFragment
 import com.newritage.app.ui.main.knot.KnotStorageFragment
 import com.newritage.app.ui.main.thread.ThreadStorageFragment
+import com.newritage.app.ui.measurement.MeasurementActivity
 import com.newritage.app.ui.settings.SettingsActivity
 
 class MainActivity : AppCompatActivity() {
@@ -34,22 +34,24 @@ class MainActivity : AppCompatActivity() {
     private fun openInitialTab() {
         val selectTab = intent.getIntExtra("select_tab", R.id.nav_home)
         if (selectTab == R.id.nav_home) {
-            supportFragmentManager.beginTransaction()
-                .replace(R.id.fragmentContainer, HomeFragment())
-                .commit()
+            goToMeasurement()
         } else {
             binding.bottomNav.selectedItemId = selectTab
         }
+    }
+
+    /** 홈 탭은 activity_measurement의 screen1(대기 화면)을 그대로 보여준다. */
+    private fun goToMeasurement() {
+        startActivity(Intent(this, MeasurementActivity::class.java))
+        finish()
     }
 
     private fun setupBottomNav() {
         binding.bottomNav.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.nav_home -> {
-                    supportFragmentManager.beginTransaction()
-                        .replace(R.id.fragmentContainer, HomeFragment())
-                        .commit()
-                    true
+                    goToMeasurement()
+                    false
                 }
                 R.id.nav_thread -> {
                     supportFragmentManager.beginTransaction()
