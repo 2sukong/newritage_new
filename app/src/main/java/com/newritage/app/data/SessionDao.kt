@@ -66,6 +66,10 @@ interface SessionDao {
     @Query("SELECT COUNT(DISTINCT date) FROM sessions")
     suspend fun getTotalActiveDays(): Int
 
+    /** 전체 세션 개수 (생애 최초 세션 여부 판단용) */
+    @Query("SELECT COUNT(*) FROM sessions")
+    suspend fun countAllSessions(): Int
+
     /** 세션 하나에 속한 원시 센서 데이터 */
     @Query("SELECT * FROM sensor_readings WHERE sessionId = :sessionId ORDER BY timestamp ASC")
     suspend fun getReadingsForSession(sessionId: Long): List<SensorReading>
