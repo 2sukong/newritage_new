@@ -16,6 +16,7 @@ import com.newritage.app.data.UserPreferences
 import com.newritage.app.ui.main.MainActivity
 import com.newritage.app.ui.util.WaveViewNew
 import com.newritage.app.util.ThreadColors
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
@@ -44,7 +45,6 @@ class SessionCompleteActivity : AppCompatActivity() {
     private lateinit var tvThreadDate: TextView
     private lateinit var threadColorView: View
     private lateinit var tvTensionGauge: TextView
-    private lateinit var tvKeywords: TextView
     private lateinit var tvAiFeedback: TextView
 
     // Extras
@@ -57,6 +57,7 @@ class SessionCompleteActivity : AppCompatActivity() {
     private var endTime = ""
 
     private var isFirstSession = true
+    private var isFirstSessionEver = true
     private var assignedColor: ThreadColors.ThreadColor? = null
 
     private val dao by lazy { AppDatabase.getInstance(this).sessionDao() }
@@ -78,6 +79,7 @@ class SessionCompleteActivity : AppCompatActivity() {
         setupListeners()
         loadStats()
         checkFirstSessionToday()
+        checkFirstSessionEver()
         showScreen(Screen.RECORD)
     }
 
@@ -99,7 +101,6 @@ class SessionCompleteActivity : AppCompatActivity() {
         tvThreadDate = findViewById(R.id.tvThreadDate)
         threadColorView = findViewById(R.id.threadColorView)
         tvTensionGauge = findViewById(R.id.tvTensionGauge)
-        tvKeywords = findViewById(R.id.tvKeywords)
         tvAiFeedback = findViewById(R.id.tvAiFeedback)
 
         findViewById<ImageButton>(R.id.btnBackRecord).setOnClickListener { finish() }
@@ -134,15 +135,22 @@ class SessionCompleteActivity : AppCompatActivity() {
         }
     }
 
+    /** screen3(실 제공)는 하루 단위가 아니라 생애 최초 1회에만 노출한다. */
+    private fun checkFirstSessionEver() {
+        lifecycleScope.launch {
+            isFirstSessionEver = (dao.countAllSessions() == 0)
+        }
+    }
+
     private fun saveSession(emotion: String) {
         val today = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
         val baselineOverall = UserPreferences(this).baselineOverall
         val colorObj = ThreadColors.assignColor(avgPressure, baselineOverall)
         assignedColor = colorObj
 
-        // 키워드 추출 및 피드백 생성
+        // 키워드 추출(로컬 폴백용) 및 로컬 폴백 피드백 생성
         val keywords = extractKeywords(emotion)
-        val feedback = generateAiFeedback(emotion, keywords)
+        val fallbackFeedback = generateAiFeedback(emotion, keywords)
 
         val rawReadings = SessionDataHolder.sensorReadings
 
@@ -188,7 +196,7 @@ class SessionCompleteActivity : AppCompatActivity() {
                 emotion = emotion,
                 threadColor = colorObj.hex,
                 threadColorName = colorObj.nameKr,
-                aiFeedback = feedback
+                aiFeedback = fallbackFeedback
             )
 
             val sessionId = dao.insert(session)
@@ -200,12 +208,16 @@ class SessionCompleteActivity : AppCompatActivity() {
             }
             SessionDataHolder.clear()
 
-            if (isFirstSession) {
+            showScreen(Screen.COMPLETE)
+            prepareCompleteScreen()
+
+            delay(2000)
+
+            if (isFirstSessionEver) {
                 showScreen(Screen.THREAD)
-                prepareThreadScreen(today, feedback, keywords)
+                prepareThreadScreen(today, fallbackFeedback)
             } else {
-                showScreen(Screen.COMPLETE)
-                prepareCompleteScreen()
+                goHome()
             }
         }
     }
@@ -222,11 +234,9 @@ class SessionCompleteActivity : AppCompatActivity() {
             val totalDays = dao.getTotalActiveDays()
             tvStreakDays.text = getString(R.string.streak_days_format, totalDays)
         }
-        // Auto finish after 2.5 seconds
-        screenComplete.postDelayed({ goHome() }, 2500)
     }
 
-    private fun prepareThreadScreen(today: String, feedback: String, keywords: List<String>) {
+    private fun prepareThreadScreen(today: String, feedback: String) {
         val todayStr = SimpleDateFormat("yyyy년 M월 d일", Locale.getDefault()).format(Date())
         tvThreadDate.text = todayStr
         assignedColor?.let {
@@ -234,7 +244,6 @@ class SessionCompleteActivity : AppCompatActivity() {
             tvTensionGauge.text = "긴장도 ${it.level}/보통"
         }
 
-        tvKeywords.text = if (keywords.isEmpty()) "오늘의 키워드: 없음" else "오늘의 키워드: ${keywords.joinToString(", ")}"
         tvAiFeedback.text = feedback
     }
 
@@ -263,37 +272,148 @@ class SessionCompleteActivity : AppCompatActivity() {
         val sentences = mutableListOf<String>()
 
         // 1. 전반적인 상태 평가
-        val eval = if (avgPressure < 35) "전체적으로 아주 평온하고 깊은 이완 상태를 유지하셨네요."
-        else if (avgPressure < 55) "적당한 집중력과 안정감 사이에서 균형을 잘 잡으신 명상이었습니다."
-        else "오늘 평소보다 조금 더 긴장된 상태로 명상을 시작하셨던 것 같아요."
+        val eval = when {
+            avgPressure < 35 -> listOf(
+                "전체적으로 아주 평온하고 깊은 이완 상태를 유지하셨네요.",
+
+                "몸과 마음이 안정된 상태에서 명상을 잘 이어가셨습니다.",
+
+                "오늘은 긴장보다 편안함이 더 오래 머물렀던 시간이었습니다.",
+
+                "호흡과 리듬이 자연스럽게 이어지며 안정적인 명상을 하셨네요.",
+
+                "전체적으로 차분한 흐름을 유지하며 명상을 마무리하셨습니다.",
+
+                "평소보다 긴장을 잘 내려놓고 편안한 상태에 가까워진 모습이 보입니다."
+            ).random()
+
+            avgPressure < 55 -> listOf(
+                "적당한 집중력과 안정감 사이에서 균형을 잘 잡으신 명상이었습니다.",
+                "크게 흔들리지 않으면서 자신의 호흡에 집중하는 시간이었네요.",
+                "긴장과 이완이 자연스럽게 균형을 이루며 명상을 이어가셨습니다.",
+                "오늘은 편안함을 찾아가는 과정이 안정적으로 이어졌습니다.",
+                "몸의 긴장을 조금씩 풀어가며 차분하게 시간을 보내셨네요.",
+                "무리하지 않고 자신의 속도에 맞춰 명상을 이어간 점이 인상적입니다."
+            ).random()
+
+            else -> listOf(
+                "오늘 평소보다 조금 더 긴장된 상태로 명상을 시작하셨던 것 같아요.",
+                "몸에 긴장이 남아 있었지만 끝까지 명상을 이어가셨습니다.",
+                "바쁜 하루의 흔적이 몸에 남아 있었던 하루였던 것 같습니다.",
+                "오늘은 긴장이 쉽게 풀리지는 않았지만 충분히 의미 있는 시간이었습니다.",
+                "처음에는 긴장감이 느껴졌지만 잠시라도 자신을 위한 시간을 만들어 주셨네요.",
+                "완전히 편안해지지는 않았더라도 잠시 멈춰 쉬어간 것만으로도 좋은 선택이었습니다."
+            ).random()
+        }
         sentences.add(eval)
 
-        // 2. 긴장도 변화 및 특이점 (최고 긴장도 언급)
-        val trend = if (maxPressure > 70) {
-            "명상 도중 잠시 긴장도가 높게 올라간 순간이 있었지만, 다시 호흡을 가다듬고 돌아오려 애쓰신 과정이 소중합니다."
-        } else if (avgPressure - minPressure > 10) {
-            "시작할 때보다 긴장도가 서서히 낮아지며 몸과 마음이 한결 가벼워지는 흐름을 보여주셨어요."
-        } else {
-            "안정적인 긴장도 수치를 꾸준히 유지하며 고요하게 머무르셨습니다."
+        // 2. 긴장도 변화 및 특이점
+        val trend = when {
+            maxPressure > 70 -> listOf(
+                "명상 도중 잠시 긴장도가 높게 올라간 순간이 있었지만, 다시 호흡을 가다듬고 돌아오려 애쓰셨습니다.",
+                "중간에 긴장이 크게 올라갔지만 다시 집중을 되찾으려는 흐름이 보였습니다.\n",
+                "잠깐의 긴장에도 명상을 이어간 점이 인상적입니다.",
+                "긴장이 높아진 순간이 있었지만 포기하지 않고 끝까지 함께해 주셨네요.",
+                "몸이 순간적으로 반응했지만 다시 차분함을 찾아가는 모습이 보였습니다.",
+                "높은 긴장이 나타났지만 그 순간을 지나 다시 호흡에 집중하셨습니다."
+            ).random()
+
+            avgPressure - minPressure > 10 -> listOf(
+                "시작할 때보다 긴장도가 서서히 낮아지며 몸과 마음이 한결 가벼워지는 흐름을 보여주셨어요.",
+
+                "명상이 진행될수록 점차 안정감을 찾아가는 모습이 확인됩니다.",
+
+                "처음보다 훨씬 편안한 상태로 마무리하셨네요.",
+
+                "호흡에 집중할수록 몸의 긴장이 자연스럽게 풀리는 흐름이었습니다.",
+
+                "시간이 흐르면서 몸이 차분하게 이완되는 모습이 느껴졌습니다.",
+
+                "명상이 끝날 무렵에는 한결 안정된 상태에 가까워졌습니다."
+            ).random()
+
+            else -> listOf(
+                "안정적인 긴장도 수치를 꾸준히 유지하며 고요하게 머무르셨습니다.",
+
+                "큰 변화 없이 편안한 흐름을 유지한 명상이었습니다.",
+
+                "호흡과 긴장도가 안정적으로 이어진 시간이었습니다.",
+
+                "급격한 변화 없이 자신의 리듬을 잘 유지하셨네요.",
+
+                "차분한 상태를 꾸준히 유지하며 명상을 마무리하셨습니다.",
+
+                "일정한 호흡과 함께 안정적인 흐름이 이어졌습니다."
+            ).random()
         }
         sentences.add(trend)
 
-        // 3. 사용자 기록 공감 (키워드 활용)
-        val keywordFeedback = if (keywords.isNotEmpty()) {
-            "오늘 기록하신 '${keywords.joinToString(", ")}'의 경험이 명상을 통해 당신의 내면에 긍정적인 파동을 남겼기를 바랍니다."
-        } else if (emotion.isNotEmpty()) {
-            "오늘의 감정을 글로 남기며 스스로를 돌아보는 모습이 참 아름답습니다."
-        } else {
-            "${durationSeconds / 60}분이라는 소중한 시간을 오롯이 자신에게 선물하신 점을 칭찬해 드리고 싶어요."
+        // 3. 사용자 기록 공감
+        val keywordFeedback = when {
+            keywords.isNotEmpty() -> listOf(
+                "오늘 기록하신 경험이 명상을 통해 당신의 내면에 긍정적인 파동을 남겼기를 바랍니다.",
+
+                "기록에 담긴 하루를 천천히 돌아볼 수 있는 시간이 되었기를 바랍니다.",
+
+                "오늘 남겨주신 ${keywords.joinToString(", ")}이라는 기록이 스스로를 이해하는 작은 단서가 되었으면 좋겠습니다.",
+
+                "기록 속 ${keywords.joinToString(", ")}처럼 오늘 하루를 있는 그대로 바라본 시간이었습니다.",
+
+                "오늘의 ${keywords.joinToString(", ")}이 앞으로의 하루를 조금 더 편안하게 만드는 힘이 되기를 바랍니다.",
+
+                "짧은 기록이지만 ${keywords.joinToString(", ")}에는 오늘의 마음이 잘 담겨 있었습니다."
+            ).random().replace("{keywords}", keywords.joinToString(", "))
+
+            emotion.isNotEmpty() -> listOf(
+                "오늘의 감정을 글로 남기며 스스로를 돌아보는 모습이 참 아름답습니다.",
+
+                "감정을 기록하는 것만으로도 자신의 하루를 정리하는 데 큰 도움이 됩니다.",
+
+                "오늘의 마음을 솔직하게 남겨주셔서 감사합니다.",
+
+                "감정을 표현하는 시간이 스스로를 이해하는 작은 시작이 될 수 있습니다.",
+
+                "오늘의 감정을 천천히 들여다본 것만으로도 충분히 의미 있는 시간이었습니다.",
+
+                "자신의 마음을 기록하는 습관이 차분한 하루를 만드는 데 도움이 될 거예요."
+            ).random()
+
+            else -> listOf(
+                "${durationSeconds / 60}분이라는 소중한 시간을 오롯이 자신에게 선물하신 점을 칭찬해 드리고 싶어요.",
+
+                "기록이 없어도 오늘 명상에 집중한 시간은 충분히 의미가 있습니다.",
+
+                "잠시라도 자신을 위해 시간을 내어준 것만으로도 좋은 하루였습니다.",
+
+                "오늘의 명상이 몸과 마음을 쉬게 하는 시간이 되었기를 바랍니다.",
+
+                "짧은 시간이었지만 자신에게 집중하는 시간을 만들어 주셨네요.",
+
+                "하루 중 잠시 멈춰 호흡을 바라본 시간이 내일에도 좋은 영향을 줄 것입니다."
+            ).random().replace("{duration}", "${durationSeconds / 60}")
         }
         sentences.add(keywordFeedback)
 
         // 4. 마무리 응원
-        sentences.add("오늘의 평온함이 일상까지 이어지길 바라며, 내일도 이 자리에서 당신을 기다리고 있겠습니다.")
+        val ending = listOf(
+            "오늘의 평온함이 일상까지 이어지길 바라며, 내일도 이 자리에서 당신을 기다리고 있겠습니다.",
 
-        // 출력 형식: 문장 사이 한 줄씩 띄움
+            "오늘의 여유가 하루를 조금 더 편안하게 만들어 주길 바랍니다.",
+
+            "내일도 지금처럼 잠시 멈춰 자신을 돌보는 시간을 가져보세요.",
+
+            "작은 명상의 시간이 쌓여 더 편안한 일상이 만들어질 거예요.",
+
+            "오늘도 수고 많으셨습니다. 편안한 하루 보내세요.",
+
+            "다음 명상에서도 지금처럼 자신의 호흡에 천천히 집중해 보세요."
+        ).random()
+
+        sentences.add(ending)
+
         return sentences.joinToString("\n\n")
     }
+
 
     private fun goHome() {
         val intent = Intent(this, MainActivity::class.java)
