@@ -22,9 +22,10 @@
             android:id="@+id/btnBack"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
             android:src="@drawable/back"
-            android:contentDescription="뒤로"/>
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:padding="8dp"
+            android:contentDescription="@string/btn_back" />
 
         <TextView
             android:layout_width="0dp"
@@ -74,8 +75,8 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:paddingHorizontal="24dp"
-            android:paddingTop="20dp"
-            android:paddingBottom="16dp">
+            android:paddingTop="16dp"
+            android:paddingBottom="12dp">
 
             <!-- 안내 문구 -->
             <TextView
@@ -88,10 +89,10 @@
 
             <!-- 원형 대기 -->
             <FrameLayout
-                android:layout_width="300dp"
-                android:layout_height="300dp"
+                android:layout_width="200dp"
+                android:layout_height="200dp"
                 android:layout_gravity="center_horizontal"
-                android:layout_marginTop="28dp">
+                android:layout_marginTop="16dp">
 
                 <ImageView
                     android:id="@+id/imgMeasureStart"
@@ -108,13 +109,13 @@
                 android:id="@+id/layoutModeToggle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
+                android:layout_marginTop="14dp"
                 android:orientation="horizontal">
 
                 <Button
                     android:id="@+id/btnAutoMode"
                     android:layout_width="0dp"
-                    android:layout_height="48dp"
+                    android:layout_height="40dp"
                     android:layout_weight="1"
                     android:layout_marginEnd="6dp"
                     android:background="@drawable/bg_mode_selected"
@@ -128,7 +129,7 @@
                 <Button
                     android:id="@+id/btnGuideMode"
                     android:layout_width="0dp"
-                    android:layout_height="48dp"
+                    android:layout_height="40dp"
                     android:layout_marginStart="6dp"
                     android:layout_weight="1"
                     android:background="@drawable/bg_mode_unselected"
@@ -145,7 +146,7 @@
                 android:id="@+id/layoutThresholdAlert"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="10dp"
                 android:gravity="center_vertical"
                 android:orientation="horizontal">
 
@@ -171,8 +172,8 @@
                 android:id="@+id/imgMeasurementGuide"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:layout_marginBottom="12dp"
+                android:layout_marginTop="12dp"
+                android:layout_marginBottom="8dp"
                 android:adjustViewBounds="true"
                 android:src="@drawable/img_measurement_guide_new"
                 android:scaleType="fitCenter"
@@ -198,8 +199,8 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:paddingHorizontal="24dp"
-            android:paddingTop="20dp"
-            android:paddingBottom="20dp">
+            android:paddingTop="16dp"
+            android:paddingBottom="12dp">
 
             <!-- 현재 압력 상태 -->
             <TextView
@@ -219,12 +220,12 @@
                 android:textColor="@color/text_secondary"
                 android:textSize="13sp"/>
 
-            <!-- 파동 원형 + 압력값 -->
+            <!-- 파동 원형 + 압력값 (screen1의 imgMeasureStart와 동일 크기) -->
             <FrameLayout
-                android:layout_width="224dp"
-                android:layout_height="224dp"
+                android:layout_width="200dp"
+                android:layout_height="200dp"
                 android:layout_gravity="center_horizontal"
-                android:layout_marginTop="20dp">
+                android:layout_marginTop="14dp">
 
                 <com.newritage.app.ui.util.WaveViewNew
                     android:id="@+id/waveView"
@@ -272,8 +273,8 @@
             <!-- 명상 시간 바 -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
-                android:layout_height="52dp"
-                android:layout_marginTop="14dp"
+                android:layout_height="46dp"
+                android:layout_marginTop="12dp"
                 app:cardCornerRadius="26dp"
                 app:cardElevation="0dp"
                 app:cardBackgroundColor="#F2F6F0">
@@ -327,8 +328,8 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:layout_marginBottom="8dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="6dp"
                 android:text="실시간 압력 그래프"
                 android:textColor="@color/text_primary"
                 android:textSize="16sp"
@@ -337,13 +338,13 @@
             <com.github.mikephil.charting.charts.LineChart
                 android:id="@+id/lineChart"
                 android:layout_width="match_parent"
-                android:layout_height="180dp"/>
+                android:layout_height="150dp"/>
 
             <!-- 명상 완료 버튼 -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
-                android:layout_height="56dp"
-                android:layout_marginTop="24dp"
+                android:layout_height="52dp"
+                android:layout_marginTop="16dp"
                 app:cardCornerRadius="28dp"
                 app:cardElevation="2dp"
                 app:cardBackgroundColor="#F4F4F4">
