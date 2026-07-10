@@ -70,22 +70,21 @@ class DailyAnalysisFragment : Fragment() {
                 val sec = session.durationSeconds % 60
 
                 binding.tvAvgPressure1.text = String.format("%.1f", session.avgPressure)
-                binding.tvAvgPressure2.text = String.format("%.1f", session.minPressure)
                 binding.tvAvgPressure3.text = String.format("%.1f", session.maxPressure)
                 binding.tvMedTime.text = String.format("%02d:%02d", min, sec)
 
                 // 부위별(엄지/검지·중지/손바닥) 상세 통계 — Session에 저장된 실측값
                 binding.tvSensorADetail.text = String.format(
-                    "최고 %.1f / 최저 %.1f / 평균 %.1f / 중앙 %.1f kPa",
-                    session.thumbMax, session.thumbMin, session.thumbAvg, session.thumbMedian
+                    "최고 %.1f / 평균 %.1f kPa",
+                    session.thumbMax, session.thumbAvg
                 )
                 binding.tvSensorBDetail.text = String.format(
-                    "최고 %.1f / 최저 %.1f / 평균 %.1f / 중앙 %.1f kPa",
-                    session.imMax, session.imMin, session.imAvg, session.imMedian
+                    "최고 %.1f / 평균 %.1f kPa",
+                    session.imMax, session.imAvg
                 )
                 binding.tvSensorCDetail.text = String.format(
-                    "최고 %.1f / 최저 %.1f / 평균 %.1f / 중앙 %.1f kPa",
-                    session.palmMax, session.palmMin, session.palmAvg, session.palmMedian
+                    "최고 %.1f / 평균 %.1f kPa",
+                    session.palmMax, session.palmAvg
                 )
 
                 binding.tvDailyComment.text =
@@ -96,7 +95,6 @@ class DailyAnalysisFragment : Fragment() {
                 binding.lineChart.invalidate()
             } else {
                 binding.tvAvgPressure1.text = "--.-"
-                binding.tvAvgPressure2.text = "--.-"
                 binding.tvAvgPressure3.text = "--.-"
                 binding.tvMedTime.text = "--:--"
                 binding.tvSensorADetail.text = "데이터가 없습니다."
