@@ -76,23 +76,23 @@ class MonthlyAnalysisFragment : Fragment() {
             val previousSessions = db.sessionDao().getSessionsByMonth(previousYearMonth)
 
             binding.comparisonCard.bind(ComparisonSummary.from(sessions, previousSessions))
+            val indicators = buildDayIndicators(sessions)
             binding.monthCalendar.bind(
                 year = currentMonth.get(Calendar.YEAR),
                 month = currentMonth.get(Calendar.MONTH) + 1,
-                indicators = buildDayIndicators(sessions)
+                indicators = indicators
             )
-            binding.aiCommentCard.setComment(MonthlyCommentGenerator.generate(sessions))
+
+            val comment = MonthlyCommentGenerator.generate(sessions)
+            binding.aiCommentCard.setComment(comment)
 
             if (sessions.isNotEmpty()) {
                 val avgPressure = sessions.map { it.avgPressure }.average().toFloat()
                 val maxPressure = sessions.maxOf { it.maxPressure }
-                val minPressure = sessions.minOf { it.minPressure }
                 val totalTime = sessions.sumOf { it.durationSeconds }
                 val count = sessions.size
 
-                // 월간 XML 구조와 동일한 ID 규칙(2=최저, 3=최고)으로 채우기
                 binding.tvAvgPressure1.text = String.format("%.1f", avgPressure) // 월간 평균
-                binding.tvAvgPressure2.text = String.format("%.1f", minPressure) // 월간 최저
                 binding.tvAvgPressure3.text = String.format("%.1f", maxPressure) // 월간 최고
 
                 val min = totalTime / 60; val sec = totalTime % 60
@@ -113,7 +113,6 @@ class MonthlyAnalysisFragment : Fragment() {
                 binding.lineChart.invalidate()
             } else {
                 binding.tvAvgPressure1.text = "--.-"
-                binding.tvAvgPressure2.text = "--.-"
                 binding.tvAvgPressure3.text = "--.-"
                 binding.tvMedTime.text = "--:--"
                 binding.tvMedCount.text = "-"
