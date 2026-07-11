@@ -5,9 +5,9 @@ import android.graphics.Color
 import android.graphics.Outline
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.view.ViewOutlineProvider
-import android.util.Log
 import android.widget.FrameLayout
 import androidx.core.view.doOnPreDraw
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -26,6 +26,7 @@ class BaselineGuideBottomSheetDialog(
 ) : BottomSheetDialog(hostActivity) {
 
     private lateinit var binding: BottomSheetBaselineGuideBinding
+    private val cornerRadiusPx: Float by lazy { 28f * hostActivity.resources.displayMetrics.density }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,10 +43,14 @@ class BaselineGuideBottomSheetDialog(
         loadGuideImage()
 
         binding.sheetRoot.doOnPreDraw {
+            // 블러 반경이 크면 잘린 비트맵의 가장자리 색(원형 게이지의 흰색 등)이
+            // CLAMP 샘플링으로 안쪽까지 번져 모서리 부근이 형체 없는 흰 안개처럼 보인다.
+            // 원래 배경의 윤곽(원, 텍스처)이 살아있도록 블러를 약하게 준다.
             BackdropBlur.applyBottomCropTo(
                 source = hostActivity.window.decorView,
                 target = binding.ivBackdrop,
-                cropHeightPx = binding.sheetRoot.height
+                cropHeightPx = binding.sheetRoot.height,
+                blurRadiusPx = 10f
             )
         }
     }
@@ -54,33 +59,42 @@ class BaselineGuideBottomSheetDialog(
      *  손상되었거나 디코딩할 수 없는 리소스여도 시트 전체가 죽지 않도록 방어한다. */
     private fun loadGuideImage() {
         runCatching {
-            binding.ivHelpGuide.setImageResource(R.drawable.help)
+            binding.ivHelpGuide.setImageResource(R.drawable.help_guide)
         }.onFailure {
             Log.e("BaselineGuideSheet", "help.png 로드 실패", it)
         }
     }
 
+    /** RoundedTopFrameLayout이 Canvas.clipPath로 직접 모서리를 잘라내므로 배경/outline은
+     *  건드리지 않는다. sheetRoot 자체는 배경을 그리지 않고 자식(backdrop/그라데이션/카드)만
+     *  둥근 모양대로 마스킹한다. */
     private fun setupRoundedTopCorners() {
-        val radiusPx = 28f * hostActivity.resources.displayMetrics.density
-        binding.sheetRoot.outlineProvider = object : ViewOutlineProvider() {
-            override fun getOutline(view: View, outline: Outline) {
-                outline.setRoundRect(0, 0, view.width, (view.height + radiusPx).toInt(), radiusPx)
-            }
-        }
-        binding.sheetRoot.clipToOutline = true
+        binding.sheetRoot.topCornerRadiusPx = cornerRadiusPx
     }
 
     private fun setupBehavior() {
         val bottomSheetView = findViewById<FrameLayout>(com.google.android.material.R.id.design_bottom_sheet)
             ?: return
 
+        // 주의: background를 null로 두면 BottomSheetBehavior가 레이아웃 시점에
+        // "배경이 없다"고 판단해 흰색 MaterialShapeDrawable을 자체적으로 다시 씌워버린다.
+        // (null이 아니면서 MaterialShapeDrawable도 아닌) 투명 ColorDrawable을 넣어
+        // 그 자동 주입 자체를 막는다.
+        findViewById<View>(com.google.android.material.R.id.coordinator)?.background = ColorDrawable(Color.TRANSPARENT)
+        bottomSheetView.background = ColorDrawable(Color.TRANSPARENT)
+
+        // sheetRoot의 clipPath와는 별개로, Material이 관리하는 design_bottom_sheet 컨테이너
+        // 자체에도 동일한 둥근 모서리 클립을 이중으로 걸어 안전망을 둔다.
+        bottomSheetView.outlineProvider = object : ViewOutlineProvider() {
+            override fun getOutline(view: View, outline: Outline) {
+                outline.setRoundRect(0, 0, view.width, (view.height + cornerRadiusPx).toInt(), cornerRadiusPx)
+            }
+        }
+        bottomSheetView.clipToOutline = true
+
         // 화면 하단 절반만 가리도록 시트 높이를 고정한다.
         val halfScreenHeightPx = hostActivity.resources.displayMetrics.heightPixels / 2
         bottomSheetView.layoutParams = bottomSheetView.layoutParams.apply { height = halfScreenHeightPx }
-
-        // BottomSheetDialog가 기본으로 씌우는 흰색 MaterialShapeDrawable 배경을 제거한다.
-        // 이게 남아있으면 sheetRoot의 둥근 모서리 바깥(클립된 영역)에 흰색이 그대로 비친다.
-        bottomSheetView.background = null
 
         val behavior = BottomSheetBehavior.from(bottomSheetView)
         behavior.isHideable = true

@@ -15,4 +15,9 @@
         <item name="android:statusBarColor">@color/onboarding_bg</item>
     </style>
 
+    <style name="Animation.HelpImageDialog" parent="android:Animation">
+        <item name="android:windowEnterAnimation">@anim/help_dialog_enter</item>
+        <item name="android:windowExitAnimation">@anim/help_dialog_exit</item>
+    </style>
+
 </resources>

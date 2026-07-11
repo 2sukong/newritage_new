@@ -97,19 +97,12 @@ class OnboardingAdapter(private val pages: List<OnboardingPage>) :
         holder.tvTitle.setText(page.titleResId)
         holder.ivIcon.setImageResource(page.imageResId)
 
+        // 여기부터 추가하는 3줄
         val density = holder.itemView.context.resources.displayMetrics.density
         val heightPx = (page.imageHeightDp * density).toInt()
         val lp = holder.ivIcon.layoutParams
         lp.height = heightPx
         holder.ivIcon.layoutParams = lp
-
-        if (position == 0) {
-            holder.ivIcon.outlineProvider = android.view.ViewOutlineProvider.BOUNDS
-            holder.ivIcon.elevation = 12f
-        } else {
-            holder.ivIcon.outlineProvider = android.view.ViewOutlineProvider.BACKGROUND
-            holder.ivIcon.elevation = 0f
-        }
     }
 
     override fun getItemCount() = pages.size

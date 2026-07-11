@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.view.View
-import android.view.animation.DecelerateInterpolator
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -121,29 +120,20 @@ class BaselineMeasurementActivity : AppCompatActivity() {
     }
 
     /**
-     * 준비 화면의 원을 측정 화면 원과 같은 위치까지 이동시키며, 다른 준비 화면 요소는
-     * 페이드아웃하고 측정 화면은 페이드인시켜 화면 전환 없이 같은 원이 그대로
-     * 측정 모션으로 이어지는 것처럼 보이게 한다.
+     * guideCircleReady와 gaugeCircleContainer는 레이아웃상 완전히 같은 위치에 겹쳐 있으므로
+     * 원을 옮기는 애니메이션 없이 준비 화면 전체를 페이드아웃, 측정 화면을 페이드인만 시켜도
+     * 같은 자리에서 바로 물결 모션이 시작되는 것처럼 보인다.
      */
     private fun animateReadyCircleIntoMeasuring() {
-        val readyCircle = binding.guideCircleReady
-        val measuringCircle = binding.gaugeCircleContainer
-        val deltaY = measuringCircle.top.toFloat() - readyCircle.top.toFloat()
-
         binding.layoutMeasuring.visibility = View.VISIBLE
         binding.layoutMeasuring.alpha = 0f
 
-        val fadeOutTargets = listOf(binding.cardReadyNotice, binding.btnMeasureTip, binding.btnStartMeasure)
-        fadeOutTargets.forEach { it.animate().alpha(0f).setDuration(READY_FADE_DURATION_MS).start() }
-
-        readyCircle.animate()
-            .translationY(deltaY)
+        binding.layoutReady.animate()
+            .alpha(0f)
             .setDuration(TRANSITION_DURATION_MS)
-            .setInterpolator(DecelerateInterpolator())
             .withEndAction {
                 binding.layoutReady.visibility = View.INVISIBLE
-                readyCircle.translationY = 0f
-                fadeOutTargets.forEach { it.alpha = 1f }
+                binding.layoutReady.alpha = 1f
             }
             .start()
 
@@ -221,8 +211,8 @@ class BaselineMeasurementActivity : AppCompatActivity() {
     }
 
     private fun showScreen(screen: Screen) {
-        // INVISIBLE을 사용해 항상 레이아웃이 계산되도록 유지한다.
-        // (guideCircleReady ↔ gaugeCircleContainer의 위치를 애니메이션에서 정확히 비교하기 위함)
+        // INVISIBLE을 사용해 항상 레이아웃이 계산되도록 유지해, 화면 전환 시 다시 레이아웃
+        // 패스를 기다리지 않고 바로 크로스페이드할 수 있게 한다.
         binding.layoutReady.visibility = if (screen == Screen.GUIDE) View.VISIBLE else View.INVISIBLE
         binding.layoutMeasuring.visibility = if (screen == Screen.MEASURING) View.VISIBLE else View.INVISIBLE
         binding.layoutComplete.visibility = if (screen == Screen.COMPLETE) View.VISIBLE else View.INVISIBLE
@@ -240,6 +230,5 @@ class BaselineMeasurementActivity : AppCompatActivity() {
         const val TICK_INTERVAL_MS = 100L
         const val MEASURING_PRESSURE_SCALE_MAX = 8000f
         const val TRANSITION_DURATION_MS = 450L
-        const val READY_FADE_DURATION_MS = 260L
     }
 }

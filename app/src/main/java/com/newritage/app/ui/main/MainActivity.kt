@@ -89,7 +89,7 @@ class MainActivity : AppCompatActivity() {
             overridePendingTransition(0, 0)
         }
         binding.btnHelpHome.setOnClickListener {
-            Toast.makeText(this, R.string.feature_in_progress, Toast.LENGTH_SHORT).show()
+            HelpImageDialog(this).show()
         }
     }
 
