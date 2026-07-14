@@ -282,7 +282,9 @@ class WaveViewNew @JvmOverloads constructor(
 
     fun startWave() {
 
-        if (!animator.isRunning) {
+        if (animator.isPaused) {
+            animator.resume()
+        } else if (!animator.isRunning) {
             animator.start()
         }
     }

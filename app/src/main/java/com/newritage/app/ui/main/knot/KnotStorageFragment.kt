@@ -49,8 +49,8 @@ class KnotStorageFragment : Fragment() {
         lifecycleScope.launch {
             val db = AppDatabase.getInstance(requireContext())
             val sessions = db.sessionDao().getSessionsByMonth(yearMonth)
-            // 매듭은 하루 첫 세션(hasThread=true)에만 생김
-            val dateSet = sessions.filter { it.hasThread }.map { it.date }.toSet()
+            // 매듭은 달 단위로 정해지며, 일기(emotion)를 남긴 날들이 그 달의 매듭 추천에 반영된다.
+            val dateSet = sessions.filter { it.emotion.isNotBlank() }.map { it.date }.toSet()
             renderCalendar(yearMonth, dateSet)
         }
     }

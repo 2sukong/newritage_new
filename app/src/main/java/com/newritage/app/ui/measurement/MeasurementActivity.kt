@@ -16,6 +16,7 @@ import com.github.mikephil.charting.data.*
 import com.github.mikephil.charting.formatter.ValueFormatter
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.newritage.app.R
+import com.newritage.app.data.SensorReading
 import com.newritage.app.databinding.ActivityMeasurementBinding
 import com.newritage.app.ui.main.MainActivity
 import com.newritage.app.ui.util.WaveViewNew
@@ -41,15 +42,18 @@ class MeasurementActivity : AppCompatActivity() {
     private lateinit var tvFeedbackStatus: TextView
     private lateinit var lineChart: LineChart
     private lateinit var btnComplete: Button
+    private lateinit var imgPauseResume: ImageView
 
     private val handler = Handler(Looper.getMainLooper())
     private var countdownLeft = 10
     private var elapsedSeconds = 0
     private var deviationCount = 0       // 안정 상태 이탈 횟수
+    private var isPaused = false
 
     private val pressureEntries = mutableListOf<Entry>()
     private var currentPressure = 32f
     private val allPressures = mutableListOf<Float>()
+    private val collectedReadings = mutableListOf<SensorReading>()
 
     private val startTimeStr by lazy {
         SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date())
@@ -64,6 +68,7 @@ class MeasurementActivity : AppCompatActivity() {
 
         findViewById<ImageButton>(R.id.btnBack).setOnClickListener { finish() }
         btnComplete.setOnClickListener { finishSession() }
+        findViewById<View>(R.id.btnPauseResume).setOnClickListener { togglePauseResume() }
 
         binding.btnAutoMode.setOnClickListener {
             currentMode = MeasureMode.AUTO
@@ -117,6 +122,7 @@ class MeasurementActivity : AppCompatActivity() {
         tvFeedbackStatus = findViewById(R.id.tvFeedbackStatus)
         lineChart = findViewById(R.id.lineChart)
         btnComplete = findViewById(R.id.btnSessionComplete)
+        imgPauseResume = findViewById(R.id.imgPauseResume)
     }
 
     // ── 화면 전환 ──────────────────────────────
@@ -221,32 +227,68 @@ class MeasurementActivity : AppCompatActivity() {
 
     // ── 실시간 압력 시뮬레이션 ─────────────────
 
+    private val measuringRunnable = object : Runnable {
+        override fun run() {
+            elapsedSeconds++
+
+            // 압력 시뮬레이션
+            val noise = (Random.nextFloat() - 0.5f) * 7f
+            currentPressure = (currentPressure + noise).coerceIn(8f, 72f)
+            allPressures.add(currentPressure)
+
+            // 센서별 개별 데이터 시뮬레이션 (통계용)
+            val t = (currentPressure * 0.9f + (Random.nextFloat() - 0.5f) * 5f).coerceIn(5f, 80f)
+            val im = (currentPressure * 1.1f + (Random.nextFloat() - 0.5f) * 5f).coerceIn(5f, 80f)
+            val p = (currentPressure * 1.0f + (Random.nextFloat() - 0.5f) * 5f).coerceIn(5f, 80f)
+
+            collectedReadings.add(
+                SensorReading(
+                    sessionId = 0, // SessionCompleteActivity에서 저장 후 할당됨
+                    timestamp = System.currentTimeMillis(),
+                    thumb = t,
+                    indexMiddle = im,
+                    palm = p,
+                    overall = currentPressure
+                )
+            )
+
+            // 이탈 횟수 카운트 (>50kPa 를 '이탈'로 정의)
+            if (currentPressure > 50f) deviationCount++
+
+            // UI 갱신
+            tvPressureValue.text = "%.0f".format(currentPressure)
+            tvFeedbackStatus.text = feedbackText(currentPressure)
+            tvSessionTime.text = "%02d:%02d".format(elapsedSeconds / 60, elapsedSeconds % 60)
+
+            // 차트 갱신 (최근 60포인트)
+            if (pressureEntries.size >= 60) pressureEntries.removeAt(0)
+            pressureEntries.add(Entry(elapsedSeconds.toFloat(), currentPressure))
+            updateChart()
+
+            handler.postDelayed(this, 1000L)
+        }
+    }
+
     private fun startMeasuring() {
-        handler.post(object : Runnable {
-            override fun run() {
-                elapsedSeconds++
+        isPaused = false
+        imgPauseResume.setImageResource(R.drawable.ic_pause)
+        handler.removeCallbacks(measuringRunnable)
+        handler.post(measuringRunnable)
+    }
 
-                // 압력 시뮬레이션
-                val noise = (Random.nextFloat() - 0.5f) * 7f
-                currentPressure = (currentPressure + noise).coerceIn(8f, 72f)
-                allPressures.add(currentPressure)
+    // ── 일시정지 / 재개 ────────────────────────
 
-                // 이탈 횟수 카운트 (>50kPa 를 '이탈'로 정의)
-                if (currentPressure > 50f) deviationCount++
-
-                // UI 갱신
-                tvPressureValue.text = "%.0f".format(currentPressure)
-                tvFeedbackStatus.text = feedbackText(currentPressure)
-                tvSessionTime.text = "%02d:%02d".format(elapsedSeconds / 60, elapsedSeconds % 60)
-
-                // 차트 갱신 (최근 60포인트)
-                if (pressureEntries.size >= 60) pressureEntries.removeAt(0)
-                pressureEntries.add(Entry(elapsedSeconds.toFloat(), currentPressure))
-                updateChart()
-
-                handler.postDelayed(this, 1000L)
-            }
-        })
+    private fun togglePauseResume() {
+        isPaused = !isPaused
+        if (isPaused) {
+            handler.removeCallbacks(measuringRunnable)
+            waveView.stopWave()
+            imgPauseResume.setImageResource(R.drawable.ic_play)
+        } else {
+            handler.post(measuringRunnable)
+            waveView.startWave()
+            imgPauseResume.setImageResource(R.drawable.ic_pause)
+        }
     }
 
     private fun feedbackText(p: Float) = when {
@@ -274,6 +316,9 @@ class MeasurementActivity : AppCompatActivity() {
         val avg = if (allPressures.isEmpty()) 32f else allPressures.average().toFloat()
         val max = allPressures.maxOrNull() ?: avg
         val min = allPressures.minOrNull() ?: avg
+
+        // 원시 데이터를 Holder에 저장 (Intent 용량 제한 회피)
+        com.newritage.app.data.SessionDataHolder.sensorReadings = collectedReadings
 
         startActivity(Intent(this, SessionCompleteActivity::class.java).apply {
             putExtra("duration_seconds", elapsedSeconds)

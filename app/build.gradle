@@ -4,6 +4,12 @@ plugins {
     id 'kotlin-kapt'
 }
 
+def localProperties = new Properties()
+def localPropertiesFile = rootProject.file('local.properties')
+if (localPropertiesFile.exists()) {
+    localPropertiesFile.withInputStream { localProperties.load(it) }
+}
+
 android {
     namespace 'com.newritage.app'
     compileSdk 34
@@ -15,6 +21,9 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        // Gemini API Key는 local.properties(git 미포함)의 GEMINI_API_KEY 값을 사용한다.
+        buildConfigField "String", "GEMINI_API_KEY", "\"${localProperties.getProperty('GEMINI_API_KEY', '')}\""
     }
 
     buildTypes {
@@ -36,6 +45,7 @@ android {
     buildFeatures {
         viewBinding true
         compose true
+        buildConfig true
     }
 
     composeOptions {
@@ -71,6 +81,9 @@ dependencies {
 
     // Coroutines
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3'
+
+    // Gemini API 연동 테스트용 HTTP 클라이언트
+    implementation 'com.squareup.okhttp3:okhttp:4.12.0'
 
     // Jetpack Compose (WaveView @Preview 전용 인터옵)
     implementation platform('androidx.compose:compose-bom:2024.02.00')

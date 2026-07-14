@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- 전체 내용을 스크롤 가능하게 만드는 최상위 ScrollView -->
 <ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -13,6 +14,7 @@
         android:orientation="vertical"
         android:paddingBottom="40dp">
 
+        <!-- 1. 상단 타이틀 바 -->
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="56dp">
@@ -36,6 +38,7 @@
                 android:textColor="@color/text_primary" />
         </RelativeLayout>
 
+        <!-- 2. 일간 날짜 내비게이션 (2026.05.20 (월) 형태) -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -69,6 +72,7 @@
                 android:layout_marginStart="16dp"/>
         </LinearLayout>
 
+        <!-- 3. 오늘의 한눈에 보기 섹션 (모든 칸 크기 및 비율 완벽 통일) -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -93,6 +97,7 @@
                 android:paddingHorizontal="4dp"
                 android:baselineAligned="false">
 
+                <!-- 1. 평균 압력 (비율 1) -->
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -111,6 +116,7 @@
 
                 <View android:layout_width="1dp" android:layout_height="32dp" android:background="#D1DCD2" android:layout_gravity="center_vertical"/>
 
+                <!-- 3. 최고 압력 (비율 1) -->
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -129,6 +135,7 @@
 
                 <View android:layout_width="1dp" android:layout_height="32dp" android:background="#D1DCD2" android:layout_gravity="center_vertical"/>
 
+                <!-- 4. 명상 시간 (비율 1) -->
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -147,6 +154,7 @@
             </LinearLayout>
         </LinearLayout>
 
+        <!-- 4. 압력 변화 요약 (실시간 데이터 밀도 그래프) -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -174,6 +182,7 @@
             </FrameLayout>
         </LinearLayout>
 
+        <!-- 5. 센서별 상세 분석 (★ 새로운 추가 스크롤 영역) -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -190,6 +199,7 @@
                 android:textColor="@color/text_primary"
                 android:layout_marginBottom="16dp" />
 
+            <!-- 센서 A 카드 -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -198,13 +208,16 @@
                 android:padding="16dp"
                 android:layout_marginBottom="12dp">
                 <RelativeLayout android:layout_width="match_parent" android:layout_height="wrap_content">
+                    <!-- 초록 동그라미 아이콘은 텍스트 왼쪽에 유동적으로 넣거나 drawableLeft 사용 가능 -->
                     <TextView android:id="@+id/tvSensorAName" android:layout_width="wrap_content" android:layout_height="wrap_content"
                         android:text="● 센서 A" android:textColor="#8B9E7B" android:textStyle="bold" android:textSize="14sp"/>
+
                 </RelativeLayout>
                 <TextView android:id="@+id/tvSensorADetail" android:layout_width="match_parent" android:layout_height="wrap_content"
                     android:text="최고 45.0 / 평균 30.1 kPa" android:textSize="12sp" android:textColor="@color/text_primary" android:layout_marginTop="6dp"/>
             </LinearLayout>
 
+            <!-- 센서 B 카드 -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -215,11 +228,13 @@
                 <RelativeLayout android:layout_width="match_parent" android:layout_height="wrap_content">
                     <TextView android:id="@+id/tvSensorBName" android:layout_width="wrap_content" android:layout_height="wrap_content"
                         android:text="● 센서 B" android:textColor="#6C8FB6" android:textStyle="bold" android:textSize="14sp"/>
+
                 </RelativeLayout>
                 <TextView android:id="@+id/tvSensorBDetail" android:layout_width="match_parent" android:layout_height="wrap_content"
                     android:text="최고 42.1 / 평균 31.5 kPa" android:textSize="12sp" android:textColor="@color/text_primary" android:layout_marginTop="6dp"/>
             </LinearLayout>
 
+            <!-- 센서 C 카드 -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -229,12 +244,14 @@
                 <RelativeLayout android:layout_width="match_parent" android:layout_height="wrap_content">
                     <TextView android:id="@+id/tvSensorCName" android:layout_width="wrap_content" android:layout_height="wrap_content"
                         android:text="● 센서 C" android:textColor="#D1B06B" android:textStyle="bold" android:textSize="14sp"/>
+
                 </RelativeLayout>
                 <TextView android:id="@+id/tvSensorCDetail" android:layout_width="match_parent" android:layout_height="wrap_content"
                     android:text="최고 51.3 / 평균 35.6 kPa" android:textSize="12sp" android:textColor="@color/text_primary" android:layout_marginTop="6dp"/>
             </LinearLayout>
         </LinearLayout>
 
+        <!-- 6. 오늘의 코멘트 섹션 -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -251,13 +268,16 @@
                 android:textColor="@color/text_primary"
                 android:layout_marginBottom="16dp" />
 
+            <!-- 코멘트가 들어갈 둥근 빈 카드 -->
             <TextView
                 android:id="@+id/tvDailyComment"
                 android:layout_width="match_parent"
-                android:layout_height="140dp"
+                android:layout_height="wrap_content"
+                android:minHeight="140dp"
                 android:background="@drawable/acard"
                 android:padding="16dp"
                 android:textSize="14sp"
+                android:lineSpacingExtra="4dp"
                 android:textColor="@color/text_primary"
                 android:gravity="top|start" />
         </LinearLayout>

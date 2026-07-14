@@ -1,30 +1,33 @@
 package com.newritage.app.ui.main.knot
 
-import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageButton
-import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.newritage.app.R
 import com.newritage.app.data.AppDatabase
+import com.newritage.app.ui.main.knot.recommend.DiaryEntry
+import com.newritage.app.ui.main.knot.recommend.RecommendationEngine
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
+import java.time.LocalDate
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
+/** 이 화면이 보여주는 매듭은 하루 단위가 아니라, 표시 중인 달 전체의 일기를 분석해 정해지는 "이달의 매듭"이다. */
 class KnotDetailFragment : Fragment() {
 
     private var currentDate = Calendar.getInstance()
     private val dao by lazy { AppDatabase.getInstance(requireContext()).sessionDao() }
     private val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-    private val displaySdf = SimpleDateFormat("yyyy년 M월 d일", Locale.getDefault())
+    private val monthSdf = SimpleDateFormat("yyyy-MM", Locale.getDefault())
+    private val displaySdf = SimpleDateFormat("yyyy년 M월", Locale.getDefault())
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,8 +48,8 @@ class KnotDetailFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val tvDate = view.findViewById<TextView>(R.id.tvDateDisplay)
-        val ivKnotImage = view.findViewById<ImageView>(R.id.ivKnotImage)
         val tvKnotName = view.findViewById<TextView>(R.id.tvKnotNameDisplay)
+        val tvDescription = view.findViewById<TextView>(R.id.tvDescriptionText)
         val btnBack = view.findViewById<ImageButton>(R.id.btnBack)
         val btnPrev = view.findViewById<ImageButton>(R.id.btnPrevMonth)
         val btnNext = view.findViewById<ImageButton>(R.id.btnNextMonth)
@@ -61,34 +64,35 @@ class KnotDetailFragment : Fragment() {
         }
 
         btnPrev.setOnClickListener {
-            currentDate.add(Calendar.DAY_OF_MONTH, -1)
-            loadKnotData(tvDate, ivKnotImage, tvKnotName)
+            currentDate.add(Calendar.MONTH, -1)
+            loadKnotData(tvDate, tvKnotName, tvDescription)
         }
 
         btnNext.setOnClickListener {
-            currentDate.add(Calendar.DAY_OF_MONTH, 1)
-            loadKnotData(tvDate, ivKnotImage, tvKnotName)
+            currentDate.add(Calendar.MONTH, 1)
+            loadKnotData(tvDate, tvKnotName, tvDescription)
         }
 
-        loadKnotData(tvDate, ivKnotImage, tvKnotName)
+        loadKnotData(tvDate, tvKnotName, tvDescription)
     }
 
-    private fun loadKnotData(tvDate: TextView, ivKnotImage: ImageView, tvKnotName: TextView) {
-        val dateStr = sdf.format(currentDate.time)
+    private fun loadKnotData(tvDate: TextView, tvKnotName: TextView, tvDescription: TextView) {
+        val yearMonth = monthSdf.format(currentDate.time)
         tvDate.text = displaySdf.format(currentDate.time)
 
         lifecycleScope.launch {
-            val session = dao.getThreadSessionByDate(dateStr)
-            if (session != null) {
-                tvKnotName.text = "${session.threadColorName.ifEmpty { "매듭" }}"
-                try {
-                    ivKnotImage.setBackgroundColor(Color.parseColor(session.threadColor))
-                } catch (e: IllegalArgumentException) {
-                    ivKnotImage.setBackgroundColor(Color.parseColor("#CADCC4"))
-                }
+            val sessions = dao.getSessionsByMonth(yearMonth)
+            val entries = sessions
+                .filter { it.emotion.isNotBlank() }
+                .map { DiaryEntry(date = LocalDate.parse(it.date), content = it.emotion) }
+
+            if (entries.isEmpty()) {
+                tvKnotName.text = getString(R.string.no_knot_yet)
+                tvDescription.text = ""
             } else {
-                tvKnotName.text = "기록된 매듭이 없습니다"
-                ivKnotImage.setBackgroundColor(Color.TRANSPARENT)
+                val knot = RecommendationEngine.recommendKnot(entries)
+                tvKnotName.text = knot.name
+                tvDescription.text = knot.meaning
             }
         }
     }

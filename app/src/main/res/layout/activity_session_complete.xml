@@ -368,20 +368,20 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/containerThread" />
 
-        <!-- 분석 박스 비율 유지하며 축소, 간격 21 (기존 29의 0.75배) -->
+        <!-- 분석 박스: 남은 영역을 하단까지 채우도록 확장 (한 페이지 내, 스크롤 없이) -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/cardAnalysis"
             android:layout_width="280dp"
-            android:layout_height="160dp"
+            android:layout_height="0dp"
             android:layout_marginTop="21dp"
-            android:layout_marginBottom="12dp"
+            android:layout_marginBottom="16dp"
             app:cardBackgroundColor="#F3F6EF"
             app:cardCornerRadius="12dp"
             app:cardElevation="0dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tvTensionGauge"
-            app:layout_constrainedHeight="true">
+            app:layout_constraintBottom_toBottomOf="parent">
 
             <ScrollView
                 android:layout_width="match_parent"
@@ -396,22 +396,6 @@
                     android:gravity="start"
                     android:orientation="vertical"
                     android:padding="16dp">
-
-                    <TextView
-                        android:id="@+id/tvKeywords"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="오늘의 키워드: -"
-                        android:textColor="@color/primary"
-                        android:textSize="11sp"
-                        android:fontFamily="sans-serif-medium"
-                        android:layout_marginBottom="8dp"/>
-
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="0.5dp"
-                        android:background="#DDDDDD"
-                        android:layout_marginBottom="12dp"/>
 
                     <TextView
                         android:id="@+id/tvAiFeedback"
