@@ -86,11 +86,22 @@ class ThreadStorageFragment : Fragment() {
                 try {
                     threadSwatch.setBackgroundColor(Color.parseColor(threadColor))
                     threadSwatch.visibility = View.VISIBLE
+
+                    cellView.setOnClickListener {
+                        parentFragmentManager.beginTransaction()
+                            .replace(
+                                R.id.fragmentContainer,
+                                ThreadDetailFragment.newInstance(dateStr)
+                            )
+                            .addToBackStack(null)
+                            .commit()
+                    }
                 } catch (e: Exception) {
                     threadSwatch.visibility = View.INVISIBLE
                 }
             } else {
                 threadSwatch.visibility = View.INVISIBLE
+                cellView.setOnClickListener(null)
             }
 
             grid.addView(cellView)

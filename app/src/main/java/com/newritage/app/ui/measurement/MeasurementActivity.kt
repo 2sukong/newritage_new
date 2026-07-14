@@ -16,11 +16,11 @@ import com.github.mikephil.charting.data.*
 import com.github.mikephil.charting.formatter.ValueFormatter
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.newritage.app.R
+import com.newritage.app.ble.BleManager
 import com.newritage.app.data.SensorReading
 import com.newritage.app.databinding.ActivityMeasurementBinding
 import com.newritage.app.ui.main.MainActivity
 import com.newritage.app.ui.util.WaveViewNew
-import kotlin.random.Random
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -51,7 +51,15 @@ class MeasurementActivity : AppCompatActivity() {
     private var isPaused = false
 
     private val pressureEntries = mutableListOf<Entry>()
-    private var currentPressure = 32f
+
+    // BLE에서 들어오는 3개 센서 값 (엄지 / 검지·중지 / 손바닥)
+    private var lastThumb = 0f
+    private var lastIndexMiddle = 0f
+    private var lastPalm = 0f
+
+    // 3개 센서 값의 평균 = 현재 압력값
+    private var currentPressure = 0f
+
     private val allPressures = mutableListOf<Float>()
     private val collectedReadings = mutableListOf<SensorReading>()
 
@@ -111,6 +119,23 @@ class MeasurementActivity : AppCompatActivity() {
         } else {
             showWaiting()
         }
+    }
+
+    // ── BLE 연결 수명주기 ──────────────────────
+
+    override fun onStart() {
+        super.onStart()
+        BleManager.onSensorData = { f0, f1, f2, _ ->
+            lastThumb = f0.toFloat()
+            lastIndexMiddle = f1.toFloat()
+            lastPalm = f2.toFloat()
+            currentPressure = (f0 + f1 + f2) / 3f
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        BleManager.onSensorData = null
     }
 
     private fun bindViews() {
@@ -225,29 +250,22 @@ class MeasurementActivity : AppCompatActivity() {
         }
     }
 
-    // ── 실시간 압력 시뮬레이션 ─────────────────
+    // ── 실시간 압력 기록 (BLE 평균값 기반) ─────
 
     private val measuringRunnable = object : Runnable {
         override fun run() {
             elapsedSeconds++
 
-            // 압력 시뮬레이션
-            val noise = (Random.nextFloat() - 0.5f) * 7f
-            currentPressure = (currentPressure + noise).coerceIn(8f, 72f)
             allPressures.add(currentPressure)
 
-            // 센서별 개별 데이터 시뮬레이션 (통계용)
-            val t = (currentPressure * 0.9f + (Random.nextFloat() - 0.5f) * 5f).coerceIn(5f, 80f)
-            val im = (currentPressure * 1.1f + (Random.nextFloat() - 0.5f) * 5f).coerceIn(5f, 80f)
-            val p = (currentPressure * 1.0f + (Random.nextFloat() - 0.5f) * 5f).coerceIn(5f, 80f)
-
+            // 센서별 실측값 기록 (SessionCompleteActivity/통계용)
             collectedReadings.add(
                 SensorReading(
                     sessionId = 0, // SessionCompleteActivity에서 저장 후 할당됨
                     timestamp = System.currentTimeMillis(),
-                    thumb = t,
-                    indexMiddle = im,
-                    palm = p,
+                    thumb = lastThumb,
+                    indexMiddle = lastIndexMiddle,
+                    palm = lastPalm,
                     overall = currentPressure
                 )
             )
@@ -313,7 +331,7 @@ class MeasurementActivity : AppCompatActivity() {
     private fun finishSession() {
         handler.removeCallbacksAndMessages(null)
         val endTime = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date())
-        val avg = if (allPressures.isEmpty()) 32f else allPressures.average().toFloat()
+        val avg = if (allPressures.isEmpty()) 0f else allPressures.average().toFloat()
         val max = allPressures.maxOrNull() ?: avg
         val min = allPressures.minOrNull() ?: avg
 
@@ -335,5 +353,6 @@ class MeasurementActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         handler.removeCallbacksAndMessages(null)
+        BleManager.onSensorData = null
     }
 }

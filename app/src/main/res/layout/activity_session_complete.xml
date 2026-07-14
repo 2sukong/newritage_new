@@ -345,14 +345,15 @@
                 android:scaleType="fitCenter" />
 
             <!-- 실의 색상 -->
-            <View
+            <ImageView
                 android:id="@+id/threadColorView"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:scaleType="centerCrop"
                 android:layout_margin="24dp" />
         </FrameLayout>
 
-        <!-- 긴장도 게이지 (nervous_circle.xml) 비율 유지하며 축소, 간격 23 (기존 31의 0.75배) -->
+        <!-- 긴장도 게이지 (nervous_circle.xml) 비율 유지하며 축소, 간격 23 -->
         <TextView
             android:id="@+id/tvTensionGauge"
             android:layout_width="84dp"
@@ -368,20 +369,20 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/containerThread" />
 
-        <!-- 분석 박스: 남은 영역을 하단까지 채우도록 확장 (한 페이지 내, 스크롤 없이) -->
+        <!-- 분석 박스 비율 유지하며 축소, 간격 21 -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/cardAnalysis"
             android:layout_width="280dp"
-            android:layout_height="0dp"
+            android:layout_height="160dp"
             android:layout_marginTop="21dp"
-            android:layout_marginBottom="16dp"
+            android:layout_marginBottom="12dp"
             app:cardBackgroundColor="#F3F6EF"
             app:cardCornerRadius="12dp"
             app:cardElevation="0dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tvTensionGauge"
-            app:layout_constraintBottom_toBottomOf="parent">
+            app:layout_constrainedHeight="true">
 
             <ScrollView
                 android:layout_width="match_parent"
@@ -408,7 +409,6 @@
                 </LinearLayout>
             </ScrollView>
         </com.google.android.material.card.MaterialCardView>
-
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </FrameLayout>
