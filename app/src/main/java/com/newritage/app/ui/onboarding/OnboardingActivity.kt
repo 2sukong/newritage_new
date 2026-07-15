@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
@@ -14,6 +13,7 @@ import com.newritage.app.R
 import com.newritage.app.data.UserPreferences
 import com.newritage.app.databinding.ActivityOnboardingBinding
 import com.newritage.app.ui.auth.StartActivity
+import com.newritage.app.ui.util.ShadowedImageView
 
 
 class OnboardingActivity : AppCompatActivity() {
@@ -22,7 +22,7 @@ class OnboardingActivity : AppCompatActivity() {
     private lateinit var prefs: UserPreferences
 
     private val pages = listOf(
-        OnboardingPage(R.string.onboarding_title_1, R.drawable.logo, 140),
+        OnboardingPage(R.string.onboarding_title_1, R.drawable.logo, 140, withShadow = true),
         OnboardingPage(R.string.onboarding_title_2, R.drawable.onboarding1, 200),
         OnboardingPage(R.string.onboarding_title_3, R.drawable.onboarding2, 240),
         OnboardingPage(R.string.onboarding_title_4, R.drawable.onboarding3, 180)
@@ -52,18 +52,22 @@ class OnboardingActivity : AppCompatActivity() {
         startActivity(Intent(this, StartActivity::class.java))
         finish()
     }
-    // 화면 아무 데나 터치했을 때 다음 온보딩 페이지로 넘기는 함수 추가
+    // 화면을 세로 중앙선 기준 좌/우로 나눠, 오른쪽을 누르면 다음 페이지로,
+    // 왼쪽을 누르면 이전 페이지로 이동한다.
     override fun dispatchTouchEvent(ev: android.view.MotionEvent?): Boolean {
-        // 손가락을 화면에서 뗄 때(ACTION_UP) 실행
         if (ev?.action == android.view.MotionEvent.ACTION_UP) {
             val current = binding.viewPager.currentItem
+            val isRightHalf = ev.x >= binding.root.width / 2f
 
-            if (current < pages.size - 1) {
-                // 마지막 페이지가 아니면 다음 페이지로 이동
-                binding.viewPager.currentItem = current + 1
-            } else {
-                // 마지막 페이지면 로그인/시작 화면으로 이동
-                goToStart()
+            if (isRightHalf) {
+                if (current < pages.size - 1) {
+                    binding.viewPager.currentItem = current + 1
+                } else {
+                    // 마지막 페이지면 로그인/시작 화면으로 이동
+                    goToStart()
+                }
+            } else if (current > 0) {
+                binding.viewPager.currentItem = current - 1
             }
             return true
         }
@@ -74,7 +78,8 @@ class OnboardingActivity : AppCompatActivity() {
 data class OnboardingPage(
     val titleResId: Int,
     val imageResId: Int,
-    val imageHeightDp: Int   // 페이지별 이미지 높이(dp)
+    val imageHeightDp: Int,   // 페이지별 이미지 높이(dp)
+    val withShadow: Boolean = false
 )
 
 class OnboardingAdapter(private val pages: List<OnboardingPage>) :
@@ -82,7 +87,7 @@ class OnboardingAdapter(private val pages: List<OnboardingPage>) :
 
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val tvTitle: TextView = view.findViewById(R.id.tvOnboardingTitle)
-        val ivIcon: ImageView = view.findViewById(R.id.ivOnboardingIcon)
+        val ivIcon: ShadowedImageView = view.findViewById(R.id.ivOnboardingIcon)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -96,6 +101,7 @@ class OnboardingAdapter(private val pages: List<OnboardingPage>) :
 
         holder.tvTitle.setText(page.titleResId)
         holder.ivIcon.setImageResource(page.imageResId)
+        holder.ivIcon.isShadowEnabled = page.withShadow
 
         // 여기부터 추가하는 3줄
         val density = holder.itemView.context.resources.displayMetrics.density

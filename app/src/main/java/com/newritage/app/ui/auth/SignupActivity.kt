@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.widget.doOnTextChanged
 import com.newritage.app.R
 import com.newritage.app.data.UserPreferences
 import com.newritage.app.databinding.ActivitySignupBinding
@@ -24,6 +25,7 @@ class SignupActivity : AppCompatActivity() {
         prefs = UserPreferences(this)
 
         setupUI()
+        setupLiveValidation()
     }
 
     private fun setupUI() {
@@ -88,5 +90,35 @@ class SignupActivity : AppCompatActivity() {
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         startActivity(intent)
         finish()
+    }
+
+    /** 아이디/비밀번호 경고 문구는 입력한 값이 조건을 만족하지 않을 때만 보이도록 한다. */
+    private fun setupLiveValidation() {
+        binding.etUsername.doOnTextChanged { text, _, _, _ ->
+            val value = text?.toString() ?: ""
+            binding.tvUsernameWarning.visibility =
+                if (value.isNotEmpty() && !USERNAME_PATTERN.matches(value)) View.VISIBLE else View.GONE
+        }
+
+        binding.etPassword.doOnTextChanged { text, _, _, _ ->
+            val value = text?.toString() ?: ""
+            val invalid = value.isNotEmpty() && !isPasswordValid(value)
+            binding.tvPasswordUnavailable.visibility = if (invalid) View.VISIBLE else View.GONE
+            binding.tvPasswordWarning.visibility = if (invalid) View.VISIBLE else View.GONE
+        }
+    }
+
+    private fun isPasswordValid(pw: String): Boolean {
+        if (pw.length !in 6..20) return false
+        var categoryCount = 0
+        if (pw.any { it.isUpperCase() }) categoryCount++
+        if (pw.any { it.isLowerCase() }) categoryCount++
+        if (pw.any { it.isDigit() }) categoryCount++
+        if (pw.any { !it.isLetterOrDigit() }) categoryCount++
+        return categoryCount >= 2
+    }
+
+    private companion object {
+        val USERNAME_PATTERN = Regex("^[A-Z][A-Za-z0-9]{3,11}$")
     }
 }
