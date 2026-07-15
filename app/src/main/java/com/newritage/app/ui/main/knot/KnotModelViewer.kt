@@ -1,5 +1,6 @@
 package com.newritage.app.ui.main.knot
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -12,8 +13,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.draw.scale
 import com.google.android.filament.Engine
 import com.google.android.filament.MaterialInstance
 import com.google.android.filament.utils.Manipulator
@@ -59,6 +64,10 @@ private fun MaterialInstance.tryTintBaseColor(color: Color) {
  *   화면(그리드 썸네일/상세보기)마다 엔진을 새로 만들고 파괴하면 한 화면이 사라지며 엔진을 파괴하는
  *   시점과 다른 화면이 새 엔진을 만드는 시점이 겹쳐 Filament 네이티브 크래시가 나기 때문에, 항상 이
  *   공유 엔진을 재사용한다.
+ * @param placeholderRes 라이브 3D 모델을 GLB에서 읽어 GPU에 올리는 동안(수백ms~1초 정도) 빈 화면
+ *   대신 보여줄 정적 썸네일(그리드용으로 미리 렌더링해 둔 흰 재질 이미지). 기본 카메라 거리(3f) 기준
+ *   으로 뽑아 둔 이미지라, cameraDistance가 다르면 3f/cameraDistance 배율로 스케일을 보정해 크기
+ *   차이로 인한 로딩 완료 시점의 "팝" 현상을 줄인다.
  */
 @Composable
 fun KnotModelViewer(
@@ -70,7 +79,8 @@ fun KnotModelViewer(
     modelRotation: Rotation = Rotation(x = -90f, y = 0f, z = 0f),
     cameraDistance: Float = 3f,
     engine: Engine = KnotEngineHolder.engine(),
-    modelLoader: ModelLoader = KnotEngineHolder.modelLoader(LocalContext.current)
+    modelLoader: ModelLoader = KnotEngineHolder.modelLoader(LocalContext.current),
+    placeholderRes: Int? = null
 ) {
     val childNodes = rememberNodes()
     val cameraManipulator = remember(interactive, cameraDistance) {
@@ -78,7 +88,8 @@ fun KnotModelViewer(
             Manipulator.Builder()
                 .targetPosition(0f, 0f, 0f)
                 .orbitHomePosition(0f, 0f, cameraDistance)
-                .orbitSpeed(if (interactive) 0.005f else 0f, if (interactive) 0.005f else 0f)
+                // x(가로 드래그)만 허용해 세로축 회전 없이 가로축 360도 회전만 가능하게 한다.
+                .orbitSpeed(if (interactive) 0.005f else 0f, 0f)
                 .zoomSpeed(0f) // 확대/축소 제스처는 항상 잠근다 (썸네일·상세보기 공통)
                 .build(Manipulator.Mode.ORBIT)
         )
@@ -86,6 +97,9 @@ fun KnotModelViewer(
     var isLoading by remember { mutableStateOf(true) }
 
     LaunchedEffect(glbAssetPath, tintColor, modelRotation, modelLoader) {
+        // 날짜를 넘길 때마다 이전 매듭 모델을 지우지 않으면 원점에 계속 겹쳐 쌓인다.
+        childNodes.toList().forEach { it.destroy() }
+        childNodes.clear()
         val modelInstance = modelLoader.loadModelInstance(glbAssetPath)
         if (modelInstance != null) {
             if (tintColor != null) {
@@ -118,10 +132,29 @@ fun KnotModelViewer(
             onViewCreated = {
                 // 이동(pan) 제스처는 CameraManipulator의 speed로 막을 수 없어 제스처 감지기 단에서 잠근다.
                 cameraGestureDetector?.isPanEnabled = false
+                // SceneView는 사용자가 한 번이라도 터치하기 전까지 카메라에 매니퓰레이터 값을 반영하지
+                // 않아, 터치 전에는 Filament의 미보정 기본 카메라로 크게 보이다가 터치하는 순간 올바른
+                // cameraDistance 크기로 줄어드는 것처럼 보인다. 여기서 미리 한 번 반영해 첫 프레임부터
+                // 최종 크기로 보이게 한다.
+                cameraManipulator?.let { manipulator ->
+                    manipulator.update(0f)
+                    cameraNode.transform = manipulator.getTransform()
+                }
             }
         )
         if (isLoading) {
-            CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+            if (placeholderRes != null) {
+                Image(
+                    painter = painterResource(placeholderRes),
+                    contentDescription = null,
+                    colorFilter = tintColor?.let { ColorFilter.tint(it, BlendMode.Modulate) },
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .scale(3f / cameraDistance)
+                )
+            } else {
+                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+            }
         }
     }
 }

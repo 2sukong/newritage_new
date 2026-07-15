@@ -62,22 +62,31 @@
         android:background="@drawable/calender_frame"
         android:padding="16dp">
 
-        <ScrollView
+        <!-- 매듭보관함(Compose)의 프레임 padding(16dp) 위에 한 겹 더 padding(16dp)을 두는
+             중첩 구조와 동일하게 맞춰, 프레임 테두리부터 첫 칸까지의 여백이 두 보관함에서 같다. -->
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:padding="16dp">
 
-            <GridLayout
-                android:id="@+id/calendarGrid"
+            <ScrollView
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:columnCount="4"
-                android:rowCount="8"
-                android:layout_gravity="center_horizontal"
-                android:useDefaultMargins="true"
-                android:alignmentMode="alignMargins">
-            </GridLayout>
+                android:layout_height="match_parent">
 
-        </ScrollView>
+                <!-- GridLayout의 columnWeight 기반 열 분배는 칸 너비가 고르게 맞지 않는 경우가
+                     있어, 4칸씩 직접 구성한 가로 LinearLayout(weight=1)을 세로로 쌓는 방식으로
+                     매듭보관함(Compose 4열 그리드)과 동일한 정렬을 보장한다. 칸의 4dp 마진이
+                     매듭보관함의 contentPadding(4dp) + spacedBy(8dp)와 동일한 간격을 만든다. -->
+                <LinearLayout
+                    android:id="@+id/calendarGrid"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+                </LinearLayout>
+
+            </ScrollView>
+        </LinearLayout>
     </FrameLayout>
 
 </LinearLayout>

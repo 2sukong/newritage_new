@@ -21,6 +21,12 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            // 실기기는 전부 ARM이라 x86/x86_64(에뮬레이터 전용)를 배포용 APK에서 뺀다.
+            // Filament/gltfio 네이티브 라이브러리가 아키텍처당 수 MB라 이것만으로도 APK 용량이
+            // 꽤 줄어든다. 디버그 빌드는 에뮬레이터 테스트를 위해 그대로 전체 ABI를 유지한다.
+            ndk {
+                abiFilters "armeabi-v7a", "arm64-v8a"
+            }
         }
     }
 

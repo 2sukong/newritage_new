@@ -3,11 +3,13 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="0dp"
     android:layout_height="wrap_content"
-    android:layout_columnWeight="1"
+    android:layout_weight="1"
     android:orientation="vertical"
     android:gravity="center"
-    android:padding="6dp">
+    android:layout_margin="4dp">
 
+    <!-- GONE 대신 INVISIBLE: NEW 배지 유무와 상관없이 모든 칸이 같은 세로 구조를 가져야
+         칸(threadSquareFrame)이 줄마다 같은 높이에 정렬된다. -->
     <TextView
         android:id="@+id/tvNewBadge"
         android:layout_width="wrap_content"
@@ -17,7 +19,7 @@
         android:textSize="9sp"
         android:textStyle="bold"
         android:layout_marginBottom="2dp"
-        android:visibility="gone" />
+        android:visibility="invisible" />
 
     <FrameLayout
         android:id="@+id/threadSquareFrame"

@@ -98,7 +98,13 @@ class KnotDetailFragment : Fragment() {
                     KnotModelViewer(
                         glbAssetPath = knotType.assetPath,
                         interactive = true,
-                        tintColor = knotTintColorOrNull(session.threadColor)
+                        tintColor = knotTintColorOrNull(session.threadColor),
+                        // 그리드 썸네일(기본 3f)보다 카메라를 가깝게 둬서 상세보기에서 매듭이 약 2배
+                        // 크게 보이도록 한다.
+                        cameraDistance = 1.5f,
+                        // 3D 모델을 GLB에서 읽어 GPU에 올리는 동안 빈 화면 대신 그리드용 정적
+                        // 썸네일을 먼저 보여줘 로딩 지연을 체감상 없앤다.
+                        placeholderRes = knotType.thumbnailRes
                     )
                 }
             } else {

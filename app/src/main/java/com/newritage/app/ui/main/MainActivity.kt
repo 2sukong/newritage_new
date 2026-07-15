@@ -8,6 +8,7 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
 import com.newritage.app.R
 import com.newritage.app.ble.BleManager
 import com.newritage.app.databinding.ActivityMainBinding
@@ -17,7 +18,9 @@ import com.newritage.app.ui.main.thread.ThreadStorageFragment
 import com.newritage.app.ui.measurement.MeasurementActivity
 import com.newritage.app.ui.settings.SettingsActivity
 import com.newritage.app.ui.util.WaveStyle
+import com.newritage.app.util.DebugDataSeeder
 import com.newritage.app.util.FeatureFlags
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
 
@@ -39,6 +42,7 @@ class MainActivity : AppCompatActivity() {
         setupHomeButton()
         setupBottomNav()
         connectBle()
+        lifecycleScope.launch { DebugDataSeeder.seedIfEnabled(this@MainActivity) }
 
         // 기본: 홈(측정 시작) 화면
         if (savedInstanceState == null) {

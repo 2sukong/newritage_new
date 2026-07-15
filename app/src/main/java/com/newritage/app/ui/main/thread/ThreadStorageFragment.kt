@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
@@ -74,12 +75,21 @@ class ThreadStorageFragment : Fragment() {
         val yearMonthStr = SimpleDateFormat("yyyy-MM", Locale.getDefault()).format(cal.time)
         val todayStr = sdf.format(Date())
 
+        // 매듭보관함(Compose 4열 그리드)과 동일하게, 실을 얻은 날짜만 순서대로 4칸씩 줄을 채운다.
+        var currentRow: LinearLayout? = null
+        var columnInRow = 0
+
         for (day in 1..daysInMonth) {
             val dateStr = "$yearMonthStr-${String.format("%02d", day)}"
             val threadColor = colorMap[dateStr] ?: continue // 실을 얻지 못한 날은 칸 자체를 만들지 않는다.
 
+            if (columnInRow == 0) {
+                currentRow = newGridRow()
+                grid.addView(currentRow)
+            }
+
             val cellView = LayoutInflater.from(requireContext())
-                .inflate(R.layout.item_calendar_cell, grid, false)
+                .inflate(R.layout.item_calendar_cell, currentRow, false)
 
             val tvDay = cellView.findViewById<TextView>(R.id.tvDay)
             val threadSquareFrame = cellView.findViewById<FrameLayout>(R.id.threadSquareFrame)
@@ -88,8 +98,13 @@ class ThreadStorageFragment : Fragment() {
 
             tvDay.text = getString(R.string.day_number_format, day)
             val isNew = dateStr == todayStr
-            tvNewBadge.visibility = if (isNew) View.VISIBLE else View.GONE
-            threadSquareFrame.setBackgroundResource(R.drawable.calender_frame)
+            // GONE 대신 INVISIBLE: NEW 배지 유무와 상관없이 모든 칸이 같은 세로 구조를
+            // 가져야 threadSquareFrame이 줄마다 같은 높이에서 정렬된다.
+            tvNewBadge.visibility = if (isNew) View.VISIBLE else View.INVISIBLE
+            // 굵은 초록 테두리는 stroke만 두꺼워질 뿐 칸 자체 크기는 그대로이므로 레이아웃에 영향 없다.
+            threadSquareFrame.setBackgroundResource(
+                if (isNew) R.drawable.bg_rounded_new_border else R.drawable.bg_rounded_gray_border
+            )
 
             try {
                 val cornerRadius = resources.displayMetrics.density * 9f
@@ -103,12 +118,39 @@ class ThreadStorageFragment : Fragment() {
                 threadSwatch.visibility = View.INVISIBLE
             }
 
-            grid.addView(cellView)
+            currentRow?.addView(cellView)
+            columnInRow = (columnInRow + 1) % COLUMN_COUNT
+        }
+
+        // 마지막 줄이 4칸을 다 채우지 못했다면, 남은 자리를 투명한 빈 칸으로 채워
+        // weight 기반 열 너비가 앞선 줄들과 같은 위치에서 정렬되게 한다.
+        if (columnInRow != 0) {
+            repeat(COLUMN_COUNT - columnInRow) {
+                currentRow?.addView(
+                    View(requireContext()).apply {
+                        layoutParams = LinearLayout.LayoutParams(0, 0, 1f)
+                    }
+                )
+            }
+        }
+    }
+
+    private fun newGridRow(): LinearLayout {
+        return LinearLayout(requireContext()).apply {
+            orientation = LinearLayout.HORIZONTAL
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            )
         }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    private companion object {
+        const val COLUMN_COUNT = 4
     }
 }

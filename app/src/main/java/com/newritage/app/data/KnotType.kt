@@ -1,17 +1,22 @@
 package com.newritage.app.data
 
+import com.newritage.app.R
+
 /**
  * 매듭 보관함에서 사용하는 7종 매듭 3D 모델 정보.
- * assetPath는 assets/knots/ 아래 최적화된(Draco 압축) GLB 파일을 가리킨다.
+ * assetPath는 assets/knots/ 아래 최적화된(Draco 압축) GLB 파일을 가리키며 상세보기의 실시간
+ * 3D 렌더에 쓰인다. thumbnailRes는 그리드 썸네일용으로 흰색 재질 기준 한 번 미리 렌더링해 둔
+ * 정적 이미지로, 그리드에서는 라이브 3D 대신 이 이미지에 색만 틴트해서 보여준다(그리드는 항상
+ * 고정된 각도로만 보이므로 매번 실시간 렌더링할 필요가 없다).
  */
-enum class KnotType(val displayName: String, val assetPath: String) {
-    GARAKJI("가락지매듭", "knots/garakji.glb"),
-    GUKHWA("국화매듭", "knots/gukhwa.glb"),
-    DORAE("도래매듭", "knots/dorae.glb"),
-    MAEHWA("매화매듭", "knots/maehwa.glb"),
-    SAMJEONGJA("삼정자매듭", "knots/samjeongja.glb"),
-    SAENGJJOK("생쪽매듭", "knots/saengjjok.glb"),
-    ANGYEONG("안경매듭", "knots/angyeong.glb");
+enum class KnotType(val displayName: String, val assetPath: String, val thumbnailRes: Int) {
+    GARAKJI("가락지매듭", "knots/garakji.glb", R.drawable.knot_thumb_garakji),
+    GUKHWA("국화매듭", "knots/gukhwa.glb", R.drawable.knot_thumb_gukhwa),
+    DORAE("도래매듭", "knots/dorae.glb", R.drawable.knot_thumb_dorae),
+    MAEHWA("매화매듭", "knots/maehwa.glb", R.drawable.knot_thumb_maehwa),
+    SAMJEONGJA("삼정자매듭", "knots/samjeongja.glb", R.drawable.knot_thumb_samjeongja),
+    SAENGJJOK("생쪽매듭", "knots/saengjjok.glb", R.drawable.knot_thumb_saengjjok),
+    ANGYEONG("안경매듭", "knots/angyeong.glb", R.drawable.knot_thumb_angyeong);
 
     companion object {
         /**
