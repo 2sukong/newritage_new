@@ -96,6 +96,9 @@ class BaselineMeasurementActivity : AppCompatActivity() {
         // 최초 상태는 준비 화면(Screen.GUIDE)으로 세팅
         showScreen(Screen.GUIDE)
 
+        // 홈 화면의 대기 원과 똑같은 스타일(잔잔한 수면 + 저속 회전 링)로 대기시킨다.
+        binding.waveViewReady.setWaveStyle(WaveStyle.IDLE)
+
         // 초기값 설정에 들어가기 앞서 측정 안내 바텀시트를 자동으로 띄운다
         binding.root.post { showGuideSheet() }
         binding.btnMeasureTip.setOnClickListener { showGuideSheet() }
@@ -106,6 +109,9 @@ class BaselineMeasurementActivity : AppCompatActivity() {
                 Toast.makeText(this, R.string.connection_required_toast, Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
+            // 홈→측정 화면 전환과 동일하게, 대기 링이 돌던 각도를 이어받아 측정 원의
+            // 링이 끊김없이 이어서 돌게 한다.
+            binding.waveView.seedIdleAngle(binding.waveViewReady.currentIdleAngle())
             animateReadyCircleIntoMeasuring()
             startMeasurement()
         }

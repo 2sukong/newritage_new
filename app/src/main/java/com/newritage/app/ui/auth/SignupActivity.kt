@@ -80,8 +80,7 @@ class SignupActivity : AppCompatActivity() {
         prefs.username = id
         prefs.isLoggedIn = true
 
-        val dialog = SignupCompleteDialog()
-        dialog.show(supportFragmentManager, "SignupCompleteDialog")
+        SignupCompleteDialog(this) { navigateToBaseline() }.show()
     }
 
     // 💡 팝업의 '확인' 버튼을 눌렀을 때 Baseline 화면으로 넘어가도록 이 메서드를 호출할 것입니다.

@@ -102,12 +102,12 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintVertical_chainStyle="packed">
 
-            <View
+            <!-- 홈 화면의 대기 원(WaveStyle.IDLE)과 완전히 같은 뷰. 시작하기를 누르면 이 원의
+                 회전각을 측정 화면의 WaveView로 그대로 이어받아 이어서 재생한다. -->
+            <com.newritage.app.ui.util.WaveView
+                android:id="@+id/waveViewReady"
                 android:layout_width="match_parent"
-                android:layout_height="2dp"
-                android:background="#B8C6B6"
-                android:layout_gravity="center"
-                android:layout_marginHorizontal="12dp" />
+                android:layout_height="match_parent" />
         </FrameLayout>
 
         <!-- 기기 연결 상태 배지 (일반 측정 전 화면과 동일한 위치/스타일) -->

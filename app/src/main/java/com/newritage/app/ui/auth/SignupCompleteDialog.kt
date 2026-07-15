@@ -1,53 +1,53 @@
-// 🛠 패키지 경로를 SignupActivity와 완벽히 맞춰줍니다
 package com.newritage.app.ui.auth
 
+import android.app.Activity
+import android.app.Dialog
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
-import androidx.fragment.app.DialogFragment
-import com.newritage.app.R
+import android.view.Window
+import androidx.core.view.doOnPreDraw
+import com.newritage.app.databinding.DialogSignupCompleteBinding
+import com.newritage.app.util.BackdropBlur
 
-class SignupCompleteDialog : DialogFragment() {
+/**
+ * 회원가입 완료 시 뜨는 토스트형 팝업. 매듭 획득 토스트(KnotCreatedDialog)와 같은 디자인으로,
+ * 뒤 화면을 블러 처리해 배경으로 씌운다. 카드 바깥을 탭하거나 "확인"을 탭하면 [onConfirm]이 실행된다.
+ */
+class SignupCompleteDialog(
+    private val hostActivity: Activity,
+    private val onConfirm: () -> Unit
+) : Dialog(hostActivity) {
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        val view = inflater.inflate(R.layout.dialog_signup_complete, container, false)
+    private lateinit var binding: DialogSignupCompleteBinding
 
-        // 배경 투명화 (이것만으로는 크기 고정이 안 될 수 있습니다)
-        dialog?.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        requestWindowFeature(Window.FEATURE_NO_TITLE)
 
-        val btnConfirm = view.findViewById<TextView>(R.id.btnDialogConfirm)
-        btnConfirm.setOnClickListener {
-            dismiss() // 팝업 닫기
-            (activity as? SignupActivity)?.navigateToBaseline()
+        binding = DialogSignupCompleteBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+
+        // 카드 바깥 탭 시에도 확인과 동일하게 다음 화면으로 넘어간다. 카드 자체는 클릭을 소비한다.
+        binding.dialogRoot.setOnClickListener { confirmAndDismiss() }
+        binding.cardSignupComplete.setOnClickListener { }
+        binding.btnDialogConfirm.setOnClickListener { confirmAndDismiss() }
+
+        binding.dialogRoot.doOnPreDraw {
+            BackdropBlur.applyBottomCropTo(
+                source = hostActivity.window.decorView,
+                target = binding.ivBackdrop,
+                cropHeightPx = binding.dialogRoot.height
+            )
         }
-
-        return view
     }
 
-    // 🛠 [핵심 추가] 팝업이 화면에 나타날 때 크기와 중앙 정렬을 강제로 고정합니다.
-    override fun onResume() {
-        super.onResume()
-
-        val dialogWindow = dialog?.window
-        if (dialogWindow != null) {
-            dialogWindow.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-
-            val params = dialogWindow.attributes
-            val density = resources.displayMetrics.density
-
-            // 🛠 기존 300에서 260으로 줄여 팝업을 가로로 슬림하게 만듭니다!
-            params.width = (260 * density).toInt()
-            params.height = ViewGroup.LayoutParams.WRAP_CONTENT
-
-            dialogWindow.attributes = params
-        }
+    private fun confirmAndDismiss() {
+        dismiss()
+        onConfirm()
     }
 }

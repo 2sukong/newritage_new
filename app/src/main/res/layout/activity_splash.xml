@@ -19,27 +19,33 @@
         android:scaleType="centerCrop"
         android:alpha="0.45" />
 
+    <!-- 로고+문구를 세로 체인으로 묶어 화면 중앙보다 위쪽에 오도록 올린다
+         (버튼 영역이 없어진 스플래시에서 기존 고정 마진 그대로면 너무 아래로 처짐). -->
     <ImageView
+        android:id="@+id/ivLogo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
         android:src="@drawable/logo"
         android:contentDescription="앱 로고"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toTopOf="@id/tvSubtitle"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintVertical_chainStyle="packed"
+        app:layout_constraintVertical_bias="0.35" />
 
     <TextView
         android:id="@+id/tvSubtitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="212dp"
         android:letterSpacing="0.05"
         android:text="@string/app_subtitle"
         android:textColor="@color/white"
         android:textSize="20sp"
+        app:layout_constraintTop_toBottomOf="@id/ivLogo"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

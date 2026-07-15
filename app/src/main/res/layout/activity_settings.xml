@@ -61,29 +61,91 @@
 
             <include layout="@layout/view_settings_group_header"
                 android:id="@+id/groupAccount" />
-            <include layout="@layout/view_settings_row" android:id="@+id/rowAccountManage" />
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardBackgroundColor="@color/background"
+                app:cardCornerRadius="18dp"
+                app:cardElevation="2dp">
+                <include layout="@layout/view_settings_row" android:id="@+id/rowAccountManage" />
+            </com.google.android.material.card.MaterialCardView>
 
             <include layout="@layout/view_settings_group_header"
                 android:id="@+id/groupSecurity" />
-            <include layout="@layout/view_settings_row" android:id="@+id/rowPassword" />
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardBackgroundColor="@color/background"
+                app:cardCornerRadius="18dp"
+                app:cardElevation="2dp">
+                <include layout="@layout/view_settings_row" android:id="@+id/rowPassword" />
+            </com.google.android.material.card.MaterialCardView>
 
             <include layout="@layout/view_settings_group_header"
                 android:id="@+id/groupApp" />
-            <include layout="@layout/view_settings_row" android:id="@+id/rowNotificationReset" />
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardBackgroundColor="@color/background"
+                app:cardCornerRadius="18dp"
+                app:cardElevation="2dp">
+                <include layout="@layout/view_settings_row" android:id="@+id/rowNotificationReset" />
+            </com.google.android.material.card.MaterialCardView>
 
             <include layout="@layout/view_settings_group_header"
                 android:id="@+id/groupPressure" />
-            <include layout="@layout/view_settings_row" android:id="@+id/rowMeasureStandard" />
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardBackgroundColor="@color/background"
+                app:cardCornerRadius="18dp"
+                app:cardElevation="2dp">
+                <include layout="@layout/view_settings_row" android:id="@+id/rowMeasureStandard" />
+            </com.google.android.material.card.MaterialCardView>
 
             <include layout="@layout/view_settings_group_header"
                 android:id="@+id/groupVibration" />
-            <include layout="@layout/view_settings_row" android:id="@+id/rowVibrationManage" />
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardBackgroundColor="@color/background"
+                app:cardCornerRadius="18dp"
+                app:cardElevation="2dp">
+                <include layout="@layout/view_settings_row" android:id="@+id/rowVibrationManage" />
+            </com.google.android.material.card.MaterialCardView>
 
             <include layout="@layout/view_settings_group_header"
                 android:id="@+id/groupHelp" />
-            <include layout="@layout/view_settings_row" android:id="@+id/rowNotice" />
-            <include layout="@layout/view_settings_row" android:id="@+id/rowCs" />
-            <include layout="@layout/view_settings_row" android:id="@+id/rowGuide" />
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardBackgroundColor="@color/background"
+                app:cardCornerRadius="18dp"
+                app:cardElevation="2dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <include layout="@layout/view_settings_row" android:id="@+id/rowNotice" />
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginEnd="16dp"
+                        android:background="@color/divider" />
+                    <include layout="@layout/view_settings_row" android:id="@+id/rowCs" />
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginEnd="16dp"
+                        android:background="@color/divider" />
+                    <include layout="@layout/view_settings_row" android:id="@+id/rowGuide" />
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
         </LinearLayout>
     </ScrollView>

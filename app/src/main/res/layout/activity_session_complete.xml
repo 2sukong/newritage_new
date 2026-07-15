@@ -7,217 +7,235 @@
     android:background="@color/background">
 
     <!-- ─── 1. 기록 리뷰 / 감정 화면 ─── -->
-    <ScrollView
+    <!-- 사진 참조: 상단 REVIEW 라벨 + 오늘의 기록 카드는 고정 높이, "오늘의 감정" 입력창이
+         남는 공간을 다 채우고, 건너뛰기/기록하기 버튼은 화면 맨 아래 고정된다. -->
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/layoutRecord"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:fillViewport="true">
+        android:padding="20dp">
 
-        <LinearLayout
+        <TextView
+            android:id="@+id/tvReviewLabel"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/review_label"
+            android:textSize="13sp"
+            android:letterSpacing="0.15"
+            android:textColor="@color/text_secondary"
+            android:gravity="center"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <TextView
+            android:id="@+id/tvTodayRecordTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="@string/review_today_record"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="@color/text_primary"
+            app:layout_constraintTop_toBottomOf="@id/tvReviewLabel"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <LinearLayout
+            android:id="@+id/cardTodayRecord"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
             android:orientation="vertical"
-            android:padding="20dp"
-            android:paddingBottom="32dp">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/review_label"
-                android:textSize="13sp"
-                android:letterSpacing="0.15"
-                android:textColor="@color/text_secondary"
-                android:gravity="center"
-                android:layout_marginBottom="24dp" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/review_today_record"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:textColor="@color/text_primary"
-                android:layout_marginBottom="12dp" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:background="@drawable/bg_card_surface"
-                android:paddingStart="20dp"
-                android:paddingEnd="20dp"
-                android:layout_marginBottom="24dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:paddingTop="16dp"
-                    android:paddingBottom="16dp">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="@string/review_row_med_time"
-                        android:textSize="14sp"
-                        android:textColor="@color/text_primary" />
-
-                    <TextView
-                        android:id="@+id/tvRecordMedTime"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="--:----:--"
-                        android:textSize="14sp"
-                        android:textColor="@color/text_primary" />
-                </LinearLayout>
-
-                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/divider" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:paddingTop="16dp"
-                    android:paddingBottom="16dp">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="@string/review_row_avg_tension"
-                        android:textSize="14sp"
-                        android:textColor="@color/text_primary" />
-
-                    <TextView
-                        android:id="@+id/tvRecordAvgPressure"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="--N"
-                        android:textSize="14sp"
-                        android:textColor="@color/text_primary" />
-                </LinearLayout>
-
-                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/divider" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:paddingTop="16dp"
-                    android:paddingBottom="16dp">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="@string/review_row_minmax_tension"
-                        android:textSize="14sp"
-                        android:textColor="@color/text_primary" />
-
-                    <TextView
-                        android:id="@+id/tvRecordMinMaxPressure"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="--N/--N"
-                        android:textSize="14sp"
-                        android:textColor="@color/text_primary" />
-                </LinearLayout>
-
-                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/divider" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:paddingTop="16dp"
-                    android:paddingBottom="16dp">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="@string/review_row_deviation_count"
-                        android:textSize="14sp"
-                        android:textColor="@color/text_primary" />
-
-                    <TextView
-                        android:id="@+id/tvRecordDeviationCount"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="--회"
-                        android:textSize="14sp"
-                        android:textColor="@color/text_primary" />
-                </LinearLayout>
-
-            </LinearLayout>
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/review_today_emotion"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:textColor="@color/text_primary"
-                android:layout_marginBottom="12dp" />
-
-            <EditText
-                android:id="@+id/etEmotion"
-                android:layout_width="match_parent"
-                android:layout_height="260dp"
-                android:hint="@string/review_emotion_hint"
-                android:textColorHint="@color/text_hint"
-                android:background="@drawable/bg_tip_card"
-                android:padding="20dp"
-                android:gravity="top"
-                android:inputType="textMultiLine"
-                android:textSize="14sp"
-                android:textColor="@color/text_primary"
-                android:layout_marginBottom="20dp" />
+            android:background="@drawable/bg_card_surface"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
+            app:layout_constraintTop_toBottomOf="@id/tvTodayRecordTitle"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:gravity="center">
+                android:paddingTop="16dp"
+                android:paddingBottom="16dp">
 
-                <Button
-                    android:id="@+id/btnSkipRecord"
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/review_row_med_time"
+                    android:textSize="14sp"
+                    android:textColor="@color/text_primary" />
+
+                <TextView
+                    android:id="@+id/tvRecordMedTime"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:minWidth="0dp"
-                    android:minHeight="0dp"
-                    android:text="@string/btn_skip_record"
-                    android:background="@drawable/bg_btn_pill_outline"
-                    android:textColor="@color/text_secondary"
+                    android:text="--:----:--"
                     android:textSize="14sp"
-                    android:paddingStart="24dp"
-                    android:paddingEnd="24dp"
-                    android:paddingTop="12dp"
-                    android:paddingBottom="12dp"
-                    android:stateListAnimator="@null"
-                    android:layout_marginEnd="12dp" />
+                    android:textColor="@color/text_primary" />
+            </LinearLayout>
 
-                <Button
-                    android:id="@+id/btnSaveRecord"
+            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/divider" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingTop="16dp"
+                android:paddingBottom="16dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/review_row_avg_tension"
+                    android:textSize="14sp"
+                    android:textColor="@color/text_primary" />
+
+                <TextView
+                    android:id="@+id/tvRecordAvgPressure"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:minWidth="0dp"
-                    android:minHeight="0dp"
-                    android:text="@string/btn_save_record"
-                    android:background="@drawable/bg_btn_pill_filled"
-                    android:textColor="@color/white"
+                    android:text="--N"
                     android:textSize="14sp"
-                    android:paddingStart="24dp"
-                    android:paddingEnd="24dp"
-                    android:paddingTop="12dp"
-                    android:paddingBottom="12dp"
-                    android:stateListAnimator="@null" />
+                    android:textColor="@color/text_primary" />
+            </LinearLayout>
 
+            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/divider" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingTop="16dp"
+                android:paddingBottom="16dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/review_row_minmax_tension"
+                    android:textSize="14sp"
+                    android:textColor="@color/text_primary" />
+
+                <TextView
+                    android:id="@+id/tvRecordMinMaxPressure"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="--N/--N"
+                    android:textSize="14sp"
+                    android:textColor="@color/text_primary" />
+            </LinearLayout>
+
+            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/divider" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingTop="16dp"
+                android:paddingBottom="16dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/review_row_deviation_count"
+                    android:textSize="14sp"
+                    android:textColor="@color/text_primary" />
+
+                <TextView
+                    android:id="@+id/tvRecordDeviationCount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="--회"
+                    android:textSize="14sp"
+                    android:textColor="@color/text_primary" />
             </LinearLayout>
 
         </LinearLayout>
-    </ScrollView>
+
+        <TextView
+            android:id="@+id/tvTodayEmotionTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="@string/review_today_emotion"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="@color/text_primary"
+            app:layout_constraintTop_toBottomOf="@id/cardTodayRecord"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <EditText
+            android:id="@+id/etEmotion"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginBottom="20dp"
+            android:hint="@string/review_emotion_hint"
+            android:textColorHint="@color/text_hint"
+            android:background="@drawable/bg_tip_card"
+            android:padding="20dp"
+            android:gravity="top"
+            android:inputType="textMultiLine"
+            android:textSize="14sp"
+            android:textColor="@color/text_primary"
+            app:layout_constraintTop_toBottomOf="@id/tvTodayEmotionTitle"
+            app:layout_constraintBottom_toTopOf="@id/rowRecordButtons"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <LinearLayout
+            android:id="@+id/rowRecordButtons"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <Button
+                android:id="@+id/btnSkipRecord"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="0dp"
+                android:minHeight="0dp"
+                android:text="@string/btn_skip_record"
+                android:background="@drawable/bg_btn_pill_outline"
+                android:textColor="@color/text_secondary"
+                android:textSize="14sp"
+                android:paddingStart="24dp"
+                android:paddingEnd="24dp"
+                android:paddingTop="12dp"
+                android:paddingBottom="12dp"
+                android:stateListAnimator="@null"
+                android:layout_marginEnd="12dp" />
+
+            <Button
+                android:id="@+id/btnSaveRecord"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="0dp"
+                android:minHeight="0dp"
+                android:text="@string/btn_save_record"
+                android:background="@drawable/bg_btn_pill_filled"
+                android:textColor="@color/white"
+                android:textSize="14sp"
+                android:paddingStart="24dp"
+                android:paddingEnd="24dp"
+                android:paddingTop="12dp"
+                android:paddingBottom="12dp"
+                android:stateListAnimator="@null" />
+
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <!-- ─── 2. 기록 완료(잠깐 보여주는 애니메이션) ─── -->
     <androidx.constraintlayout.widget.ConstraintLayout
