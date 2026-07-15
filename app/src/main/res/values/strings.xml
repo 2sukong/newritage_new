@@ -139,6 +139,8 @@
     <!-- 실/매듭 보관함 공통 -->
     <string name="badge_new">NEW</string>
     <string name="day_number_format">%d일</string>
+    <string name="month_number_format">%1$d월</string>
+    <string name="year_number_format">%1$d년</string>
 
     <!-- 실 보관함 -->
     <string name="thread_storage_title">실 보관함</string>
@@ -152,6 +154,10 @@
     <string name="knot_provide_title">매듭 제공</string>
     <string name="btn_view_knot_storage">매듭 보관함 보기</string>
     <string name="no_knot_yet">이번 달 매듭이 아직 없습니다.</string>
+
+    <!-- 매듭 획득 토스트 -->
+    <string name="knot_created_toast_title">매듭이 생성되었어요</string>
+    <string name="knot_created_toast_cta">바로 보러가기 &gt;</string>
 
     <!-- 분석 -->
     <string name="analysis_title">명상분석</string>

@@ -42,6 +42,10 @@ interface SessionDao {
     @Query("SELECT * FROM sessions WHERE date LIKE :yearMonth || '%' ORDER BY date ASC, createdAt ASC")
     suspend fun getSessionsByMonth(yearMonth: String): List<Session>
 
+    /** 특정 연도의 세션 목록 (yyyy) */
+    @Query("SELECT * FROM sessions WHERE date LIKE :year || '%' ORDER BY date ASC, createdAt ASC")
+    suspend fun getSessionsByYear(year: String): List<Session>
+
     /** 전체 세션 (Flow) */
     @Query("SELECT * FROM sessions ORDER BY date DESC, createdAt DESC")
     fun getAllSessionsFlow(): Flow<List<Session>>

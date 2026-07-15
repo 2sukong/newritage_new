@@ -44,9 +44,13 @@ class MainActivity : AppCompatActivity() {
         connectBle()
         lifecycleScope.launch { DebugDataSeeder.seedIfEnabled(this@MainActivity) }
 
-        // 기본: 홈(측정 시작) 화면
+        // 기본: 홈(측정 시작) 화면. 매듭 획득 토스트의 "바로 보러가기"로 들어온 경우 매듭 보관함 탭으로.
         if (savedInstanceState == null) {
-            showHome()
+            if (intent.getBooleanExtra(EXTRA_NAVIGATE_TO_KNOT, false)) {
+                binding.bottomNav.selectedItemId = R.id.nav_knot
+            } else {
+                showHome()
+            }
         }
     }
 
@@ -128,7 +132,7 @@ class MainActivity : AppCompatActivity() {
                 R.id.nav_settings -> {
                     startActivity(Intent(this, SettingsActivity::class.java))
                     @Suppress("DEPRECATION")
-                    overridePendingTransition(0, 0)
+                    overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
                     false
                 }
                 else -> false
@@ -153,5 +157,9 @@ class MainActivity : AppCompatActivity() {
         } else {
             super.onBackPressed()
         }
+    }
+
+    companion object {
+        const val EXTRA_NAVIGATE_TO_KNOT = "NAVIGATE_TO_KNOT"
     }
 }

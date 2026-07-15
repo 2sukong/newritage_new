@@ -20,7 +20,7 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     private fun setupUI() {
-        binding.btnBack.setOnClickListener { finish() }
+        binding.btnBack.setOnClickListener { finishWithSlideBack() }
 
         binding.groupAccount.root.text = getString(R.string.settings_group_account)
         binding.rowAccountManage.tvLabel.text = getString(R.string.settings_account_manage)
@@ -65,5 +65,17 @@ class SettingsActivity : AppCompatActivity() {
 
     private fun showNotReady() {
         Toast.makeText(this, getString(R.string.feature_in_progress), Toast.LENGTH_SHORT).show()
+    }
+
+    private fun finishWithSlideBack() {
+        finish()
+        @Suppress("DEPRECATION")
+        overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right)
+    }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+        @Suppress("DEPRECATION")
+        overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right)
     }
 }

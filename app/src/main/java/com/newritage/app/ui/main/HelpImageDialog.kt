@@ -8,6 +8,8 @@ import android.os.Bundle
 import android.util.Log
 import android.view.ViewGroup
 import android.view.Window
+import androidx.core.content.ContextCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.core.view.doOnPreDraw
 import com.newritage.app.R
 import com.newritage.app.databinding.DialogHelpImageBinding
@@ -32,6 +34,13 @@ class HelpImageDialog(private val hostActivity: Activity) : Dialog(hostActivity)
         window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
         window?.setWindowAnimations(R.style.Animation_HelpImageDialog)
+
+        // 이 다이얼로그는 별도 Window라 상태바 색이 기본값으로 리셋될 수 있다.
+        // 앱 테마와 같은 상단바 색/아이콘 밝기를 그대로 유지한다.
+        window?.let { win ->
+            win.statusBarColor = ContextCompat.getColor(hostActivity, R.color.background)
+            WindowInsetsControllerCompat(win, win.decorView).isAppearanceLightStatusBars = true
+        }
 
         loadHelpImage()
 

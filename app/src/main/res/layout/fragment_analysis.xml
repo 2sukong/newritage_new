@@ -27,9 +27,8 @@
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
             android:text="@string/analysis_title"
-            android:textSize="16sp"
-            android:textColor="@color/text_primary"
-            android:textStyle="bold" />
+            android:textSize="15sp"
+            android:textColor="@color/text_primary" />
     </RelativeLayout>
 
     <!-- 2. 하단 콘텐츠 카드 영역 (좌우 패딩을 제거하여 화면 끝까지 꽉 차게 만듭니다) -->

@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import androidx.appcompat.app.AppCompatActivity
+import com.newritage.app.R
 import com.newritage.app.data.UserPreferences
 import com.newritage.app.ui.auth.StartActivity
 import com.newritage.app.ui.baseline.BaselineMeasurementActivity
@@ -14,7 +15,7 @@ class SplashActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // 배경만 표시 (themes.xml의 Splash 테마가 적용됨)
+        setContentView(R.layout.activity_splash)
 
         val prefs = UserPreferences(this)
 

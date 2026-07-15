@@ -11,11 +11,9 @@
         android:layout_width="match_parent"
         android:layout_height="56dp"
         android:text="@string/thread_storage_title"
-        android:textSize="18sp"
+        android:textSize="16sp"
         android:textColor="@color/text_primary"
-        android:textStyle="bold"
-        android:gravity="center_vertical"
-        android:paddingStart="24dp" />
+        android:gravity="center" />
 
     <LinearLayout
         android:layout_width="match_parent"

@@ -31,16 +31,21 @@ import androidx.compose.ui.unit.sp
 import com.newritage.app.R
 import com.newritage.app.data.KnotType
 
-/** 매듭 보관함 한 칸에 대응하는 데이터. 매듭을 얻은 날짜에만 만들어지므로, 얻지 못한 날은 칸 자체가 없다. */
+/**
+ * 매듭 보관함 한 칸(연도 그리드의 한 달)에 대응하는 데이터. 매듭은 월 단위로 지급되므로,
+ * 그 달에 아직 매듭을 얻지 못했으면 칸 자체가 없다.
+ */
 data class KnotGridEntry(
-    val date: String,
-    val day: Int,
+    /** 상세 시트를 열 때 넘기는 "yyyy-MM" 키 */
+    val key: String,
+    /** 칸 아래 표시할 라벨(예: "2월") */
+    val label: String,
     val knotType: KnotType,
     val tintColorHex: String,
     val isNew: Boolean
 )
 
-private val NEW_ACCENT_COLOR = Color(0xFFB5CC3E)
+private val NEW_ACCENT_COLOR = Color(0xFFD3ED15)
 private val DAY_LABEL_COLOR = Color(0xFF5A6B5A)
 // 실 보관함의 bg_rounded_gray_border.xml / bg_rounded_new_border.xml과 동일한 값.
 private val GRAY_BORDER_COLOR = Color(0xFFBDBDBD)
@@ -66,10 +71,10 @@ fun KnotStorageGrid(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        items(entries, key = { it.date }) { entry ->
+        items(entries, key = { it.key }) { entry ->
             KnotGridCell(
                 entry = entry,
-                onClick = { onEntryClick(entry.date) }
+                onClick = { onEntryClick(entry.key) }
             )
         }
     }
@@ -98,7 +103,7 @@ private fun KnotGridCell(
                 .width(64.dp)
                 .height(76.dp)
                 .border(
-                    width = if (entry.isNew) 4.dp else 2.dp,
+                    width = 2.dp,
                     color = if (entry.isNew) NEW_ACCENT_COLOR else GRAY_BORDER_COLOR,
                     shape = FRAME_SHAPE
                 )
@@ -116,7 +121,7 @@ private fun KnotGridCell(
         }
 
         Text(
-            text = stringResource(R.string.day_number_format, entry.day),
+            text = entry.label,
             fontSize = 11.sp,
             color = DAY_LABEL_COLOR,
             modifier = Modifier.padding(top = 4.dp)

@@ -11,6 +11,7 @@ import androidx.lifecycle.lifecycleScope
 import com.newritage.app.R
 import com.newritage.app.data.AppDatabase
 import com.newritage.app.data.KnotType
+import com.newritage.app.data.Session
 import com.newritage.app.databinding.FragmentKnotStorageBinding
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -22,7 +23,7 @@ class KnotStorageFragment : Fragment() {
 
     private var _binding: FragmentKnotStorageBinding? = null
     private val binding get() = _binding!!
-    private var currentCalendar = Calendar.getInstance()
+    private var currentYear = Calendar.getInstance().get(Calendar.YEAR)
     private val entriesState = mutableStateOf<List<KnotGridEntry>>(emptyList())
 
     override fun onCreateView(
@@ -41,49 +42,48 @@ class KnotStorageFragment : Fragment() {
         binding.knotComposeGrid.setContent {
             KnotStorageGrid(
                 entries = entriesState.value,
-                onEntryClick = { dateStr ->
-                    parentFragmentManager.beginTransaction()
-                        .replace(R.id.fragmentContainer, KnotDetailFragment.newInstance(dateStr))
-                        .addToBackStack(null)
-                        .commit()
+                onEntryClick = { yearMonth ->
+                    KnotDetailBottomSheetDialog(requireActivity(), yearMonth).show()
                 }
             )
         }
 
-        binding.btnPrevMonth.setOnClickListener {
-            currentCalendar.add(Calendar.MONTH, -1)
-            loadCalendar()
+        binding.btnPrevYear.setOnClickListener {
+            currentYear -= 1
+            loadYear()
         }
-        binding.btnNextMonth.setOnClickListener {
-            currentCalendar.add(Calendar.MONTH, 1)
-            loadCalendar()
+        binding.btnNextYear.setOnClickListener {
+            currentYear += 1
+            loadYear()
         }
-        loadCalendar()
+        loadYear()
     }
 
-    private fun loadCalendar() {
-        val yearMonth = SimpleDateFormat("yyyy-MM", Locale.getDefault()).format(currentCalendar.time)
-        binding.tvMonthLabel.text =
-            SimpleDateFormat("yyyy년 MM월", Locale.getDefault()).format(currentCalendar.time)
+    private fun loadYear() {
+        binding.tvYearLabel.text = getString(R.string.year_number_format, currentYear)
 
         lifecycleScope.launch {
             val db = AppDatabase.getInstance(requireContext())
-            val sessions = db.sessionDao().getSessionsByMonth(yearMonth)
-            // 매듭은 하루 첫 세션(hasThread=true)에만 생긴다 — 얻지 못한 날은 아예 칸을 만들지 않는다.
-            val knotSessions = sessions.filter { it.hasThread }.associateBy { it.date }
+            val sessions = db.sessionDao().getSessionsByYear(currentYear.toString())
+            val knotSessions = sessions.filter { it.hasThread }
             val todayStr = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
 
-            entriesState.value = knotSessions.entries
+            // 매듭은 월 단위로 지급되므로, 한 달에 여러 날 매듭을 얻었어도 그 달의 마지막
+            // 기록일을 "이달의 매듭" 대표값으로 쓴다(대표값 산출 알고리즘이 정해지기 전까지의 임시 기준).
+            val byMonth: Map<Int, Session> = knotSessions
+                .groupBy { it.date.substring(5, 7).toInt() }
+                .mapValues { (_, list) -> list.maxByOrNull { it.date }!! }
+
+            entriesState.value = byMonth.entries
                 .sortedBy { it.key }
-                .map { (dateStr, session) ->
-                    val day = dateStr.substringAfterLast("-").toIntOrNull() ?: 1
+                .map { (month, session) ->
+                    val yearMonth = String.format(Locale.getDefault(), "%04d-%02d", currentYear, month)
                     KnotGridEntry(
-                        date = dateStr,
-                        day = day,
-                        knotType = KnotType.forDate(dateStr),
-                        // TODO: '이달의 색상' 산출 알고리즘이 아직 없어, 정해질 때까지는 그날의 실 색을 그대로 임시로 씌운다.
+                        key = yearMonth,
+                        label = getString(R.string.month_number_format, month),
+                        knotType = KnotType.forDate(session.date),
                         tintColorHex = session.threadColor,
-                        isNew = dateStr == todayStr
+                        isNew = session.date == todayStr
                     )
                 }
         }

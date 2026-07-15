@@ -11,11 +11,9 @@
         android:layout_width="match_parent"
         android:layout_height="56dp"
         android:text="@string/knot_storage_title"
-        android:textSize="18sp"
+        android:textSize="16sp"
         android:textColor="@color/text_primary"
-        android:textStyle="bold"
-        android:gravity="center_vertical"
-        android:paddingStart="24dp" />
+        android:gravity="center" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -27,7 +25,7 @@
         android:layout_marginBottom="16dp">
 
         <ImageButton
-            android:id="@+id/btnPrevMonth"
+            android:id="@+id/btnPrevYear"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:src="@drawable/ic_arrow_left"
@@ -35,17 +33,16 @@
             android:padding="8dp" />
 
         <TextView
-            android:id="@+id/tvMonthLabel"
+            android:id="@+id/tvYearLabel"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
             android:textSize="16sp"
-            android:textColor="@color/text_primary"
-            android:textStyle="bold" />
+            android:textColor="@color/text_primary" />
 
         <ImageButton
-            android:id="@+id/btnNextMonth"
+            android:id="@+id/btnNextYear"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:src="@drawable/ic_arrow_right"

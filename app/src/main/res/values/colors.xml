@@ -23,7 +23,7 @@
 
 
     <!-- 새로 얻은 실/매듭 강조색 -->
-    <color name="accent_new">#B5CC3E</color>
+    <color name="accent_new">#D3ED15</color>
 
     <!-- 구분선 -->
     <color name="divider">#E0E0D8</color>

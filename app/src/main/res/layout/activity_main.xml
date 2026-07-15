@@ -31,8 +31,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/measurement_title"
-                android:textSize="20sp"
-                android:textStyle="bold"
+                android:textSize="18sp"
                 android:textColor="@color/text_primary"
                 android:layout_marginStart="24dp"
                 app:layout_constraintStart_toStartOf="parent"
@@ -185,7 +184,7 @@
                     android:id="@+id/cardGuide"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/bg_card_surface"
+                    android:background="@drawable/bg_card_surface_bordered"
                     android:padding="20dp"
                     android:layout_marginTop="24dp"
                     android:layout_marginStart="16dp"
@@ -200,7 +199,6 @@
                         android:layout_height="wrap_content"
                         android:text="@string/guide_title"
                         android:textSize="16sp"
-                        android:textStyle="bold"
                         android:textColor="@color/text_primary"
                         app:layout_constraintTop_toTopOf="parent"
                         app:layout_constraintStart_toStartOf="parent" />
@@ -335,70 +333,6 @@
                     </LinearLayout>
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
-
-                <!-- TIP -->
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:id="@+id/cardTip"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/bg_tip_card"
-                    android:padding="20dp"
-                    android:layout_marginTop="20dp"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginEnd="16dp"
-                    app:layout_constraintTop_toBottomOf="@id/cardGuide"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent">
-
-                    <ImageView
-                        android:id="@+id/ivTipBulb"
-                        android:layout_width="18dp"
-                        android:layout_height="24dp"
-                        android:src="@drawable/guide_bulb"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:layout_constraintStart_toStartOf="parent" />
-
-                    <TextView
-                        android:id="@+id/tvTipLabel"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="TIP"
-                        android:textSize="15sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/text_primary"
-                        android:layout_marginStart="8dp"
-                        app:layout_constraintTop_toTopOf="@id/ivTipBulb"
-                        app:layout_constraintBottom_toBottomOf="@id/ivTipBulb"
-                        app:layout_constraintStart_toEndOf="@id/ivTipBulb" />
-
-                    <TextView
-                        android:id="@+id/tvTipBody"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:text="@string/guide_tip"
-                        android:textSize="13sp"
-                        android:textColor="@color/text_secondary"
-                        android:lineSpacingExtra="3dp"
-                        android:layout_marginTop="12dp"
-                        android:layout_marginEnd="76dp"
-                        app:layout_constraintTop_toBottomOf="@id/ivTipBulb"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintBottom_toBottomOf="parent" />
-
-                </androidx.constraintlayout.widget.ConstraintLayout>
-
-                <!-- TIP 박스 우측 하단에 걸쳐 보이는 가이드 일러스트 -->
-                <ImageView
-                    android:id="@+id/ivGuideImage"
-                    android:layout_width="67dp"
-                    android:layout_height="107dp"
-                    android:layout_marginEnd="12dp"
-                    android:layout_marginBottom="-8dp"
-                    android:adjustViewBounds="true"
-                    android:src="@drawable/guide_image"
-                    app:layout_constraintBottom_toBottomOf="@id/cardTip"
-                    app:layout_constraintEnd_toEndOf="@id/cardTip" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
         </ScrollView>

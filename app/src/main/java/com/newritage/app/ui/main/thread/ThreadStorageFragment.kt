@@ -118,6 +118,10 @@ class ThreadStorageFragment : Fragment() {
                 threadSwatch.visibility = View.INVISIBLE
             }
 
+            cellView.setOnClickListener {
+                ThreadDetailBottomSheetDialog(requireActivity(), dateStr).show()
+            }
+
             currentRow?.addView(cellView)
             columnInRow = (columnInRow + 1) % COLUMN_COUNT
         }

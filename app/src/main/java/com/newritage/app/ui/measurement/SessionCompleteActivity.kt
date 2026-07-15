@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.newritage.app.R
 import com.newritage.app.data.AppDatabase
+import com.newritage.app.data.KnotType
 import com.newritage.app.data.Session
 import com.newritage.app.data.SessionDataHolder
 import com.newritage.app.data.UserPreferences
@@ -215,6 +216,17 @@ class SessionCompleteActivity : AppCompatActivity() {
         val (para1, para2) = buildThreadFeedback(vibrationCount)
         binding.tvFeedbackPara1.text = para1
         binding.tvFeedbackPara2.text = para2
+
+        val today = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+        KnotCreatedDialog(this, KnotType.forDate(today)) { navigateToKnotTab() }.show()
+    }
+
+    private fun navigateToKnotTab() {
+        val intent = Intent(this, MainActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
+        intent.putExtra(MainActivity.EXTRA_NAVIGATE_TO_KNOT, true)
+        startActivity(intent)
+        finish()
     }
 
     /**

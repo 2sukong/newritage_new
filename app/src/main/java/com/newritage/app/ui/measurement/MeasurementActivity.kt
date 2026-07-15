@@ -119,6 +119,8 @@ class MeasurementActivity : AppCompatActivity() {
             axisLeft.textColor = Color.parseColor("#5A6B5A")
             axisLeft.axisMinimum = 0f
             axisLeft.axisMaximum = CHART_DISPLAY_MAX_KPA
+            // 기본 자동 라벨 개수(약 6~7개) 대비 절반 수준으로 줄여 가로 그리드선 간격을 넓힌다.
+            axisLeft.setLabelCount(4, false)
             axisLeft.setDrawLimitLinesBehindData(true)
             axisRight.isEnabled = false
 
