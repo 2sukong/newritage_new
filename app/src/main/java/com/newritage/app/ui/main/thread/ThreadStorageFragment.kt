@@ -9,11 +9,13 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.newritage.app.R
 import com.newritage.app.data.AppDatabase
 import com.newritage.app.databinding.FragmentThreadStorageBinding
+import com.newritage.app.ui.util.GradientBorderDrawable
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -92,6 +94,7 @@ class ThreadStorageFragment : Fragment() {
                 .inflate(R.layout.item_calendar_cell, currentRow, false)
 
             val tvDay = cellView.findViewById<TextView>(R.id.tvDay)
+            val threadNewFrame = cellView.findViewById<FrameLayout>(R.id.threadNewFrame)
             val threadSquareFrame = cellView.findViewById<FrameLayout>(R.id.threadSquareFrame)
             val threadSwatch = cellView.findViewById<View>(R.id.threadSwatch)
             val tvNewBadge = cellView.findViewById<View>(R.id.tvNewBadge)
@@ -101,9 +104,19 @@ class ThreadStorageFragment : Fragment() {
             // GONE 대신 INVISIBLE: NEW 배지 유무와 상관없이 모든 칸이 같은 세로 구조를
             // 가져야 threadSquareFrame이 줄마다 같은 높이에서 정렬된다.
             tvNewBadge.visibility = if (isNew) View.VISIBLE else View.INVISIBLE
-            // 굵은 초록 테두리는 stroke만 두꺼워질 뿐 칸 자체 크기는 그대로이므로 레이아웃에 영향 없다.
-            threadSquareFrame.setBackgroundResource(
-                if (isNew) R.drawable.bg_rounded_new_border else R.drawable.bg_rounded_gray_border
+            // 회색 그라데이션 테두리는 NEW 여부와 상관없이 항상 그대로 두고, NEW일 때는
+            // 그 겉을 감싸는 threadNewFrame에만 별도의 두꺼운 프레임을 씌운다. threadNewFrame은
+            // 항상 같은 크기(74x86)라 이 배경 토글이 칸의 레이아웃을 바꾸지 않는다.
+            threadNewFrame.background = if (isNew) {
+                ContextCompat.getDrawable(requireContext(), R.drawable.bg_rounded_new_outer_border)
+            } else {
+                null
+            }
+            threadSquareFrame.background = GradientBorderDrawable(
+                strokeWidthPx = resources.displayMetrics.density * 1f,
+                cornerRadiusPx = resources.displayMetrics.density * 8f,
+                topColor = Color.parseColor("#D6D6D6"),
+                bottomColor = Color.parseColor("#BABCBA")
             )
 
             try {

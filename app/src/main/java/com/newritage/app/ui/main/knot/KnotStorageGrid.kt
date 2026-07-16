@@ -21,6 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
@@ -47,9 +48,15 @@ data class KnotGridEntry(
 
 private val NEW_ACCENT_COLOR = Color(0xFFD3ED15)
 private val DAY_LABEL_COLOR = Color(0xFF5A6B5A)
-// 실 보관함의 bg_rounded_gray_border.xml / bg_rounded_new_border.xml과 동일한 값.
-private val GRAY_BORDER_COLOR = Color(0xFFBDBDBD)
+// 실 보관함의 GradientBorderDrawable과 동일한 그라데이션(상단 D6D6D6 → 하단 BABCBA).
+private val GRAY_BORDER_GRADIENT = Brush.verticalGradient(
+    colors = listOf(Color(0xFFD6D6D6), Color(0xFFBABCBA))
+)
 private val FRAME_SHAPE = RoundedCornerShape(8.dp)
+private val FRAME_BORDER_WIDTH = 1.dp
+// NEW 상태일 때 회색 테두리 프레임 위에 덧씌우는 별도의 두꺼운 프레임.
+private val NEW_FRAME_SHAPE = RoundedCornerShape(12.dp)
+private val NEW_FRAME_BORDER_WIDTH = 3.dp
 
 /**
  * 매듭을 얻은 날짜만큼만 칸이 늘어나는 그리드. 각 칸은 회전/줌 없이 고정된 각도로만 보이므로,
@@ -98,26 +105,40 @@ private fun KnotGridCell(
                 .alpha(if (entry.isNew) 1f else 0f)
         )
 
+        // NEW 배지 유무와 상관없이 바깥 프레임 자리는 항상 같은 크기로 예약해 둔다.
+        // NEW가 아닐 때는 이 자리의 테두리 색을 투명하게만 둬서, 상태가 바뀌어도
+        // 칸/레이아웃이 아래로 밀리지 않게 한다.
         Box(
             modifier = Modifier
-                .width(64.dp)
-                .height(76.dp)
+                .width(64.dp + NEW_FRAME_BORDER_WIDTH * 2)
+                .height(76.dp + NEW_FRAME_BORDER_WIDTH * 2)
                 .border(
-                    width = 2.dp,
-                    color = if (entry.isNew) NEW_ACCENT_COLOR else GRAY_BORDER_COLOR,
-                    shape = FRAME_SHAPE
+                    width = NEW_FRAME_BORDER_WIDTH,
+                    color = if (entry.isNew) NEW_ACCENT_COLOR else Color.Transparent,
+                    shape = NEW_FRAME_SHAPE
                 )
+                .padding(NEW_FRAME_BORDER_WIDTH)
                 .clickable(onClick = onClick)
         ) {
-            Image(
-                painter = painterResource(entry.knotType.thumbnailRes),
-                contentDescription = null,
-                colorFilter = knotTintColorOrNull(entry.tintColorHex)
-                    ?.let { ColorFilter.tint(it, BlendMode.Modulate) },
+            Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(8.dp)
-            )
+                    .border(
+                        width = FRAME_BORDER_WIDTH,
+                        brush = GRAY_BORDER_GRADIENT,
+                        shape = FRAME_SHAPE
+                    )
+            ) {
+                Image(
+                    painter = painterResource(entry.knotType.thumbnailRes),
+                    contentDescription = null,
+                    colorFilter = knotTintColorOrNull(entry.tintColorHex)
+                        ?.let { ColorFilter.tint(it, BlendMode.Modulate) },
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(4.dp)
+                )
+            }
         }
 
         Text(

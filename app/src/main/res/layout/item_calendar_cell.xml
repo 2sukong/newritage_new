@@ -21,17 +21,26 @@
         android:layout_marginBottom="2dp"
         android:visibility="invisible" />
 
+    <!-- NEW 배지 유무와 상관없이 바깥 프레임 자리는 항상 같은 크기(74x86)로 예약해 둔다.
+         NEW가 아닐 때는 이 프레임의 배경을 비워 둬서, 상태가 바뀌어도 칸/레이아웃이
+         아래로 밀리지 않게 한다. -->
     <FrameLayout
-        android:id="@+id/threadSquareFrame"
-        android:layout_width="64dp"
-        android:layout_height="76dp"
-        android:background="@drawable/bg_rounded_gray_border"
-        android:padding="8dp">
-        <View
-            android:id="@+id/threadSwatch"
+        android:id="@+id/threadNewFrame"
+        android:layout_width="70dp"
+        android:layout_height="82dp"
+        android:padding="3dp">
+
+        <FrameLayout
+            android:id="@+id/threadSquareFrame"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:visibility="invisible" />
+            android:padding="4dp">
+            <View
+                android:id="@+id/threadSwatch"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="invisible" />
+        </FrameLayout>
     </FrameLayout>
 
     <TextView
