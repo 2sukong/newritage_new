@@ -5,6 +5,8 @@
     <color name="primary_dark">#81A68D</color>
     <color name="primary_light">#B5C9A5</color>
     <color name="primary_bg">#C8D8B8</color>
+    <color name="primary_typo">#81A68D</color>
+
 
     <!-- 온보딩/시작 배경 -->
     <color name="onboarding_bg">#81A68D</color>
@@ -12,7 +14,7 @@
     <color name="gradient_end">#FFF4DC</color>
 
     <!-- 배경 -->
-    <color name="background">#FDFDFB</color>
+    <color name="background">#FBFDF8</color>
     <color name="surface">#FFFFFF</color>
 
     <!-- 텍스트 -->
@@ -20,6 +22,7 @@
     <color name="text_secondary">#5A6B5A</color>
     <color name="text_hint">#9AAA9A</color>
     <color name="text_other">#82A68D</color>
+    <color name="text_add">#67706C</color>
 
 
     <!-- 새로 얻은 실/매듭 강조색 -->

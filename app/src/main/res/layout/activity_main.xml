@@ -27,14 +27,14 @@
             app:layout_constraintEnd_toEndOf="parent">
 
             <TextView
-                android:id="@+id/tvToolbarTitle"
+                android:id="@+id/tvTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/measurement_title"
-                android:textSize="18sp"
+                android:textSize="17sp"
                 android:textColor="@color/text_primary"
-                android:layout_marginStart="24dp"
                 app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent" />
 
@@ -88,8 +88,8 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:text="@string/measurement_instruction"
-                    android:textSize="16sp"
-                    android:textColor="@color/text_primary"
+                    android:textSize="14sp"
+                    android:textColor="@color/text_add"
                     android:lineSpacingExtra="4dp"
                     android:layout_marginStart="24dp"
                     android:layout_marginEnd="24dp"
@@ -104,6 +104,7 @@
                     android:layout_width="220dp"
                     android:layout_height="220dp"
                     android:layout_marginTop="32dp"
+                    android:gravity="center"
                     android:background="@drawable/bg_gauge_shadow_base"
                     android:elevation="6dp"
                     android:outlineProvider="background"
@@ -117,6 +118,16 @@
                         android:layout_height="match_parent" />
 
                     <!-- 탭하면 바로 측정 화면으로 이동한다 -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="40dp"
+                        android:layout_marginBottom="24dp"
+                        android:layout_gravity="center_horizontal"
+                        android:text="@string/measurement_waiting"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="13sp" />
+
                     <LinearLayout
                         android:id="@+id/groupIdle"
                         android:layout_width="wrap_content"
@@ -128,17 +139,9 @@
                         android:focusable="true"
                         android:background="?attr/selectableItemBackgroundBorderless">
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/measurement_waiting"
-                            android:textSize="15sp"
-                            android:textColor="@color/text_secondary"
-                            android:layout_marginBottom="24dp" />
-
                         <ImageView
-                            android:layout_width="40dp"
-                            android:layout_height="40dp"
+                            android:layout_width="80dp"
+                            android:layout_height="80dp"
                             android:src="@drawable/ic_play_triangle"
                             android:contentDescription="@string/btn_start_measure" />
                     </LinearLayout>
@@ -181,7 +184,7 @@
                 <!-- 측정 모드 선택 (자율 모드 / 가이드 모드) -->
                 <LinearLayout
                     android:id="@+id/rowModeSelect"
-                    android:layout_width="0dp"
+                    android:layout_width="300dp"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:layout_marginTop="24dp"
@@ -197,8 +200,8 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:gravity="center"
-                        android:paddingTop="14dp"
-                        android:paddingBottom="14dp"
+                        android:paddingTop="10dp"
+                        android:paddingBottom="10dp"
                         android:text="@string/mode_autonomous"
                         android:textSize="15sp"
                         android:textStyle="bold"
@@ -214,8 +217,8 @@
                         android:layout_weight="1"
                         android:layout_marginStart="12dp"
                         android:gravity="center"
-                        android:paddingTop="14dp"
-                        android:paddingBottom="14dp"
+                        android:paddingTop="10dp"
+                        android:paddingBottom="10dp"
                         android:text="@string/mode_guide"
                         android:textSize="15sp"
                         android:textStyle="bold"
@@ -229,11 +232,10 @@
                 <!-- 임계치 이상 알림 토글 -->
                 <LinearLayout
                     android:id="@+id/rowThresholdAlert"
-                    android:layout_width="0dp"
+                    android:layout_width="300dp"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:layout_marginTop="12dp"
                     android:layout_marginStart="16dp"
                     android:layout_marginEnd="16dp"
                     app:layout_constraintTop_toBottomOf="@id/rowModeSelect"
@@ -245,8 +247,9 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="@string/threshold_alert_toggle_label"
+                        android:gravity="right"
                         android:textSize="14sp"
-                        android:textColor="@color/text_secondary" />
+                        android:textColor="@color/text_add" />
 
                     <com.google.android.material.switchmaterial.SwitchMaterial
                         android:id="@+id/switchThresholdAlert"

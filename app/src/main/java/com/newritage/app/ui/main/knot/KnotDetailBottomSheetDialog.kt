@@ -98,8 +98,7 @@ class KnotDetailBottomSheetDialog(
                         glbAssetPath = knotType.assetPath,
                         interactive = true,
                         tintColor = knotTintColorOrNull(session.threadColor),
-                        cameraDistance = 1.5f,
-                        placeholderRes = knotType.thumbnailRes
+                        cameraDistance = 1.5f
                     )
                 }
             } else {

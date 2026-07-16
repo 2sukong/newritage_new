@@ -58,8 +58,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:paddingTop="16dp"
-                android:paddingBottom="16dp">
+                android:paddingTop="12dp"
+                android:paddingBottom="12dp">
 
                 <TextView
                     android:layout_width="0dp"
@@ -84,8 +84,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:paddingTop="16dp"
-                android:paddingBottom="16dp">
+                android:paddingTop="12dp"
+                android:paddingBottom="12dp">
 
                 <TextView
                     android:layout_width="0dp"
@@ -110,8 +110,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:paddingTop="16dp"
-                android:paddingBottom="16dp">
+                android:paddingTop="12dp"
+                android:paddingBottom="12dp">
 
                 <TextView
                     android:layout_width="0dp"
@@ -136,8 +136,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:paddingTop="16dp"
-                android:paddingBottom="16dp">
+                android:paddingTop="12dp"
+                android:paddingBottom="12dp">
 
                 <TextView
                     android:layout_width="0dp"
@@ -183,8 +183,8 @@
             android:padding="20dp"
             android:gravity="top"
             android:inputType="textMultiLine"
-            android:textSize="14sp"
-            android:textColor="@color/text_primary"
+            android:textSize="12sp"
+            android:textColor="@color/primary_typo"
             app:layout_constraintTop_toBottomOf="@id/tvTodayEmotionTitle"
             app:layout_constraintBottom_toTopOf="@id/rowRecordButtons"
             app:layout_constraintStart_toStartOf="parent"
@@ -195,7 +195,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:gravity="center"
+            android:gravity="right"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent">
@@ -224,8 +224,8 @@
                 android:minWidth="0dp"
                 android:minHeight="0dp"
                 android:text="@string/btn_save_record"
-                android:background="@drawable/bg_btn_pill_filled"
-                android:textColor="@color/white"
+                android:background="@drawable/bg_btn_pill_outline"
+                android:textColor="@color/text_secondary"
                 android:textSize="14sp"
                 android:paddingStart="24dp"
                 android:paddingEnd="24dp"

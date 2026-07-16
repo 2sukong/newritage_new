@@ -68,7 +68,7 @@ class WaveView @JvmOverloads constructor(
     private val clipPath = Path()
     private val wavePath = Path()
 
-    private var fillFactor = 0.55f
+    private var fillFactor = 0.48f
     private var targetFillFactor = 0.55f
     private var fillVelocity = 0f
     private var lastSpringTimeMs = 0L

@@ -4,17 +4,17 @@
     <item>
         <shape android:shape="rectangle">
             <solid android:color="@color/mode_selected_bg" />
-            <corners android:radius="24dp" />
+            <corners android:radius="12dp" />
         </shape>
     </item>
     <item>
         <shape android:shape="rectangle">
             <gradient
                 android:angle="270"
-                android:startColor="#33000000"
+                android:startColor="#22000000"
                 android:centerColor="#00000000"
                 android:endColor="#00000000" />
-            <corners android:radius="24dp" />
+            <corners android:radius="12dp" />
         </shape>
     </item>
     <item>
