@@ -32,9 +32,6 @@ class UserPreferences(context: Context) {
 
         private const val KEY_TENSION_THRESHOLD_RATIO = "tension_threshold_ratio"
         private const val KEY_TIMER_DURATION_MINUTES = "timer_duration_minutes"
-        private const val KEY_GUIDE_ENABLED = "guide_enabled"
-        private const val KEY_GUIDE_TECHNIQUE_ID = "guide_technique_id"
-        private const val KEY_GUIDE_DURATION_MINUTES = "guide_duration_minutes"
     }
 
     /** 온보딩 완료 여부 */
@@ -116,21 +113,6 @@ class UserPreferences(context: Context) {
     var timerDurationMinutes: Int
         get() = prefs.getInt(KEY_TIMER_DURATION_MINUTES, 10)
         set(value) = prefs.edit().putInt(KEY_TIMER_DURATION_MINUTES, value).apply()
-
-    /** 명상 호흡 가이드 사용 여부 */
-    var isGuideEnabled: Boolean
-        get() = prefs.getBoolean(KEY_GUIDE_ENABLED, true)
-        set(value) = prefs.edit().putBoolean(KEY_GUIDE_ENABLED, value).apply()
-
-    /** 명상 호흡 가이드 - 마지막으로 선택한 호흡법 ID */
-    var guideTechniqueId: String
-        get() = prefs.getString(KEY_GUIDE_TECHNIQUE_ID, "coherent") ?: "coherent"
-        set(value) = prefs.edit().putString(KEY_GUIDE_TECHNIQUE_ID, value).apply()
-
-    /** 명상 호흡 가이드 - 마지막으로 선택한 시간(분) */
-    var guideDurationMinutes: Int
-        get() = prefs.getInt(KEY_GUIDE_DURATION_MINUTES, 5)
-        set(value) = prefs.edit().putInt(KEY_GUIDE_DURATION_MINUTES, value).apply()
 
     /** 로그아웃 */
     fun logout() {

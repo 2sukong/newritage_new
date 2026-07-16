@@ -5,7 +5,6 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.newritage.app.ble.VibrationType
 import com.newritage.app.databinding.ActivityVibrationSettingsBinding
-import com.newritage.app.ui.breathing.BreathingGuideActivity
 
 class VibrationSettingsActivity : AppCompatActivity() {
 
@@ -20,9 +19,6 @@ class VibrationSettingsActivity : AppCompatActivity() {
 
         binding.cardTimer.setOnClickListener { openVibrationList(VibrationType.TIMER) }
         binding.cardTension.setOnClickListener { openVibrationList(VibrationType.TENSION) }
-        binding.cardBreathingGuide.setOnClickListener {
-            startActivity(Intent(this, BreathingGuideActivity::class.java))
-        }
     }
 
     private fun openVibrationList(type: VibrationType) {

@@ -25,6 +25,11 @@
     <!-- 새로 얻은 실/매듭 강조색 -->
     <color name="accent_new">#D3ED15</color>
 
+    <!-- 측정 모드 선택 버튼 -->
+    <color name="mode_selected_bg">#A1BAA9</color>
+    <color name="mode_unselected_bg">#F0F2ED</color>
+    <color name="mode_unselected_text">#B3B3B3</color>
+
     <!-- 구분선 -->
     <color name="divider">#E0E0D8</color>
     <color name="input_border">#C8C8C8</color>

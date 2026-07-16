@@ -85,12 +85,6 @@
             android:name=".ui.settings.VibrationListActivity"
             android:exported="false" />
 
-        <!-- 명상 호흡 가이드 -->
-        <activity
-            android:name=".ui.breathing.BreathingGuideActivity"
-            android:exported="false"
-            android:screenOrientation="portrait" />
-
     </application>
 
 </manifest>

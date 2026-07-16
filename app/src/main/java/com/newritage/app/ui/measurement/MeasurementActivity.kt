@@ -14,7 +14,9 @@ import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.newritage.app.R
 import com.newritage.app.ble.BleManager
+import com.newritage.app.ble.BreathingCues
 import com.newritage.app.ble.VibrationPatterns
+import com.newritage.app.data.BreathingTechniques
 import com.newritage.app.data.SensorReading
 import com.newritage.app.data.SessionDataHolder
 import com.newritage.app.data.UserPreferences
@@ -25,10 +27,17 @@ import com.newritage.app.util.PressureDisplay
 class MeasurementActivity : AppCompatActivity() {
 
     private enum class TensionState { CALM, TENSE }
+    private enum class Mode { AUTONOMOUS, GUIDE }
 
     private lateinit var binding: ActivityMeasurementBinding
     private lateinit var prefs: UserPreferences
     private lateinit var chartDataSet: LineDataSet
+    private lateinit var mode: Mode
+
+    private val breathingTechnique = BreathingTechniques.byId(BreathingTechniques.DEFAULT_ID)
+    private var breathingStarted = false
+    private var breathingPhaseIndex = 0
+    private var breathingPhaseRemainingSec = 0
 
     private val handler = Handler(Looper.getMainLooper())
     private var measuring = false
@@ -65,6 +74,7 @@ class MeasurementActivity : AppCompatActivity() {
 
         prefs = UserPreferences(this)
         baselineTotal = prefs.baselineOverall.toInt()
+        mode = if (intent.getStringExtra(EXTRA_MODE) == MODE_GUIDE) Mode.GUIDE else Mode.AUTONOMOUS
 
         // 홈 화면의 대기 링이 돌던 각도를 이어받아, 화면이 바뀌어도 링이 끊김없이 이어서 돌게 한다.
         val idleAngle = intent.getFloatExtra(EXTRA_IDLE_RING_ANGLE, 0f)
@@ -175,9 +185,15 @@ class MeasurementActivity : AppCompatActivity() {
         tensionState = TensionState.CALM
         lastTensionVibrationAtMillis = -TENSION_COOLDOWN_MS
         timerVibrationFired = false
+        breathingStarted = false
+        breathingPhaseIndex = 0
+        breathingPhaseRemainingSec = 0
         binding.btnStop.isEnabled = true
         binding.waveView.startWave()
         resetChartData()
+        if (mode == Mode.GUIDE) {
+            BleManager.sendVibration(BreathingCues.START)
+        }
         measureLoop.run()
     }
 
@@ -220,7 +236,8 @@ class MeasurementActivity : AppCompatActivity() {
             if (elapsedSecondsNow != lastTimerSecond) {
                 lastTimerSecond = elapsedSecondsNow
                 elapsedSeconds = elapsedSecondsNow
-                updateTensionState(latestTotal)
+                updateTensionState(latestTotal, allowVibration = mode == Mode.AUTONOMOUS)
+                if (mode == Mode.GUIDE) advanceBreathingCue()
                 if (!timerVibrationFired && elapsedSecondsNow >= prefs.timerDurationMinutes * 60) {
                     timerVibrationFired = true
                     sendTimerVibration()
@@ -259,7 +276,7 @@ class MeasurementActivity : AppCompatActivity() {
      * 하향 여유선 아래로 내려오기 전까지는 CALM으로 되돌아가지 않는 히스테리시스를 적용하고,
      * 진동 발동 자체는 별도로 쿨다운을 둬 짧은 시간 내 재발동을 막는다.
      */
-    private fun updateTensionState(total: Int) {
+    private fun updateTensionState(total: Int, allowVibration: Boolean) {
         if (baselineTotal <= 0) return
         val upThreshold = baselineTotal * prefs.tensionThresholdRatio
         val downThreshold = upThreshold * (1f - TENSION_RELEASE_MARGIN_RATIO)
@@ -268,7 +285,7 @@ class MeasurementActivity : AppCompatActivity() {
             tensionState == TensionState.CALM && total >= upThreshold -> {
                 tensionState = TensionState.TENSE
                 updateTensionStatusUi()
-                if (elapsedMillis - lastTensionVibrationAtMillis >= TENSION_COOLDOWN_MS) {
+                if (allowVibration && elapsedMillis - lastTensionVibrationAtMillis >= TENSION_COOLDOWN_MS) {
                     lastTensionVibrationAtMillis = elapsedMillis
                     vibrationCount++
                     sendTensionVibration()
@@ -279,6 +296,32 @@ class MeasurementActivity : AppCompatActivity() {
                 updateTensionStatusUi()
             }
         }
+    }
+
+    /**
+     * 가이드 모드에서 긴장도 임계치 진동 대신 재생되는 호흡 리듬 진동 큐. 정해진 종료 없이
+     * 완료 버튼을 누를 때까지 기법의 phase를 계속 순환한다.
+     */
+    private fun advanceBreathingCue() {
+        if (!breathingStarted) {
+            breathingStarted = true
+            breathingPhaseIndex = 0
+            breathingPhaseRemainingSec = breathingTechnique.phases[0].durationSec
+            fireBreathingCue(breathingTechnique.phases[0].cue)
+            return
+        }
+        breathingPhaseRemainingSec--
+        if (breathingPhaseRemainingSec <= 0) {
+            breathingPhaseIndex = (breathingPhaseIndex + 1) % breathingTechnique.phases.size
+            val phase = breathingTechnique.phases[breathingPhaseIndex]
+            breathingPhaseRemainingSec = phase.durationSec
+            fireBreathingCue(phase.cue)
+        }
+    }
+
+    private fun fireBreathingCue(cue: Int) {
+        vibrationCount++
+        BleManager.sendVibration(cue)
     }
 
     private fun updateTensionStatusUi() {
@@ -309,6 +352,9 @@ class MeasurementActivity : AppCompatActivity() {
         measuring = false
         handler.removeCallbacks(measureLoop)
         binding.waveView.stopWave()
+        if (mode == Mode.GUIDE) {
+            BleManager.sendVibration(BreathingCues.END)
+        }
 
         if (pressureReadings.isEmpty()) {
             finish()
@@ -342,6 +388,9 @@ class MeasurementActivity : AppCompatActivity() {
 
     companion object {
         const val EXTRA_IDLE_RING_ANGLE = "idle_ring_angle"
+        const val EXTRA_MODE = "extra_mode"
+        const val MODE_AUTONOMOUS = "autonomous"
+        const val MODE_GUIDE = "guide"
 
         // TODO: 실기 테스트 후 여유 비율·쿨다운 구체값 조정
         private const val TENSION_RELEASE_MARGIN_RATIO = 0.1f
