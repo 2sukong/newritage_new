@@ -9,6 +9,7 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.newritage.app.R
 import com.newritage.app.ble.BleManager
@@ -31,6 +32,10 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var prefs: UserPreferences
     private var selectedMode = MeasurementMode.AUTONOMOUS
+    private var currentTabId = R.id.nav_home
+
+    /** 하단 탭바에 보이는 순서(왼쪽→오른쪽). 탭 전환 애니메이션의 방향을 정하는 데 쓴다. */
+    private val tabOrder = listOf(R.id.nav_thread, R.id.nav_knot, R.id.nav_home, R.id.nav_analysis, R.id.nav_settings)
 
     private val permissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { granted ->
@@ -56,7 +61,9 @@ class MainActivity : AppCompatActivity() {
             if (intent.getBooleanExtra(EXTRA_NAVIGATE_TO_KNOT, false)) {
                 binding.bottomNav.selectedItemId = R.id.nav_knot
             } else {
-                showHome()
+                binding.layoutHome.visibility = View.VISIBLE
+                binding.fragmentContainer.visibility = View.GONE
+                binding.bottomNav.selectedItemId = R.id.nav_home
             }
         }
     }
@@ -150,30 +157,30 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupBottomNav() {
         binding.bottomNav.setOnItemSelectedListener { item ->
+            // 이미 위치한 탭을 다시 눌렀을 땐 재로딩하지 않고 아무 동작도 하지 않는다.
+            if (item.itemId == currentTabId) {
+                return@setOnItemSelectedListener true
+            }
+            val direction = tabDirection(currentTabId, item.itemId)
             when (item.itemId) {
                 R.id.nav_home -> {
-                    showHome()
+                    switchTab(showHome = true, fragment = null, direction = direction)
+                    currentTabId = item.itemId
                     true
                 }
                 R.id.nav_thread -> {
-                    hideHome()
-                    supportFragmentManager.beginTransaction()
-                        .replace(R.id.fragmentContainer, ThreadStorageFragment())
-                        .commit()
+                    switchTab(showHome = false, fragment = ThreadStorageFragment(), direction = direction)
+                    currentTabId = item.itemId
                     true
                 }
                 R.id.nav_knot -> {
-                    hideHome()
-                    supportFragmentManager.beginTransaction()
-                        .replace(R.id.fragmentContainer, KnotStorageFragment())
-                        .commit()
+                    switchTab(showHome = false, fragment = KnotStorageFragment(), direction = direction)
+                    currentTabId = item.itemId
                     true
                 }
                 R.id.nav_analysis -> {
-                    hideHome()
-                    supportFragmentManager.beginTransaction()
-                        .replace(R.id.fragmentContainer, AnalysisFragment())
-                        .commit()
+                    switchTab(showHome = false, fragment = AnalysisFragment(), direction = direction)
+                    currentTabId = item.itemId
                     true
                 }
                 R.id.nav_settings -> {
@@ -187,14 +194,60 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun showHome() {
-        binding.layoutHome.visibility = View.VISIBLE
-        binding.fragmentContainer.visibility = View.GONE
+    private fun tabDirection(fromId: Int, toId: Int): Int {
+        val fromIndex = tabOrder.indexOf(fromId)
+        val toIndex = tabOrder.indexOf(toId)
+        return if (toIndex >= fromIndex) 1 else -1
     }
 
-    private fun hideHome() {
-        binding.layoutHome.visibility = View.GONE
-        binding.fragmentContainer.visibility = View.VISIBLE
+    /** 홈 화면(layoutHome)과 프래그먼트 탭(fragmentContainer) 사이를 빠른 슬라이드 애니메이션으로 전환한다. */
+    private fun switchTab(showHome: Boolean, fragment: Fragment?, direction: Int) {
+        val outgoing = if (binding.layoutHome.visibility == View.VISIBLE) binding.layoutHome else binding.fragmentContainer
+        val incoming = if (showHome) binding.layoutHome else binding.fragmentContainer
+
+        if (fragment != null) {
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.fragmentContainer, fragment)
+                .commit()
+        }
+
+        val width = binding.root.width.takeIf { it > 0 }?.toFloat() ?: resources.displayMetrics.widthPixels.toFloat()
+        val outTarget = if (direction >= 0) -width else width
+        val inStart = if (direction >= 0) width else -width
+
+        if (outgoing === incoming) {
+            // 프래그먼트↔프래그먼트 전환: 같은 컨테이너 뷰 안에서 내용만 바뀌므로
+            // (outgoing과 incoming이 동일한 뷰) 슬라이드 인 애니메이션만 적용한다.
+            // outgoing 쪽 애니메이션까지 같은 뷰에 걸면 animate().cancel()이 서로의
+            // 애니메이션을 취소시키면서 visibility=GONE으로 끝나버리는 문제가 있었다.
+            incoming.animate().cancel()
+            incoming.translationX = inStart
+            incoming.visibility = View.VISIBLE
+            incoming.animate()
+                .translationX(0f)
+                .setDuration(TAB_SWITCH_ANIM_MS)
+                .start()
+            return
+        }
+
+        outgoing.animate().cancel()
+        outgoing.translationX = 0f
+        outgoing.animate()
+            .translationX(outTarget)
+            .setDuration(TAB_SWITCH_ANIM_MS)
+            .withEndAction {
+                outgoing.visibility = View.GONE
+                outgoing.translationX = 0f
+            }
+            .start()
+
+        incoming.animate().cancel()
+        incoming.translationX = inStart
+        incoming.visibility = View.VISIBLE
+        incoming.animate()
+            .translationX(0f)
+            .setDuration(TAB_SWITCH_ANIM_MS)
+            .start()
     }
 
     /** 홈이 아닌 탭에 있을 때 뒤로가기를 누르면 홈 탭으로 돌아간다. */
@@ -208,5 +261,6 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         const val EXTRA_NAVIGATE_TO_KNOT = "NAVIGATE_TO_KNOT"
+        private const val TAB_SWITCH_ANIM_MS = 150L
     }
 }

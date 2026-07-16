@@ -34,6 +34,10 @@ class HelpImageDialog(private val hostActivity: Activity) : Dialog(hostActivity)
         window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
         window?.setWindowAnimations(R.style.Animation_HelpImageDialog)
+        // 다이얼로그 기본 dim(어둡게 깔리는 배경)을 끈다. 자체 블러/화이트 오버레이로 이미
+        // frosted-glass 배경을 만들고 있어서, 기본 dim이 겹치면 상태바/네비게이션바까지
+        // 함께 어두워져 보인다.
+        window?.setDimAmount(0f)
 
         // 이 다이얼로그는 별도 Window라 상태바 색이 기본값으로 리셋될 수 있다.
         // 앱 테마와 같은 상단바 색/아이콘 밝기를 그대로 유지한다.

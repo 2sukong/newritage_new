@@ -2,11 +2,6 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:id="@+id/nav_home"
-        android:icon="@drawable/ic_nav_home"
-        android:title="@string/nav_home" />
-
-    <item
         android:id="@+id/nav_thread"
         android:icon="@drawable/ic_nav_thread"
         android:title="@string/nav_thread" />
@@ -15,6 +10,11 @@
         android:id="@+id/nav_knot"
         android:icon="@drawable/ic_nav_knot"
         android:title="@string/nav_knot" />
+
+    <item
+        android:id="@+id/nav_home"
+        android:icon="@drawable/ic_nav_home"
+        android:title="@string/nav_home" />
 
     <item
         android:id="@+id/nav_analysis"
