@@ -66,7 +66,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:cardBackgroundColor="@color/background_75"
-                app:cardCornerRadius="8dp">
+                app:cardCornerRadius="8dp"
+                app:cardElevation="0dp"
+                app:cardMaxElevation="0dp">
                 <include layout="@layout/view_settings_row" android:id="@+id/rowAccountManage" />
             </com.google.android.material.card.MaterialCardView>
 
@@ -76,7 +78,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:cardBackgroundColor="@color/background_75"
-                app:cardCornerRadius="8dp">
+                app:cardCornerRadius="8dp"
+                app:cardElevation="0dp"
+                app:cardMaxElevation="0dp">
                 <include layout="@layout/view_settings_row" android:id="@+id/rowPassword" />
             </com.google.android.material.card.MaterialCardView>
 
@@ -86,7 +90,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:cardBackgroundColor="@color/background_75"
-                app:cardCornerRadius="8dp">
+                app:cardCornerRadius="8dp"
+                app:cardElevation="0dp"
+                app:cardMaxElevation="0dp">
                 <include layout="@layout/view_settings_row" android:id="@+id/rowNotificationReset" />
             </com.google.android.material.card.MaterialCardView>
 
@@ -96,7 +102,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:cardBackgroundColor="@color/background_75"
-                app:cardCornerRadius="8dp">
+                app:cardCornerRadius="8dp"
+                app:cardElevation="0dp"
+                app:cardMaxElevation="0dp">
                 <include layout="@layout/view_settings_row" android:id="@+id/rowMeasureStandard" />
             </com.google.android.material.card.MaterialCardView>
 
@@ -106,7 +114,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:cardBackgroundColor="@color/background_75"
-                app:cardCornerRadius="8dp">
+                app:cardCornerRadius="8dp"
+                app:cardElevation="0dp"
+                app:cardMaxElevation="0dp">
                 <include layout="@layout/view_settings_row" android:id="@+id/rowVibrationManage" />
             </com.google.android.material.card.MaterialCardView>
 
@@ -116,7 +126,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:cardBackgroundColor="@color/background_75"
-                app:cardCornerRadius="8dp">
+                app:cardCornerRadius="8dp"
+                app:cardElevation="0dp"
+                app:cardMaxElevation="0dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
