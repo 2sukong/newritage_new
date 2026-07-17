@@ -116,9 +116,10 @@ class SessionCompleteActivity : AppCompatActivity() {
         val colorObj = ThreadColors.assignColor(avgPressure, prefs.baselineOverall)
         val keywords = extractKeywords(emotion)
 
-        // 안정 상태 비율(%) — 이탈(진동) 발생 횟수를 표본 수 대비 비율로 근사한다.
+        // 안정 상태 비율(%) — GeminiRepository의 STABLE_THRESHOLD(50kPa)와 동일한 기준으로,
+        // 원시 표본 중 압력이 50 이하로 유지된 비율을 그대로 계산한다(팀원 코드의 판정 기준 그대로 유지).
         val stableRatio = if (readings.isNotEmpty()) {
-            (1f - vibrationCount.toFloat() / readings.size) * 100f
+            readings.count { it.overall <= 50f }.toFloat() / readings.size * 100f
         } else {
             100f
         }
