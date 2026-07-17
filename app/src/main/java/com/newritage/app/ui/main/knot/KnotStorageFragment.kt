@@ -13,8 +13,11 @@ import com.newritage.app.data.AppDatabase
 import com.newritage.app.data.KnotType
 import com.newritage.app.data.Session
 import com.newritage.app.databinding.FragmentKnotStorageBinding
+import com.newritage.app.ui.main.knot.recommend.DiaryEntry
+import com.newritage.app.ui.main.knot.recommend.RecommendationEngine
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
+import java.time.LocalDate
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
@@ -65,25 +68,29 @@ class KnotStorageFragment : Fragment() {
         lifecycleScope.launch {
             val db = AppDatabase.getInstance(requireContext())
             val sessions = db.sessionDao().getSessionsByYear(currentYear.toString())
-            val knotSessions = sessions.filter { it.hasThread }
             val todayStr = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
 
-            // 매듭은 월 단위로 지급되므로, 한 달에 여러 날 매듭을 얻었어도 그 달의 마지막
-            // 기록일을 "이달의 매듭" 대표값으로 쓴다(대표값 산출 알고리즘이 정해지기 전까지의 임시 기준).
-            val byMonth: Map<Int, Session> = knotSessions
+            // 매듭은 월 단위로 지급되며, 그 달에 쓴 일기(emotion)들을 감정 분석해 "이달의 매듭"을
+            // 추천한다(일기가 하나도 없는 달은 칸 자체가 생기지 않는다).
+            val byMonth: Map<Int, List<Session>> = sessions
+                .filter { it.emotion.isNotBlank() }
                 .groupBy { it.date.substring(5, 7).toInt() }
-                .mapValues { (_, list) -> list.maxByOrNull { it.date }!! }
 
             entriesState.value = byMonth.entries
                 .sortedBy { it.key }
-                .map { (month, session) ->
+                .map { (month, monthSessions) ->
                     val yearMonth = String.format(Locale.getDefault(), "%04d-%02d", currentYear, month)
+                    val diaryEntries = monthSessions.map {
+                        DiaryEntry(date = LocalDate.parse(it.date), content = it.emotion)
+                    }
+                    val recommendedKnot = RecommendationEngine.recommendKnot(diaryEntries)
+                    val latestSession = monthSessions.maxByOrNull { it.date }!!
                     KnotGridEntry(
                         key = yearMonth,
                         label = getString(R.string.month_number_format, month),
-                        knotType = KnotType.forDate(session.date),
-                        tintColorHex = session.threadColor,
-                        isNew = session.date == todayStr
+                        knotType = KnotType.fromRecommendationId(recommendedKnot.id),
+                        tintColorHex = latestSession.threadColor,
+                        isNew = latestSession.date == todayStr
                     )
                 }
         }

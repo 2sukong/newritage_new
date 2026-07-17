@@ -116,25 +116,6 @@
 
                 <View android:layout_width="1dp" android:layout_height="32dp" android:background="#D1DCD2" android:layout_gravity="center_vertical"/>
 
-                <!-- 2. 최저 압력 (비율 1) -->
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical"
-                    android:gravity="center">
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:text="최저 압력" android:textSize="10sp" android:textColor="@color/text_secondary" android:layout_marginBottom="8dp"/>
-                    <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="bottom">
-                        <TextView android:id="@+id/tvAvgPressure2" android:layout_width="wrap_content" android:layout_height="wrap_content"
-                            android:text="48.2" android:textSize="20sp" android:textStyle="bold" android:textColor="@color/text_primary" />
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                            android:text="kPa" android:textSize="8sp" android:textColor="@color/text_hint" />
-                    </LinearLayout>
-                </LinearLayout>
-
-                <View android:layout_width="1dp" android:layout_height="32dp" android:background="#D1DCD2" android:layout_gravity="center_vertical"/>
-
                 <!-- 3. 최고 압력 (비율 1) -->
                 <LinearLayout
                     android:layout_width="0dp"
@@ -233,7 +214,7 @@
 
                 </RelativeLayout>
                 <TextView android:id="@+id/tvSensorADetail" android:layout_width="match_parent" android:layout_height="wrap_content"
-                    android:text="최고 45.0 / 최저 10.2 / 평균 30.1 / 중앙 28.4 kPa" android:textSize="12sp" android:textColor="@color/text_primary" android:layout_marginTop="6dp"/>
+                    android:text="최고 45.0 / 평균 30.1 kPa" android:textSize="12sp" android:textColor="@color/text_primary" android:layout_marginTop="6dp"/>
             </LinearLayout>
 
             <!-- 센서 B 카드 -->
@@ -250,7 +231,7 @@
 
                 </RelativeLayout>
                 <TextView android:id="@+id/tvSensorBDetail" android:layout_width="match_parent" android:layout_height="wrap_content"
-                    android:text="최고 42.1 / 최저 15.4 / 평균 31.5 / 중앙 32.0 kPa" android:textSize="12sp" android:textColor="@color/text_primary" android:layout_marginTop="6dp"/>
+                    android:text="최고 42.1 / 평균 31.5 kPa" android:textSize="12sp" android:textColor="@color/text_primary" android:layout_marginTop="6dp"/>
             </LinearLayout>
 
             <!-- 센서 C 카드 -->
@@ -266,7 +247,7 @@
 
                 </RelativeLayout>
                 <TextView android:id="@+id/tvSensorCDetail" android:layout_width="match_parent" android:layout_height="wrap_content"
-                    android:text="최고 51.3 / 최저 8.9 / 평균 35.6 / 중앙 33.2 kPa" android:textSize="12sp" android:textColor="@color/text_primary" android:layout_marginTop="6dp"/>
+                    android:text="최고 51.3 / 평균 35.6 kPa" android:textSize="12sp" android:textColor="@color/text_primary" android:layout_marginTop="6dp"/>
             </LinearLayout>
         </LinearLayout>
 
@@ -291,10 +272,12 @@
             <TextView
                 android:id="@+id/tvDailyComment"
                 android:layout_width="match_parent"
-                android:layout_height="140dp"
+                android:layout_height="wrap_content"
+                android:minHeight="140dp"
                 android:background="@drawable/acard"
                 android:padding="16dp"
                 android:textSize="14sp"
+                android:lineSpacingExtra="4dp"
                 android:textColor="@color/text_primary"
                 android:gravity="top|start" />
         </LinearLayout>

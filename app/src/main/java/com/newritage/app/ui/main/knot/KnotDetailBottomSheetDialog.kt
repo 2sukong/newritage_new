@@ -9,12 +9,16 @@ import androidx.lifecycle.setViewTreeViewModelStoreOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.newritage.app.R
 import com.newritage.app.data.AppDatabase
 import com.newritage.app.data.KnotType
 import com.newritage.app.databinding.BottomSheetKnotDetailBinding
+import com.newritage.app.ui.main.knot.recommend.DiaryEntry
+import com.newritage.app.ui.main.knot.recommend.RecommendationEngine
 import com.newritage.app.ui.util.configureFixedHeightSheet
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
+import java.time.LocalDate
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
@@ -82,27 +86,32 @@ class KnotDetailBottomSheetDialog(
         binding.tvDateDisplay.text = displaySdf.format(currentDate.time)
 
         hostActivity.lifecycleScope.launch {
-            // 매듭은 월 단위로 지급되므로, 그 달의 마지막 기록일을 "이달의 매듭" 대표값으로 쓴다
-            // (KnotStorageFragment의 연도 그리드와 동일한 임시 기준).
-            val session = dao.getSessionsByMonth(yearMonth)
-                .filter { it.hasThread }
-                .maxByOrNull { it.date }
+            // 그 달에 쓴 일기(emotion)들을 감정 분석해 "이달의 매듭"을 추천한다
+            // (KnotStorageFragment의 연도 그리드와 동일한 기준). 실 색상 표시용으로는
+            // 그 달의 마지막 기록일 세션을 대표값으로 쓴다.
+            val monthSessions = dao.getSessionsByMonth(yearMonth).filter { it.emotion.isNotBlank() }
+            val latestSession = monthSessions.maxByOrNull { it.date }
 
-            if (session != null) {
-                val knotType = KnotType.forDate(session.date)
-                binding.tvKnotNameDisplay.text =
-                    "${session.threadColorName.ifEmpty { "매듭" }} · ${knotType.displayName}"
+            if (latestSession != null) {
+                val diaryEntries = monthSessions.map {
+                    DiaryEntry(date = LocalDate.parse(it.date), content = it.emotion)
+                }
+                val recommendedKnot = RecommendationEngine.recommendKnot(diaryEntries)
+                val knotType = KnotType.fromRecommendationId(recommendedKnot.id)
+                binding.tvKnotNameDisplay.text = recommendedKnot.name
+                binding.tvDescriptionText.text = recommendedKnot.meaning
                 // 상세보기: 위치 이동(pan)은 막고 회전(orbit)만 가능하게 한다.
                 binding.knotComposeViewer.setContent {
                     KnotModelViewer(
                         glbAssetPath = knotType.assetPath,
                         interactive = true,
-                        tintColor = knotTintColorOrNull(session.threadColor),
+                        tintColor = knotTintColorOrNull(latestSession.threadColor),
                         cameraDistance = 1.5f
                     )
                 }
             } else {
-                binding.tvKnotNameDisplay.text = "기록된 매듭이 없습니다"
+                binding.tvKnotNameDisplay.text = hostActivity.getString(R.string.no_knot_yet)
+                binding.tvDescriptionText.text = ""
                 binding.knotComposeViewer.setContent {}
             }
         }

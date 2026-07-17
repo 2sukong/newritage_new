@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <com.newritage.app.ui.main.analysis.widget.ComparisonItemView
+        android:id="@+id/itemAvgPressure"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1" />
+
+    <View
+        android:layout_width="1dp"
+        android:layout_height="32dp"
+        android:background="#D1DCD2"
+        android:layout_gravity="center_vertical" />
+
+    <com.newritage.app.ui.main.analysis.widget.ComparisonItemView
+        android:id="@+id/itemMaxPressure"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1" />
+
+    <View
+        android:layout_width="1dp"
+        android:layout_height="32dp"
+        android:background="#D1DCD2"
+        android:layout_gravity="center_vertical" />
+
+    <com.newritage.app.ui.main.analysis.widget.ComparisonItemView
+        android:id="@+id/itemMedTime"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1" />
+
+    <View
+        android:layout_width="1dp"
+        android:layout_height="32dp"
+        android:background="#D1DCD2"
+        android:layout_gravity="center_vertical" />
+
+    <com.newritage.app.ui.main.analysis.widget.ComparisonItemView
+        android:id="@+id/itemMedCount"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1" />
+
+</merge>

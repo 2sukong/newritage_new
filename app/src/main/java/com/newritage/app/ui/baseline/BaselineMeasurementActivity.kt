@@ -171,7 +171,7 @@ class BaselineMeasurementActivity : AppCompatActivity() {
             val elapsedSecondsNow = (elapsedMillis / 1000).toInt()
 
             // BLE SENSOR 특성에서 흘러들어온 실제 f0/f1/f2/total 값을 그대로 사용
-            val rawPressure = latestTotal.toFloat()
+            val rawPressure = latestTotal.toFloat() / 3f   // 3부위 평균으로 스케일 통일
             pressureReadings.add(rawPressure)
             thumbReadings.add(latestThumb.toFloat())
             imReadings.add(latestIm.toFloat())

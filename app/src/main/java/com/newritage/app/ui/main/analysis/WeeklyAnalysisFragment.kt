@@ -12,6 +12,7 @@ import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.newritage.app.data.AppDatabase
 import com.newritage.app.databinding.FragmentWeeklyAnalysisBinding
+import com.newritage.app.ui.main.analysis.model.ComparisonSummary
 import com.newritage.app.ui.util.applyAnalysisStyle
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -62,21 +63,28 @@ class WeeklyAnalysisFragment : Fragment() {
         val startStr = sdf.format(currentWeekStart.time)
         val endStr = sdf.format(weekEnd.time)
 
+        val previousWeekStart = currentWeekStart.clone() as Calendar
+        previousWeekStart.add(Calendar.WEEK_OF_YEAR, -1)
+        val previousWeekEnd = previousWeekStart.clone() as Calendar
+        previousWeekEnd.add(Calendar.DAY_OF_WEEK, 6)
+        val prevStartStr = sdf.format(previousWeekStart.time)
+        val prevEndStr = sdf.format(previousWeekEnd.time)
+
         binding.tvDateLabel.text = "$startStr ~ $endStr"
 
         lifecycleScope.launch {
             val db = AppDatabase.getInstance(requireContext())
             val sessions = db.sessionDao().getSessionsInRange(startStr, endStr)
+            val previousSessions = db.sessionDao().getSessionsInRange(prevStartStr, prevEndStr)
+            binding.comparisonCard.bind(ComparisonSummary.from(sessions, previousSessions))
 
             if (sessions.isNotEmpty()) {
                 val avgPressure = sessions.map { it.avgPressure }.average().toFloat()
                 val maxPressure = sessions.maxOf { it.maxPressure }
-                val minPressure = sessions.minOf { it.minPressure }
                 val totalTime = sessions.sumOf { it.durationSeconds }
                 val count = sessions.size
 
                 binding.tvAvgPressure1.text = String.format("%.1f", avgPressure) // 주간 평균
-                binding.tvAvgPressure2.text = String.format("%.1f", minPressure) // 주간 최저
                 binding.tvAvgPressure3.text = String.format("%.1f", maxPressure) // 주간 최고
 
                 val min = totalTime / 60; val sec = totalTime % 60
@@ -102,7 +110,6 @@ class WeeklyAnalysisFragment : Fragment() {
                 binding.lineChart.invalidate()
             } else {
                 binding.tvAvgPressure1.text = "--.-"
-                binding.tvAvgPressure2.text = "--.-"
                 binding.tvAvgPressure3.text = "--.-"
                 binding.tvMedTime.text = "--:--"
                 binding.tvMedCount.text = "-"
