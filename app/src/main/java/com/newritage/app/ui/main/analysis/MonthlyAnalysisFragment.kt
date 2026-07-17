@@ -10,8 +10,11 @@ import androidx.lifecycle.lifecycleScope
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
+import com.newritage.app.R
 import com.newritage.app.data.AppDatabase
+import com.newritage.app.data.GeminiRepository
 import com.newritage.app.data.Session
+import com.newritage.app.data.UserPreferences
 import com.newritage.app.databinding.FragmentMonthlyAnalysisBinding
 import com.newritage.app.ui.main.analysis.model.ComparisonSummary
 import com.newritage.app.ui.main.analysis.model.DayIndicatorStatus
@@ -19,6 +22,7 @@ import com.newritage.app.ui.util.applyAnalysisStyle
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
+import java.util.Date
 import java.util.Locale
 
 class MonthlyAnalysisFragment : Fragment() {
@@ -83,8 +87,29 @@ class MonthlyAnalysisFragment : Fragment() {
                 indicators = indicators
             )
 
-            val comment = MonthlyCommentGenerator.generate(sessions)
-            binding.aiCommentCard.setComment(comment)
+            // AI 코멘트는 네트워크 호출이라 응답이 오래 걸릴 수 있으므로, 아래 통계/그래프 렌더링을
+            // 막지 않도록 별도 코루틴에서 독립적으로 갱신한다(최근 30일 기준 Gemini API 우선, 실패 시 로컬 폴백).
+            // 단, 마지막 생성 이후 새로 저장된 세션이 없으면 API를 다시 호출하지 않고 캐시된 코멘트를 그대로 보여준다.
+            lifecycleScope.launch {
+                val prefs = UserPreferences(requireContext())
+                val latestSessionId = db.sessionDao().getLatestSessionId() ?: -1L
+                val cachedComment = prefs.monthlyAiComment
+
+                if (cachedComment.isNotEmpty() && prefs.monthlyAiCommentSessionId == latestSessionId) {
+                    _binding?.aiCommentCard?.setComment(cachedComment)
+                } else {
+                    _binding?.aiCommentCard?.setComment(getString(R.string.ai_comment_loading))
+                    val today = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+                    val aiComment = GeminiRepository(db.sessionDao()).generateMonthlyFeedback(today)
+                    if (aiComment != null) {
+                        prefs.monthlyAiComment = aiComment
+                        prefs.monthlyAiCommentSessionId = latestSessionId
+                        _binding?.aiCommentCard?.setComment(aiComment)
+                    } else {
+                        _binding?.aiCommentCard?.setComment(MonthlyCommentGenerator.generate(sessions))
+                    }
+                }
+            }
 
             if (sessions.isNotEmpty()) {
                 val avgPressure = sessions.map { it.avgPressure }.average().toFloat()

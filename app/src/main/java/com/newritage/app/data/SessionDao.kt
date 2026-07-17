@@ -74,6 +74,10 @@ interface SessionDao {
     @Query("SELECT COUNT(*) FROM sessions")
     suspend fun countAllSessions(): Int
 
+    /** 가장 최근에 저장된 세션의 id (새 명상 기록 발생 여부 판단용, 기록이 없으면 null) */
+    @Query("SELECT MAX(id) FROM sessions")
+    suspend fun getLatestSessionId(): Long?
+
     /** 세션 하나에 속한 원시 센서 데이터 */
     @Query("SELECT * FROM sensor_readings WHERE sessionId = :sessionId ORDER BY timestamp ASC")
     suspend fun getReadingsForSession(sessionId: Long): List<SensorReading>

@@ -2,6 +2,7 @@
 <com.newritage.app.ui.util.RoundedTopFrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/sheetRoot"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -139,15 +140,35 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tvKnotNameDisplay">
 
-            <TextView
-                android:id="@+id/tvDescriptionText"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center"
-                android:lineSpacingExtra="4dp"
-                android:text="@string/knot_description_placeholder"
-                android:textColor="@color/text_secondary"
-                android:textSize="13sp" />
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tvDescriptionText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:lineSpacingExtra="4dp"
+                    android:text="@string/knot_description_placeholder"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="13sp" />
+
+                <TextView
+                    android:id="@+id/tvKnotReason"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:gravity="center"
+                    android:lineSpacingExtra="4dp"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="13sp"
+                    android:textStyle="italic"
+                    android:visibility="gone"
+                    tools:text="AI 추천 이유&#10;&#10;예시 이유 텍스트" />
+
+            </LinearLayout>
 
         </ScrollView>
 

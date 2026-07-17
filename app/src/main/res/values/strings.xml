@@ -136,6 +136,7 @@
     <string name="knot_dummy_date"></string>
     <string name="knot_dummy_name"></string>
     <string name="knot_description_placeholder"></string>
+    <string name="knot_reason_label">AI 추천 이유</string>
 
     <!-- 하단 내비 -->
     <string name="nav_home">홈</string>
@@ -175,6 +176,7 @@
     <string name="weekly_analysis">주간 분석</string>
     <string name="monthly_analysis">월간 분석</string>
     <string name="feedback_title">피드백</string>
+    <string name="ai_comment_loading">AI 코멘트를 생성하는 중입니다…</string>
 
     <!-- 분석 공통 -->
     <string name="label_avg_tension">평균 압력</string>

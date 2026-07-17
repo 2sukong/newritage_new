@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.newritage.app.R
 import com.newritage.app.data.AppDatabase
+import com.newritage.app.data.GeminiRepository
 import com.newritage.app.data.KnotType
 import com.newritage.app.data.Session
 import com.newritage.app.data.SessionDataHolder
@@ -48,6 +49,7 @@ class SessionCompleteActivity : AppCompatActivity() {
     enum class Screen { RECORD, SAVED, THREAD }
 
     private val dao by lazy { AppDatabase.getInstance(this).sessionDao() }
+    private val geminiRepository by lazy { GeminiRepository(dao) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -70,6 +72,7 @@ class SessionCompleteActivity : AppCompatActivity() {
     }
 
     private fun setupButtons() {
+        binding.btnBackRecord.setOnClickListener { finish() }
         binding.btnSaveRecord.setOnClickListener { saveSession(skipEmotion = false) }
         binding.btnSkipRecord.setOnClickListener { saveSession(skipEmotion = true) }
 
@@ -112,14 +115,20 @@ class SessionCompleteActivity : AppCompatActivity() {
 
         val colorObj = ThreadColors.assignColor(avgPressure, prefs.baselineOverall)
         val keywords = extractKeywords(emotion)
-        val feedback = generateAiFeedback(emotion, keywords)
+
+        // 안정 상태 비율(%) — 이탈(진동) 발생 횟수를 표본 수 대비 비율로 근사한다.
+        val stableRatio = if (readings.isNotEmpty()) {
+            (1f - vibrationCount.toFloat() / readings.size) * 100f
+        } else {
+            100f
+        }
 
         lifecycleScope.launch {
             val countToday = dao.countSessionsByDate(today)
             val isFirstSession = countToday == 0
 
             val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
-            val session = Session(
+            val baseSession = Session(
                 date = today,
                 sessionIndex = countToday + 1,
                 hasThread = isFirstSession,
@@ -145,9 +154,13 @@ class SessionCompleteActivity : AppCompatActivity() {
                 vibrationCount = vibrationCount,
                 emotion = emotion,
                 threadColor = if (isFirstSession) colorObj.hex else "",
-                threadColorName = if (isFirstSession) colorObj.nameKr else "",
-                aiFeedback = feedback
+                threadColorName = if (isFirstSession) colorObj.nameKr else ""
             )
+
+            // Gemini API를 우선 시도하고, 실패(키 누락/네트워크 오류 등) 시에만 로컬 템플릿으로 폴백한다.
+            val feedback = geminiRepository.generateDailyFeedback(baseSession, stableRatio, readings)
+                ?: generateAiFeedback(emotion, keywords)
+            val session = baseSession.copy(aiFeedback = feedback)
 
             val sessionId = dao.insert(session)
             prefs.lastSessionId = sessionId

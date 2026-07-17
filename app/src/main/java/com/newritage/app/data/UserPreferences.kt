@@ -32,6 +32,9 @@ class UserPreferences(context: Context) {
 
         private const val KEY_TENSION_THRESHOLD_RATIO = "tension_threshold_ratio"
         private const val KEY_TIMER_DURATION_MINUTES = "timer_duration_minutes"
+
+        private const val KEY_MONTHLY_AI_COMMENT = "monthly_ai_comment"
+        private const val KEY_MONTHLY_AI_COMMENT_SESSION_ID = "monthly_ai_comment_session_id"
     }
 
     /** 온보딩 완료 여부 */
@@ -113,6 +116,19 @@ class UserPreferences(context: Context) {
     var timerDurationMinutes: Int
         get() = prefs.getInt(KEY_TIMER_DURATION_MINUTES, 10)
         set(value) = prefs.edit().putInt(KEY_TIMER_DURATION_MINUTES, value).apply()
+
+    /** 마지막으로 생성된 월간 AI 종합 코멘트. [monthlyAiCommentSessionId]와 함께 캐시로 사용된다. */
+    var monthlyAiComment: String
+        get() = prefs.getString(KEY_MONTHLY_AI_COMMENT, "") ?: ""
+        set(value) = prefs.edit().putString(KEY_MONTHLY_AI_COMMENT, value).apply()
+
+    /**
+     * [monthlyAiComment]를 생성할 당시의 최신 세션 id.
+     * 이후 최신 세션 id가 그대로면(=새로 명상한 기록이 없으면) 캐시된 코멘트를 그대로 재사용한다.
+     */
+    var monthlyAiCommentSessionId: Long
+        get() = prefs.getLong(KEY_MONTHLY_AI_COMMENT_SESSION_ID, -1L)
+        set(value) = prefs.edit().putLong(KEY_MONTHLY_AI_COMMENT_SESSION_ID, value).apply()
 
     /** 로그아웃 */
     fun logout() {

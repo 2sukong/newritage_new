@@ -1,6 +1,7 @@
 package com.newritage.app.ui.main.knot
 
 import android.os.Bundle
+import android.view.View
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.lifecycleScope
@@ -11,6 +12,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.newritage.app.R
 import com.newritage.app.data.AppDatabase
+import com.newritage.app.data.GeminiRepository
 import com.newritage.app.data.KnotType
 import com.newritage.app.databinding.BottomSheetKnotDetailBinding
 import com.newritage.app.ui.main.knot.recommend.DiaryEntry
@@ -34,6 +36,7 @@ class KnotDetailBottomSheetDialog(
 
     private lateinit var binding: BottomSheetKnotDetailBinding
     private val dao by lazy { AppDatabase.getInstance(hostActivity).sessionDao() }
+    private val geminiRepository by lazy { GeminiRepository(dao) }
     private val yearMonthSdf = SimpleDateFormat("yyyy-MM", Locale.getDefault())
     private val displaySdf = SimpleDateFormat("yyyy년 M월", Locale.getDefault())
     private val currentDate = Calendar.getInstance().apply {
@@ -95,10 +98,23 @@ class KnotDetailBottomSheetDialog(
                 val diaryEntries = monthSessions.map {
                     DiaryEntry(date = LocalDate.parse(it.date), content = it.emotion)
                 }
-                val recommendedKnot = RecommendationEngine.recommendKnot(diaryEntries)
+                // 최근 30일 감정 기록으로 Gemini API를 우선 시도하고, 실패 시에만 표시 중인 달 기준
+                // 로컬 추천(RecommendationEngine)으로 폴백한다.
+                val todayStr = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+                val aiResult = geminiRepository.recommendKnot(todayStr)
+                val recommendedKnot = aiResult?.knot ?: RecommendationEngine.recommendKnot(diaryEntries)
                 val knotType = KnotType.fromRecommendationId(recommendedKnot.id)
                 binding.tvKnotNameDisplay.text = recommendedKnot.name
                 binding.tvDescriptionText.text = recommendedKnot.meaning
+
+                if (aiResult != null) {
+                    binding.tvKnotReason.text = hostActivity.getString(
+                        R.string.knot_reason_label
+                    ) + "\n\n" + aiResult.reason
+                    binding.tvKnotReason.visibility = View.VISIBLE
+                } else {
+                    binding.tvKnotReason.visibility = View.GONE
+                }
                 // 틴트 색상은 실이 실제로 지급된(threadColor가 있는) 세션에서만 가져온다.
                 val threadColorSession = monthSessions.filter { it.threadColor.isNotBlank() }.maxByOrNull { it.date }
                 // 상세보기: 위치 이동(pan)은 막고 회전(orbit)만 가능하게 한다.
@@ -113,6 +129,7 @@ class KnotDetailBottomSheetDialog(
             } else {
                 binding.tvKnotNameDisplay.text = hostActivity.getString(R.string.no_knot_yet)
                 binding.tvDescriptionText.text = ""
+                binding.tvKnotReason.visibility = View.GONE
                 binding.knotComposeViewer.setContent {}
             }
         }

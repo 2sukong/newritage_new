@@ -1,14 +1,15 @@
 package com.newritage.app.ui.main.thread
 
-import android.graphics.Color
 import android.view.View
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.newritage.app.R
 import com.newritage.app.data.AppDatabase
 import com.newritage.app.databinding.BottomSheetThreadDetailBinding
 import com.newritage.app.ui.util.configureFixedHeightSheet
+import com.newritage.app.util.ThreadColors
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -70,9 +71,9 @@ class ThreadDetailBottomSheetDialog(
                 binding.cvThreadCircle.visibility = View.VISIBLE
                 binding.tvThreadColorName.visibility = View.VISIBLE
                 binding.tvNoThread.visibility = View.GONE
-                runCatching {
-                    binding.threadColorView.setBackgroundColor(Color.parseColor(session.threadColor))
-                }
+                val drawableRes = ThreadColors.findByHex(session.threadColor)?.drawableRes
+                    ?: R.drawable.thread_default
+                binding.threadColorView.setImageResource(drawableRes)
                 binding.tvThreadColorName.text = session.threadColorName
             } else {
                 binding.cvThreadCircle.visibility = View.INVISIBLE

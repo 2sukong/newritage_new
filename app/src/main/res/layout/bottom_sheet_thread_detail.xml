@@ -107,11 +107,12 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/clDateNav">
 
-            <View
+            <ImageView
                 android:id="@+id/threadColorView"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="@color/primary_light" />
+                android:scaleType="centerCrop"
+                android:contentDescription="@null" />
 
         </com.google.android.material.card.MaterialCardView>
 
