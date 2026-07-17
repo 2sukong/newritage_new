@@ -31,10 +31,13 @@ import io.github.sceneview.rememberNodes
 private val BASE_COLOR_PARAMETER_CANDIDATES = listOf("baseColorFactor", "baseColor")
 
 /** 세션에 저장된 hex 문자열(예: threadColor)을 Compose Color로 안전하게 변환한다. */
-fun knotTintColorOrNull(hex: String): Color? = try {
-    Color(android.graphics.Color.parseColor(hex))
-} catch (_: IllegalArgumentException) {
-    null
+fun knotTintColorOrNull(hex: String): Color? {
+    if (hex.isBlank()) return null
+    return try {
+        Color(android.graphics.Color.parseColor(hex))
+    } catch (_: IllegalArgumentException) {
+        null
+    }
 }
 
 private fun MaterialInstance.tryTintBaseColor(color: Color) {

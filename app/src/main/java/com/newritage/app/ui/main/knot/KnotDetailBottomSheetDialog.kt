@@ -87,8 +87,7 @@ class KnotDetailBottomSheetDialog(
 
         hostActivity.lifecycleScope.launch {
             // 그 달에 쓴 일기(emotion)들을 감정 분석해 "이달의 매듭"을 추천한다
-            // (KnotStorageFragment의 연도 그리드와 동일한 기준). 실 색상 표시용으로는
-            // 그 달의 마지막 기록일 세션을 대표값으로 쓴다.
+            // (KnotStorageFragment의 연도 그리드와 동일한 기준).
             val monthSessions = dao.getSessionsByMonth(yearMonth).filter { it.emotion.isNotBlank() }
             val latestSession = monthSessions.maxByOrNull { it.date }
 
@@ -100,12 +99,14 @@ class KnotDetailBottomSheetDialog(
                 val knotType = KnotType.fromRecommendationId(recommendedKnot.id)
                 binding.tvKnotNameDisplay.text = recommendedKnot.name
                 binding.tvDescriptionText.text = recommendedKnot.meaning
+                // 틴트 색상은 실이 실제로 지급된(threadColor가 있는) 세션에서만 가져온다.
+                val threadColorSession = monthSessions.filter { it.threadColor.isNotBlank() }.maxByOrNull { it.date }
                 // 상세보기: 위치 이동(pan)은 막고 회전(orbit)만 가능하게 한다.
                 binding.knotComposeViewer.setContent {
                     KnotModelViewer(
                         glbAssetPath = knotType.assetPath,
                         interactive = true,
-                        tintColor = knotTintColorOrNull(latestSession.threadColor),
+                        tintColor = threadColorSession?.let { knotTintColorOrNull(it.threadColor) },
                         cameraDistance = 1.5f
                     )
                 }

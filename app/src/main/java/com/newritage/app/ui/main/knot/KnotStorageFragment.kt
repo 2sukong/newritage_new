@@ -85,11 +85,14 @@ class KnotStorageFragment : Fragment() {
                     }
                     val recommendedKnot = RecommendationEngine.recommendKnot(diaryEntries)
                     val latestSession = monthSessions.maxByOrNull { it.date }!!
+                    // 틴트 색상은 실이 실제로 지급된(threadColor가 있는) 세션에서만 가져온다.
+                    // 그런 세션이 그 달에 없으면(hasThread=false인 날의 일기만 있는 경우) 무색으로 둔다.
+                    val threadColorSession = monthSessions.filter { it.threadColor.isNotBlank() }.maxByOrNull { it.date }
                     KnotGridEntry(
                         key = yearMonth,
                         label = getString(R.string.month_number_format, month),
                         knotType = KnotType.fromRecommendationId(recommendedKnot.id),
-                        tintColorHex = latestSession.threadColor,
+                        tintColorHex = threadColorSession?.threadColor ?: "",
                         isNew = latestSession.date == todayStr
                     )
                 }
