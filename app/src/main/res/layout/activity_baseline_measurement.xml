@@ -52,7 +52,8 @@
                     android:text="나만의 기준 압력을 설정해요"
                     android:textSize="18sp"
                     android:textColor="#2E3A2F"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    android:fontFamily="@font/inter_medium"/>
 
                 <TextView
                     android:layout_width="wrap_content"

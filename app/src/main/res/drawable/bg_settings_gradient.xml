@@ -1,8 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<shape xmlns:android="http://schemas.android.com/apk/res/android"
-    android:shape="rectangle">
-    <gradient
-        android:startColor="#F3F6F4"
-        android:endColor="#FEFDFA"
-        android:angle="270" />
-</shape>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- 아래: 흰색 레이어 48% -->
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="#7AFFFFFF" />
+        </shape>
+    </item>
+
+    <!-- 위: 세로 그라데이션 17% -->
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:startColor="#2B81A68D"
+                android:endColor="#2BFFF4DC"
+                android:angle="270" />
+        </shape>
+    </item>
+
+</layer-list>

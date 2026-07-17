@@ -26,11 +26,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.newritage.app.R
 import com.newritage.app.data.KnotType
+
+private val InterFontFamily = FontFamily(Font(R.font.inter))
 
 /**
  * 매듭 보관함 한 칸(연도 그리드의 한 달)에 대응하는 데이터. 매듭은 월 단위로 지급되므로,
@@ -100,6 +104,7 @@ private fun KnotGridCell(
             color = NEW_ACCENT_COLOR,
             fontSize = 9.sp,
             fontWeight = FontWeight.Bold,
+            fontFamily = InterFontFamily,
             modifier = Modifier
                 .padding(bottom = 2.dp)
                 .alpha(if (entry.isNew) 1f else 0f)
@@ -145,6 +150,7 @@ private fun KnotGridCell(
             text = entry.label,
             fontSize = 11.sp,
             color = DAY_LABEL_COLOR,
+            fontFamily = InterFontFamily,
             modifier = Modifier.padding(top = 4.dp)
         )
     }

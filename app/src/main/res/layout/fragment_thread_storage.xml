@@ -16,13 +16,13 @@
         android:gravity="center" />
 
     <LinearLayout
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:layout_marginHorizontal="16dp"
+        android:layout_gravity="center_horizontal"
         android:layout_marginTop="8dp"
-        android:layout_marginBottom="16dp">
+        android:layout_marginBottom="16dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
 
         <ImageButton
             android:id="@+id/btnPrevMonth"
@@ -34,13 +34,12 @@
 
         <TextView
             android:id="@+id/tvMonthLabel"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:minWidth="150dp"
             android:gravity="center"
-            android:textSize="20sp"
             android:textColor="@color/text_primary"
-            android:textStyle="bold" />
+            android:textSize="16sp" />
 
         <ImageButton
             android:id="@+id/btnNextMonth"
