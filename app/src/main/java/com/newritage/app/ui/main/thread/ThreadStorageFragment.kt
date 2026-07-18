@@ -16,10 +16,10 @@ import com.newritage.app.R
 import com.newritage.app.data.AppDatabase
 import com.newritage.app.databinding.FragmentThreadStorageBinding
 import com.newritage.app.ui.util.GradientBorderDrawable
+import com.newritage.app.util.DevClock
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
-import java.util.Date
 import java.util.Locale
 
 class ThreadStorageFragment : Fragment() {
@@ -75,7 +75,8 @@ class ThreadStorageFragment : Fragment() {
         val daysInMonth = cal.getActualMaximum(Calendar.DAY_OF_MONTH)
         val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         val yearMonthStr = SimpleDateFormat("yyyy-MM", Locale.getDefault()).format(cal.time)
-        val todayStr = sdf.format(Date())
+        // NEW 배지는 시연용 가상 오늘 기준으로 표시한다.
+        val todayStr = DevClock.todayString(requireContext())
 
         // 매듭보관함(Compose 4열 그리드)과 동일하게, 실을 얻은 날짜만 순서대로 4칸씩 줄을 채운다.
         var currentRow: LinearLayout? = null

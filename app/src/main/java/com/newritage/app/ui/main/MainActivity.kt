@@ -13,17 +13,25 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.newritage.app.R
 import com.newritage.app.ble.BleManager
+import com.newritage.app.data.AppDatabase
+import com.newritage.app.data.KnotType
 import com.newritage.app.data.UserPreferences
 import com.newritage.app.databinding.ActivityMainBinding
 import com.newritage.app.ui.main.analysis.AnalysisFragment
 import com.newritage.app.ui.main.knot.KnotStorageFragment
+import com.newritage.app.ui.main.knot.recommend.DiaryEntry
+import com.newritage.app.ui.main.knot.recommend.RecommendationEngine
 import com.newritage.app.ui.main.thread.ThreadStorageFragment
+import com.newritage.app.ui.measurement.KnotCreatedDialog
 import com.newritage.app.ui.measurement.MeasurementActivity
 import com.newritage.app.ui.settings.SettingsActivity
 import com.newritage.app.ui.util.WaveStyle
 import com.newritage.app.util.DebugDataSeeder
+import com.newritage.app.util.DevClock
 import com.newritage.app.util.FeatureFlags
 import kotlinx.coroutines.launch
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 class MainActivity : AppCompatActivity() {
 
@@ -53,6 +61,7 @@ class MainActivity : AppCompatActivity() {
         binding.waveView.setWaveStyle(WaveStyle.IDLE)
         setupHomeButton()
         setupBottomNav()
+        setupDevDateBar()
         connectBle()
         lifecycleScope.launch { DebugDataSeeder.seedIfEnabled(this@MainActivity) }
 
@@ -65,6 +74,53 @@ class MainActivity : AppCompatActivity() {
                 binding.fragmentContainer.visibility = View.GONE
                 binding.bottomNav.selectedItemId = R.id.nav_home
             }
+        }
+    }
+
+    // ── 시연용 개발자 날짜바 ──────────────────────────────────────────
+
+    /** 하단 개발자 날짜바: 임시 "오늘"을 하루씩 앞뒤로 넘긴다. 매월 1일로 넘어가면 매듭 팝업을 띄운다. */
+    private fun setupDevDateBar() {
+        renderDevDate()
+        binding.btnDevPrevDay.setOnClickListener {
+            prefs.devDateOffsetDays -= 1
+            renderDevDate()
+        }
+        binding.btnDevNextDay.setOnClickListener {
+            val before = DevClock.today(prefs)
+            prefs.devDateOffsetDays += 1
+            val after = DevClock.today(prefs)
+            renderDevDate()
+            // 다음날로 넘겨 매월 1일이 되면(=한 달이 새로 시작되면) 방금 끝난 달의 매듭을 준다.
+            if (after.dayOfMonth == 1) {
+                showMonthlyKnotPopup(before)
+            }
+        }
+    }
+
+    private fun renderDevDate() {
+        binding.tvDevDate.text = getString(
+            R.string.dev_date_format,
+            DevClock.today(prefs).format(DEV_DATE_DISPLAY)
+        )
+    }
+
+    /** [completedMonthDate]가 속한 달의 일기(emotion)를 분석해 그 달의 매듭을 팝업으로 보여준다. */
+    private fun showMonthlyKnotPopup(completedMonthDate: LocalDate) {
+        lifecycleScope.launch {
+            val yearMonth = completedMonthDate.format(DEV_MONTH)
+            val dao = AppDatabase.getInstance(this@MainActivity).sessionDao()
+            val diaryEntries = dao.getSessionsByMonth(yearMonth)
+                .filter { it.emotion.isNotBlank() }
+                .map { DiaryEntry(LocalDate.parse(it.date), it.emotion) }
+            val knotType = if (diaryEntries.isNotEmpty()) {
+                KnotType.fromRecommendationId(RecommendationEngine.recommendKnot(diaryEntries).id)
+            } else {
+                KnotType.forDate("$yearMonth-01")
+            }
+            KnotCreatedDialog(this@MainActivity, knotType) {
+                binding.bottomNav.selectedItemId = R.id.nav_knot
+            }.show()
         }
     }
 
@@ -262,5 +318,7 @@ class MainActivity : AppCompatActivity() {
     companion object {
         const val EXTRA_NAVIGATE_TO_KNOT = "NAVIGATE_TO_KNOT"
         private const val TAB_SWITCH_ANIM_MS = 150L
+        private val DEV_DATE_DISPLAY: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd (E)")
+        private val DEV_MONTH: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM")
     }
 }

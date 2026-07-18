@@ -17,7 +17,7 @@ import java.util.Locale
  * 다 확인했으면 ENABLED를 다시 false로 돌려두면 된다.
  */
 object DebugDataSeeder {
-    const val ENABLED = true
+    const val ENABLED = false
     const val DAYS = 20
 
     /**

@@ -35,7 +35,17 @@ class UserPreferences(context: Context) {
 
         private const val KEY_MONTHLY_AI_COMMENT = "monthly_ai_comment"
         private const val KEY_MONTHLY_AI_COMMENT_SESSION_ID = "monthly_ai_comment_session_id"
+
+        private const val KEY_DEV_DATE_OFFSET_DAYS = "dev_date_offset_days"
     }
+
+    /**
+     * 시연용 개발자 기능: 앱이 "오늘"로 볼 가상 날짜를 실제 오늘로부터 며칠 밀지 저장한다.
+     * 0이면 실제 오늘. [com.newritage.app.util.DevClock]가 이 값을 읽어 가상 오늘을 계산한다.
+     */
+    var devDateOffsetDays: Int
+        get() = prefs.getInt(KEY_DEV_DATE_OFFSET_DAYS, 0)
+        set(value) = prefs.edit().putInt(KEY_DEV_DATE_OFFSET_DAYS, value).apply()
 
     /** 온보딩 완료 여부 */
     var isOnboardingDone: Boolean

@@ -10,22 +10,20 @@ import androidx.lifecycle.lifecycleScope
 import com.newritage.app.R
 import com.newritage.app.data.AppDatabase
 import com.newritage.app.data.GeminiRepository
-import com.newritage.app.data.KnotType
 import com.newritage.app.data.Session
 import com.newritage.app.data.SessionDataHolder
 import com.newritage.app.data.UserPreferences
 import com.newritage.app.databinding.ActivitySessionCompleteBinding
 import com.newritage.app.stats.StatsCalculator
 import com.newritage.app.ui.main.MainActivity
-import com.newritage.app.ui.main.knot.recommend.DiaryEntry
-import com.newritage.app.ui.main.knot.recommend.RecommendationEngine
 import com.newritage.app.ui.util.WaveStyle
+import com.newritage.app.util.DevClock
 import com.newritage.app.util.PressureDisplay
 import com.newritage.app.util.ThreadColors
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
-import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import java.util.Date
 import java.util.Locale
 import kotlin.math.roundToInt
@@ -102,7 +100,8 @@ class SessionCompleteActivity : AppCompatActivity() {
 
     private fun saveSession(skipEmotion: Boolean) {
         val emotion = if (skipEmotion) "" else (binding.etEmotion.text?.toString()?.trim() ?: "")
-        val today = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+        // 시연용 가상 날짜 기준으로 실 획득/세션 날짜를 정한다(날짜를 넘기면 그날 다시 실을 얻는다).
+        val today = DevClock.todayString(prefs)
 
         val readings = SessionDataHolder.sensorReadings
         val vibrationCount = SessionDataHolder.vibrationCount
@@ -215,7 +214,7 @@ class SessionCompleteActivity : AppCompatActivity() {
         }
     }
 
-    private suspend fun showThreadProvide(vibrationCount: Int) {
+    private fun showThreadProvide(vibrationCount: Int) {
         val color = assignedColor
         if (color != null) {
             // 단색 대신 실 색상별 사진(drawableRes)을 프레임 안에 보여준다(master와 동일).
@@ -223,7 +222,9 @@ class SessionCompleteActivity : AppCompatActivity() {
             binding.tvThreadColorName.text = color.nameKr
         }
 
-        binding.tvThreadDate.text = SimpleDateFormat("yyyy.MM.dd", Locale.getDefault()).format(Date())
+        // 실 제공 화면 날짜도 시연용 가상 날짜를 따른다.
+        binding.tvThreadDate.text =
+            DevClock.today(prefs).format(THREAD_DATE_DISPLAY)
 
         val tensionBadgeValue = ((avgPressure / RAW_PRESSURE_MAX) * TENSION_BADGE_MAX)
             .roundToInt().coerceIn(0, TENSION_BADGE_MAX.toInt())
@@ -233,23 +234,8 @@ class SessionCompleteActivity : AppCompatActivity() {
         binding.tvFeedbackPara1.text = para1
         binding.tvFeedbackPara2.text = para2
 
-        // 매듭 보관함(KnotStorageFragment)과 동일한 기준: 이번 달 일기(emotion)를 감정 분석해
-        // "이달의 매듭"을 추천하고, 그 매듭을 바로 팝업으로 보여준다.
-        val yearMonth = SimpleDateFormat("yyyy-MM", Locale.getDefault()).format(Date())
-        val diaryEntries = dao.getSessionsByMonth(yearMonth)
-            .filter { it.emotion.isNotBlank() }
-            .map { DiaryEntry(date = LocalDate.parse(it.date), content = it.emotion) }
-        val recommendedKnot = RecommendationEngine.recommendKnot(diaryEntries)
-        val knotType = KnotType.fromRecommendationId(recommendedKnot.id)
-        KnotCreatedDialog(this, knotType) { navigateToKnotTab() }.show()
-    }
-
-    private fun navigateToKnotTab() {
-        val intent = Intent(this, MainActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
-        intent.putExtra(MainActivity.EXTRA_NAVIGATE_TO_KNOT, true)
-        startActivity(intent)
-        finish()
+        // 매듭은 "월 단위" 보상이라 세션마다 주지 않는다. 매듭 팝업은 메인 화면에서 날짜를 넘겨
+        // 매월 1일이 될 때(MainActivity의 개발자 날짜바)에만 뜬다.
     }
 
     /**
@@ -429,5 +415,7 @@ class SessionCompleteActivity : AppCompatActivity() {
         // 원시 total 이론상 최댓값(4095*3)을 0~255 범위의 "긴장도" 배지 표시값으로 환산한다.
         const val RAW_PRESSURE_MAX = 12285f
         const val TENSION_BADGE_MAX = 255f
+
+        val THREAD_DATE_DISPLAY: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy.MM.dd")
     }
 }

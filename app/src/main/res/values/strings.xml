@@ -3,6 +3,9 @@
     <string name="app_name">NewRitage</string>
     <string name="app_subtitle">마음을 다스리는 시간</string>
 
+    <!-- 시연용 개발자 날짜바 -->
+    <string name="dev_date_format">임시 날짜  %1$s</string>
+
     <!-- 온보딩 -->
     <string name="onboarding_title_1">한 가닥의 실이 마음의 여정을 이어줍니다</string>
     <string name="onboarding_title_2">압력 변화를 통해 당신의 긴장도를 측정합니다\n돌을 쥐고 명상을 시작해보세요</string>

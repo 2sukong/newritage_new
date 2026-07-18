@@ -15,11 +15,10 @@ import com.newritage.app.data.Session
 import com.newritage.app.databinding.FragmentKnotStorageBinding
 import com.newritage.app.ui.main.knot.recommend.DiaryEntry
 import com.newritage.app.ui.main.knot.recommend.RecommendationEngine
+import com.newritage.app.util.DevClock
 import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.util.Calendar
-import java.util.Date
 import java.util.Locale
 
 class KnotStorageFragment : Fragment() {
@@ -68,7 +67,8 @@ class KnotStorageFragment : Fragment() {
         lifecycleScope.launch {
             val db = AppDatabase.getInstance(requireContext())
             val sessions = db.sessionDao().getSessionsByYear(currentYear.toString())
-            val todayStr = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+            // NEW 배지는 시연용 가상 오늘 기준으로 표시한다.
+            val todayStr = DevClock.todayString(requireContext())
 
             fun monthOf(session: Session) = session.date.substring(5, 7).toInt()
 
