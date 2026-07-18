@@ -5,11 +5,10 @@ import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
-import com.newritage.app.R
 import com.newritage.app.data.AppDatabase
+import com.newritage.app.data.ThreadColorManager
 import com.newritage.app.databinding.BottomSheetThreadDetailBinding
 import com.newritage.app.ui.util.configureFixedHeightSheet
-import com.newritage.app.util.ThreadColors
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -67,13 +66,14 @@ class ThreadDetailBottomSheetDialog(
 
         hostActivity.lifecycleScope.launch {
             val session = dao.getThreadSessionByDate(dateStr)
-            if (session != null && session.threadColor.isNotEmpty()) {
+            if (session != null && session.threadColorName.isNotEmpty()) {
                 binding.cvThreadCircle.visibility = View.VISIBLE
                 binding.tvThreadColorName.visibility = View.VISIBLE
                 binding.tvNoThread.visibility = View.GONE
-                val drawableRes = ThreadColors.findByHex(session.threadColor)?.drawableRes
-                    ?: R.drawable.thread_default
-                binding.threadColorView.setImageResource(drawableRes)
+                // master와 동일하게 실 색상 "이름"으로 색상별 사진을 매핑한다(ThreadColorManager).
+                binding.threadColorView.setImageResource(
+                    ThreadColorManager.getDrawableByColorName(session.threadColorName)
+                )
                 binding.tvThreadColorName.text = session.threadColorName
             } else {
                 binding.cvThreadCircle.visibility = View.INVISIBLE

@@ -91,7 +91,8 @@ class KnotDetailBottomSheetDialog(
         hostActivity.lifecycleScope.launch {
             // 그 달에 쓴 일기(emotion)들을 감정 분석해 "이달의 매듭"을 추천한다
             // (KnotStorageFragment의 연도 그리드와 동일한 기준).
-            val monthSessions = dao.getSessionsByMonth(yearMonth).filter { it.emotion.isNotBlank() }
+            val allMonthSessions = dao.getSessionsByMonth(yearMonth)
+            val monthSessions = allMonthSessions.filter { it.emotion.isNotBlank() }
             val latestSession = monthSessions.maxByOrNull { it.date }
 
             if (latestSession != null) {
@@ -115,8 +116,9 @@ class KnotDetailBottomSheetDialog(
                 } else {
                     binding.tvKnotReason.visibility = View.GONE
                 }
-                // 틴트 색상은 실이 실제로 지급된(threadColor가 있는) 세션에서만 가져온다.
-                val threadColorSession = monthSessions.filter { it.threadColor.isNotBlank() }.maxByOrNull { it.date }
+                // 틴트 색상은 sumin_new처럼 그 달에 실을 받은(threadColor가 있는) 세션에서 가져온다.
+                // 일기 유무와 무관하게 그 달 전체 세션을 보므로, 일기를 건너뛴 날에 받은 실 색도 반영된다.
+                val threadColorSession = allMonthSessions.filter { it.threadColor.isNotBlank() }.maxByOrNull { it.date }
                 // 상세보기: 위치 이동(pan)은 막고 회전(orbit)만 가능하게 한다.
                 binding.knotComposeViewer.setContent {
                     KnotModelViewer(

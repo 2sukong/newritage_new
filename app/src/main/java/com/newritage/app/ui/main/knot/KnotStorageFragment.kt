@@ -70,13 +70,22 @@ class KnotStorageFragment : Fragment() {
             val sessions = db.sessionDao().getSessionsByYear(currentYear.toString())
             val todayStr = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
 
+            fun monthOf(session: Session) = session.date.substring(5, 7).toInt()
+
             // 매듭은 월 단위로 지급되며, 그 달에 쓴 일기(emotion)들을 감정 분석해 "이달의 매듭"을
             // 추천한다(일기가 하나도 없는 달은 칸 자체가 생기지 않는다).
-            val byMonth: Map<Int, List<Session>> = sessions
+            val emotionByMonth: Map<Int, List<Session>> = sessions
                 .filter { it.emotion.isNotBlank() }
-                .groupBy { it.date.substring(5, 7).toInt() }
+                .groupBy(::monthOf)
 
-            entriesState.value = byMonth.entries
+            // 틴트 색상은 sumin_new처럼 그 달에 실을 받은(threadColor가 있는) 세션에서 가져온다.
+            // 일기 유무와 무관하게 그 달 전체 세션을 보므로, 일기를 건너뛴 날에 받은 실 색도 반영된다.
+            val threadColorByMonth: Map<Int, String> = sessions
+                .filter { it.threadColor.isNotBlank() }
+                .groupBy(::monthOf)
+                .mapValues { (_, list) -> list.maxByOrNull { it.date }!!.threadColor }
+
+            entriesState.value = emotionByMonth.entries
                 .sortedBy { it.key }
                 .map { (month, monthSessions) ->
                     val yearMonth = String.format(Locale.getDefault(), "%04d-%02d", currentYear, month)
@@ -85,14 +94,11 @@ class KnotStorageFragment : Fragment() {
                     }
                     val recommendedKnot = RecommendationEngine.recommendKnot(diaryEntries)
                     val latestSession = monthSessions.maxByOrNull { it.date }!!
-                    // 틴트 색상은 실이 실제로 지급된(threadColor가 있는) 세션에서만 가져온다.
-                    // 그런 세션이 그 달에 없으면(hasThread=false인 날의 일기만 있는 경우) 무색으로 둔다.
-                    val threadColorSession = monthSessions.filter { it.threadColor.isNotBlank() }.maxByOrNull { it.date }
                     KnotGridEntry(
                         key = yearMonth,
                         label = getString(R.string.month_number_format, month),
                         knotType = KnotType.fromRecommendationId(recommendedKnot.id),
-                        tintColorHex = threadColorSession?.threadColor ?: "",
+                        tintColorHex = threadColorByMonth[month] ?: "",
                         isNew = latestSession.date == todayStr
                     )
                 }
