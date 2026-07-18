@@ -25,3 +25,6 @@
 
 # Signing configs
 signing.properties
+
+# 매듭 3D 모델 원본(고해상도) — 앱 미번들, 저장소 밖에 별도 보관
+knot-models-source/
