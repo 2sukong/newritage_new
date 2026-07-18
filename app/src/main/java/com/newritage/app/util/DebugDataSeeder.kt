@@ -44,13 +44,14 @@ object DebugDataSeeder {
         val dao = AppDatabase.getInstance(context).sessionDao()
         val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
 
-        // 1) 매듭 보관함용: 최근 KNOT_SAMPLE_EMOTIONS.size 개월에 각각 한 개씩
-        //    (감정 일기 + 실 색상 + hasThread) 세션을 심어 7종 매듭이 모두 보이게 한다.
+        // 1) 매듭 보관함용: 올해 1월~N월(N=감정 개수)에 각각 한 개씩 (감정 일기 + 실 색상 +
+        //    hasThread) 세션을 심어 10종 매듭이 "한 해 그리드 안에" 모두 보이게 한다.
+        //    (뒤로 세면 일부가 작년으로 넘어가 그리드에서 안 보이므로 올해 월로 고정한다.)
         //    아래 일별 실 시딩보다 먼저 심어야 이번 달 15일이 실 세션에 선점되지 않는다.
         val monthCal = Calendar.getInstance()
         for ((index, emotion) in KNOT_SAMPLE_EMOTIONS.withIndex()) {
             monthCal.time = Calendar.getInstance().time
-            monthCal.add(Calendar.MONTH, -index)
+            monthCal.set(Calendar.MONTH, index)   // 0=1월 … 9=10월, 모두 올해
             monthCal.set(Calendar.DAY_OF_MONTH, 15)
             val dateStr = sdf.format(monthCal.time)
             if (dao.countSessionsByDate(dateStr) == 0) {
