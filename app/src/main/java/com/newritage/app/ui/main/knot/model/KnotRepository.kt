@@ -5,7 +5,7 @@ object KnotRepository {
 
     val knots: List<KnotInfo> = listOf(
         KnotInfo(id = "dorrae", name = "도래매듭", meaning = "시작과 연결"),
-        KnotInfo(id = "twin_flower", name = "쌍꽃매듭", meaning = "꾸준함"),
+        KnotInfo(id = "saengjjok", name = "생쪽매듭", meaning = "꾸준함"),
         KnotInfo(id = "plum", name = "매화매듭", meaning = "인내와 고결함"),
         KnotInfo(id = "chrysanthemum", name = "국화매듭", meaning = "평안"),
         KnotInfo(id = "butterfly", name = "나비매듭", meaning = "변함없는 사랑과 기쁨, 장수"),

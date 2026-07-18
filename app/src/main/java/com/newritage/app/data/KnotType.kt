@@ -31,19 +31,19 @@ enum class KnotType(val displayName: String, val assetPath: String, val thumbnai
 
         /**
          * RecommendationEngine이 일기 감정 분석으로 골라낸 매듭 id(KnotRepository 기준 10종)를
-         * 실제로 3D 모델이 있는 7종 KnotType 중 하나로 매핑한다.
-         * KnotRepository의 매듭 개수가 실제 GLB 에셋 수보다 많아 일부는 의미상 가장 가까운
-         * KnotType으로 임시 매핑해 둔 상태다. 나머지 개념(쌍꽃/나비/병아리/가지방석)의 3D 모델이
-         * 추가되면 이 매핑만 갱신하면 된다.
+         * 실제로 3D 모델이 있는 KnotType으로 매핑한다.
+         * 나비/병아리/가지방석은 아직 전용 GLB 모델이 없어 의미상 가장 가까운 KnotType으로 임시
+         * 매핑해 둔 상태다. 해당 모델이 추가되면 이 매핑만 각자 전용 KnotType으로 갱신하면 된다.
          */
         fun fromRecommendationId(id: String): KnotType = when (id) {
             "dorrae" -> DORAE
+            "saengjjok" -> SAENGJJOK
             "plum" -> MAEHWA
             "chrysanthemum" -> GUKHWA
             "samjeongja", "gaji_bangseok" -> SAMJEONGJA
             "ring", "butterfly" -> GARAKJI
             "glasses" -> ANGYEONG
-            "twin_flower", "chick" -> SAENGJJOK
+            "chick" -> SAENGJJOK
             else -> DORAE
         }
     }

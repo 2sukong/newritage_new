@@ -27,7 +27,7 @@ object DebugDataSeeder {
      */
     private val KNOT_SAMPLE_EMOTIONS = listOf(
         "새로운 마음으로 다시 시작했고 도전할 용기가 생겼다",          // dorrae      -> 도래매듭
-        "매일 꾸준히 반복하며 좋은 습관을 이어갔다",                  // twin_flower -> 생쪽매듭
+        "매일 꾸준히 반복하며 좋은 습관을 이어갔다",                  // saengjjok -> 생쪽매듭
         "끝까지 인내하고 이겨냈고 다시 희망이 생겼다",                // plum        -> 매화매듭
         "마음이 평온하고 안정되어 여유롭고 차분한 하루였다",          // chrysanthemum -> 국화매듭
         "가족과 함께한 시간이 행복하고 감사했다",                    // butterfly   -> 가락지매듭

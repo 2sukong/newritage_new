@@ -35,7 +35,7 @@ object KeywordDictionary {
     /** 매듭이 상징하는 긍정/중립 키워드. 문장 감정이 POSITIVE/NEUTRAL일 때만 반영된다. */
     val POSITIVE_KEYWORDS: Map<String, List<String>> = mapOf(
         "dorrae" to listOf("시작", "새롭게", "변화", "회복", "도전", "다시", "리셋","첫걸음", "새출발", "용기", "전환", "결심", "출발", "새로운 시작"),
-        "twin_flower" to listOf("꾸준", "반복", "습관", "매일", "지속", "차근차근","성실", "계속", "이어가", "실천", "루틴", "빠짐없이", "매일같이"),
+        "saengjjok" to listOf("꾸준", "반복", "습관", "매일", "지속", "차근차근","성실", "계속", "이어가", "실천", "루틴", "빠짐없이", "매일같이"),
         "plum" to listOf("인내", "극복", "희망",
             "버텨냈", "이겨냈", "해냈", "견뎌냈", "참았", "용기", "끈기"),
         "chrysanthemum" to listOf("평온", "안정", "차분", "고요", "편안", "여유",
@@ -61,7 +61,7 @@ object KeywordDictionary {
     val NEGATIVE_COMPENSATION_KEYWORDS: Map<String, List<String>> = mapOf(
         "dorrae" to listOf("정체", "제자리", "권태", "지겹", "그만두고싶", "포기하고싶",
             "막막", "앞이 안보", "길을 잃", "무의미", "의욕없"),
-        "twin_flower" to listOf("작심삼일", "불규칙", "미루",
+        "saengjjok" to listOf("작심삼일", "불규칙", "미루",
             "게을", "귀찮", "미뤘", "안했", "포기했", "흐트러"),
         "plum" to listOf("버티", "버텼", "힘들", "견디", "지치", "지쳤",
             "좌절", "무너지", "무너졌", "벅차",
