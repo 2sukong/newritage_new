@@ -2,7 +2,6 @@ package com.newritage.app.ui.measurement
 
 import android.animation.ValueAnimator
 import android.content.Intent
-import android.graphics.Color
 import android.os.Bundle
 import android.view.View
 import android.view.animation.DecelerateInterpolator
@@ -219,11 +218,8 @@ class SessionCompleteActivity : AppCompatActivity() {
     private suspend fun showThreadProvide(vibrationCount: Int) {
         val color = assignedColor
         if (color != null) {
-            try {
-                binding.threadColorView.setBackgroundColor(Color.parseColor(color.hex))
-            } catch (e: IllegalArgumentException) {
-                binding.threadColorView.setBackgroundColor(Color.parseColor("#8B9E7B"))
-            }
+            // 단색 대신 실 색상별 사진(drawableRes)을 프레임 안에 보여준다(master와 동일).
+            binding.threadColorView.setImageResource(color.drawableRes)
             binding.tvThreadColorName.text = color.nameKr
         }
 
