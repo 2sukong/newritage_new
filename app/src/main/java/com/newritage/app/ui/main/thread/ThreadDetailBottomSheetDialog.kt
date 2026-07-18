@@ -69,15 +69,21 @@ class ThreadDetailBottomSheetDialog(
             if (session != null && session.threadColorName.isNotEmpty()) {
                 binding.cvThreadCircle.visibility = View.VISIBLE
                 binding.tvThreadColorName.visibility = View.VISIBLE
+                binding.svDiary.visibility = View.VISIBLE
                 binding.tvNoThread.visibility = View.GONE
                 // master와 동일하게 실 색상 "이름"으로 색상별 사진을 매핑한다(ThreadColorManager).
                 binding.threadColorView.setImageResource(
                     ThreadColorManager.getDrawableByColorName(session.threadColorName)
                 )
                 binding.tvThreadColorName.text = session.threadColorName
+                // 그 날 작성한 일기(emotion)를 실 아래 박스에 그대로 표시한다.
+                binding.tvDiary.text = session.emotion.ifBlank {
+                    hostActivity.getString(com.newritage.app.R.string.thread_diary_empty)
+                }
             } else {
                 binding.cvThreadCircle.visibility = View.INVISIBLE
                 binding.tvThreadColorName.visibility = View.GONE
+                binding.svDiary.visibility = View.GONE
                 binding.tvNoThread.visibility = View.VISIBLE
             }
         }

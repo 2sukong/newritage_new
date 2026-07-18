@@ -125,7 +125,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/flKnotImageContainer" />
 
-        <!-- 매듭 설명 -->
+        <!-- 매듭 의미 박스 -->
         <ScrollView
             android:id="@+id/svDescriptionScroll"
             android:layout_width="0dp"
@@ -133,6 +133,8 @@
             android:layout_marginTop="24dp"
             android:layout_marginHorizontal="24dp"
             android:layout_marginBottom="24dp"
+            android:background="@drawable/bg_detail_note"
+            android:padding="18dp"
             android:fadeScrollbars="false"
             android:scrollbars="vertical"
             app:layout_constraintBottom_toBottomOf="parent"

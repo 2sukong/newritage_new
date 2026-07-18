@@ -160,6 +160,7 @@
     <string name="thread_color_label">색 이름</string>
     <string name="btn_view_thread_storage">실 보관함 보기</string>
     <string name="no_thread_today">오늘의 실이 아직 없습니다.</string>
+    <string name="thread_diary_empty">이 날 작성한 일기가 없어요.</string>
 
     <!-- 매듭 보관함 -->
     <string name="knot_storage_title">매듭 보관함</string>

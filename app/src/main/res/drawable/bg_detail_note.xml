@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 실/매듭 상세 하단의 글 박스 배경 (연한 세이지 톤) -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="#F3F6EF" />
+    <corners android:radius="12dp" />
+</shape>
