@@ -3,7 +3,7 @@ package com.newritage.app.data
 import com.newritage.app.R
 
 /**
- * 매듭 보관함에서 사용하는 7종 매듭 3D 모델 정보.
+ * 매듭 보관함에서 사용하는 10종 매듭 3D 모델 정보.
  * assetPath는 assets/knots/ 아래 최적화된(Draco 압축) GLB 파일을 가리키며 상세보기의 실시간
  * 3D 렌더에 쓰인다. thumbnailRes는 그리드 썸네일용으로 흰색 재질 기준 한 번 미리 렌더링해 둔
  * 정적 이미지로, 그리드에서는 라이브 3D 대신 이 이미지에 색만 틴트해서 보여준다(그리드는 항상
@@ -16,7 +16,10 @@ enum class KnotType(val displayName: String, val assetPath: String, val thumbnai
     MAEHWA("매화매듭", "knots/maehwa.glb", R.drawable.knot_thumb_maehwa),
     SAMJEONGJA("삼정자매듭", "knots/samjeongja.glb", R.drawable.knot_thumb_samjeongja),
     SAENGJJOK("생쪽매듭", "knots/saengjjok.glb", R.drawable.knot_thumb_saengjjok),
-    ANGYEONG("안경매듭", "knots/angyeong.glb", R.drawable.knot_thumb_angyeong);
+    ANGYEONG("안경매듭", "knots/angyeong.glb", R.drawable.knot_thumb_angyeong),
+    NABI("나비매듭", "knots/nabi.glb", R.drawable.knot_thumb_nabi),
+    BYEONGARI("병아리매듭", "knots/byeongari.glb", R.drawable.knot_thumb_byeongari),
+    GAJIBANGSEOK("가지방석매듭", "knots/gajibangseok.glb", R.drawable.knot_thumb_gajibangseok);
 
     companion object {
         /**
@@ -31,19 +34,19 @@ enum class KnotType(val displayName: String, val assetPath: String, val thumbnai
 
         /**
          * RecommendationEngine이 일기 감정 분석으로 골라낸 매듭 id(KnotRepository 기준 10종)를
-         * 실제로 3D 모델이 있는 KnotType으로 매핑한다.
-         * 나비/병아리/가지방석은 아직 전용 GLB 모델이 없어 의미상 가장 가까운 KnotType으로 임시
-         * 매핑해 둔 상태다. 해당 모델이 추가되면 이 매핑만 각자 전용 KnotType으로 갱신하면 된다.
+         * 각자 전용 3D 모델(KnotType)로 1:1 매핑한다.
          */
         fun fromRecommendationId(id: String): KnotType = when (id) {
             "dorrae" -> DORAE
             "saengjjok" -> SAENGJJOK
             "plum" -> MAEHWA
             "chrysanthemum" -> GUKHWA
-            "samjeongja", "gaji_bangseok" -> SAMJEONGJA
-            "ring", "butterfly" -> GARAKJI
+            "butterfly" -> NABI
+            "samjeongja" -> SAMJEONGJA
+            "chick" -> BYEONGARI
+            "gaji_bangseok" -> GAJIBANGSEOK
+            "ring" -> GARAKJI
             "glasses" -> ANGYEONG
-            "chick" -> SAENGJJOK
             else -> DORAE
         }
     }
