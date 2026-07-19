@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.github.mikephil.charting.data.Entry
@@ -16,9 +17,11 @@ import com.newritage.app.data.GeminiRepository
 import com.newritage.app.data.Session
 import com.newritage.app.data.UserPreferences
 import com.newritage.app.databinding.FragmentMonthlyAnalysisBinding
+import com.newritage.app.ui.main.MainActivity
 import com.newritage.app.ui.main.analysis.model.ComparisonSummary
 import com.newritage.app.ui.main.analysis.model.DayIndicatorStatus
 import com.newritage.app.ui.util.applyAnalysisStyle
+import com.newritage.app.ui.util.setNavArrowEnabled
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -30,6 +33,8 @@ class MonthlyAnalysisFragment : Fragment() {
     private var _binding: FragmentMonthlyAnalysisBinding? = null
     private val binding get() = _binding!!
     private var currentMonth = Calendar.getInstance()
+    private val dateSdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+    private val monthSdf = SimpleDateFormat("yyyy-MM", Locale.getDefault())
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -46,20 +51,40 @@ class MonthlyAnalysisFragment : Fragment() {
             parentFragmentManager.popBackStack()
         }
 
-        // 이전 달 버튼
-        binding.btnPrevMonth.setOnClickListener {
-            currentMonth.add(Calendar.MONTH, -1)
-            loadData()
-        }
-
-        // 다음 달 버튼 (★ 괄호 짝 맞추기 수정)
-        binding.btnNextMonth.setOnClickListener {
-            currentMonth.add(Calendar.MONTH, 1)
-            loadData()
-        } // <- 여기서 중괄호와 소괄호가 정확히 닫혀야 합니다!
+        // ±1달 대신, 측정 기록이 있는 가장 가까운 달로 건너뛴다(측정 안 한 달은 건너뜀).
+        binding.btnPrevMonth.setOnClickListener { navigateToMeasured(-1) }
+        binding.btnNextMonth.setOnClickListener { navigateToMeasured(+1) }
+        binding.emptyStartMeasure.setOnClickListener { (activity as? MainActivity)?.switchToHomeTab() }
 
         setupChart()
-        loadData()
+        // 최초 진입 시 가장 최근 측정일이 속한 달로 맞춘다.
+        lifecycleScope.launch {
+            val dao = AppDatabase.getInstance(requireContext()).sessionDao()
+            dao.getLatestSessionDate()?.let { latest ->
+                dateSdf.parse(latest)?.let { currentMonth.time = it }
+            }
+            loadData()
+        }
+    }
+
+    /** direction<0: 이전 측정 달, direction>0: 다음 측정 달로 이동. 없으면 토스트 후 그대로. */
+    private fun navigateToMeasured(direction: Int) {
+        lifecycleScope.launch {
+            val dao = AppDatabase.getInstance(requireContext()).sessionDao()
+            val ym = monthSdf.format(currentMonth.time)
+            // "yyyy-MM-01"보다 이전 / "yyyy-MM-31"보다 이후 → 문자열 비교로 다른 달의 가장 가까운 측정일.
+            val target = if (direction < 0) {
+                dao.getPrevSessionDate("$ym-01")
+            } else {
+                dao.getNextSessionDate("$ym-31")
+            }
+            if (target == null) {
+                Toast.makeText(requireContext(), R.string.analysis_no_more_records, Toast.LENGTH_SHORT).show()
+                return@launch
+            }
+            dateSdf.parse(target)?.let { currentMonth.time = it }
+            loadData()
+        }
     }
 
     private fun setupChart() {
@@ -76,8 +101,25 @@ class MonthlyAnalysisFragment : Fragment() {
 
         lifecycleScope.launch {
             val db = AppDatabase.getInstance(requireContext())
-            val sessions = db.sessionDao().getSessionsByMonth(yearMonth)
-            val previousSessions = db.sessionDao().getSessionsByMonth(previousYearMonth)
+            val dao = db.sessionDao()
+
+            // 측정 기록이 하나도 없으면 분석 섹션을 모두 감추고 안내만 보여준다.
+            if (dao.getLatestSessionDate() == null) {
+                binding.contentSections.visibility = View.GONE
+                binding.emptyState.visibility = View.VISIBLE
+                binding.btnPrevMonth.setNavArrowEnabled(false)
+                binding.btnNextMonth.setNavArrowEnabled(false)
+                return@launch
+            }
+            binding.contentSections.visibility = View.VISIBLE
+            binding.emptyState.visibility = View.GONE
+
+            // 이동 가능한 방향의 화살표만 활성화한다(더 없으면 회색 비활성).
+            binding.btnPrevMonth.setNavArrowEnabled(dao.getPrevSessionDate("$yearMonth-01") != null)
+            binding.btnNextMonth.setNavArrowEnabled(dao.getNextSessionDate("$yearMonth-31") != null)
+
+            val sessions = dao.getSessionsByMonth(yearMonth)
+            val previousSessions = dao.getSessionsByMonth(previousYearMonth)
 
             binding.comparisonCard.bind(ComparisonSummary.from(sessions, previousSessions))
             val indicators = buildDayIndicators(sessions)

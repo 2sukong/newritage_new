@@ -154,6 +154,19 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
+            <!-- 디버그: 맨 아래. 별도 화면으로 진입해 옵션 3개를 조정한다. -->
+            <include layout="@layout/view_settings_group_header"
+                android:id="@+id/groupDebug" />
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardBackgroundColor="@color/background_75"
+                app:cardCornerRadius="8dp"
+                app:cardElevation="0dp"
+                app:cardMaxElevation="0dp">
+                <include layout="@layout/view_settings_row" android:id="@+id/rowDebug" />
+            </com.google.android.material.card.MaterialCardView>
+
         </LinearLayout>
     </ScrollView>
 

@@ -5,16 +5,20 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet
+import com.newritage.app.R
 import com.newritage.app.data.AppDatabase
 import com.newritage.app.data.SensorReading
 import com.newritage.app.databinding.FragmentDailyAnalysisBinding
+import com.newritage.app.ui.main.MainActivity
 import com.newritage.app.ui.util.applyAnalysisStyle
+import com.newritage.app.ui.util.setNavArrowEnabled
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -25,6 +29,7 @@ class DailyAnalysisFragment : Fragment() {
     private var _binding: FragmentDailyAnalysisBinding? = null
     private val binding get() = _binding!!
     private var currentDate = Calendar.getInstance()
+    private val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -38,17 +43,35 @@ class DailyAnalysisFragment : Fragment() {
 
         binding.btnBack.setOnClickListener { parentFragmentManager.popBackStack() }
 
-        binding.btnPrevDay.setOnClickListener {
-            currentDate.add(Calendar.DAY_OF_MONTH, -1)
-            loadData()
-        }
-        binding.btnNextDay.setOnClickListener {
-            currentDate.add(Calendar.DAY_OF_MONTH, 1)
-            loadData()
-        }
+        // ±1일 대신, 측정 기록이 있는 가장 가까운 날짜로 건너뛴다(측정 안 한 날은 건너뜀).
+        binding.btnPrevDay.setOnClickListener { navigateToMeasured(-1) }
+        binding.btnNextDay.setOnClickListener { navigateToMeasured(+1) }
+        binding.emptyStartMeasure.setOnClickListener { (activity as? MainActivity)?.switchToHomeTab() }
 
         setupChart()
-        loadData()
+        // 최초 진입 시 가장 최근 측정 날짜로 맞춘다(측정한 적 없으면 오늘 그대로).
+        lifecycleScope.launch {
+            val dao = AppDatabase.getInstance(requireContext()).sessionDao()
+            dao.getLatestSessionDate()?.let { latest ->
+                sdf.parse(latest)?.let { currentDate.time = it }
+            }
+            loadData()
+        }
+    }
+
+    /** direction<0: 이전 측정일, direction>0: 다음 측정일로 이동. 없으면 토스트 후 그대로 둔다. */
+    private fun navigateToMeasured(direction: Int) {
+        lifecycleScope.launch {
+            val dao = AppDatabase.getInstance(requireContext()).sessionDao()
+            val cur = sdf.format(currentDate.time)
+            val target = if (direction < 0) dao.getPrevSessionDate(cur) else dao.getNextSessionDate(cur)
+            if (target == null) {
+                Toast.makeText(requireContext(), R.string.analysis_no_more_records, Toast.LENGTH_SHORT).show()
+                return@launch
+            }
+            sdf.parse(target)?.let { currentDate.time = it }
+            loadData()
+        }
     }
 
     private fun setupChart() {
@@ -56,14 +79,30 @@ class DailyAnalysisFragment : Fragment() {
     }
 
     private fun loadData() {
-        val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         val dateStr = sdf.format(currentDate.time)
         val displayStr = SimpleDateFormat("yyyy.MM.dd (E)", Locale.KOREAN).format(currentDate.time)
         binding.tvDateLabel.text = displayStr
 
         lifecycleScope.launch {
             val db = AppDatabase.getInstance(requireContext())
-            val session = db.sessionDao().getLatestSessionByDate(dateStr)
+            val dao = db.sessionDao()
+
+            // 측정 기록이 하나도 없으면 분석 섹션을 모두 감추고 안내만 보여준다.
+            if (dao.getLatestSessionDate() == null) {
+                binding.contentSections.visibility = View.GONE
+                binding.emptyState.visibility = View.VISIBLE
+                binding.btnPrevDay.setNavArrowEnabled(false)
+                binding.btnNextDay.setNavArrowEnabled(false)
+                return@launch
+            }
+            binding.contentSections.visibility = View.VISIBLE
+            binding.emptyState.visibility = View.GONE
+
+            // 이동 가능한 방향의 화살표만 활성화한다(더 없으면 회색 비활성).
+            binding.btnPrevDay.setNavArrowEnabled(dao.getPrevSessionDate(dateStr) != null)
+            binding.btnNextDay.setNavArrowEnabled(dao.getNextSessionDate(dateStr) != null)
+
+            val session = dao.getLatestSessionByDate(dateStr)
 
             if (session != null) {
                 val min = session.durationSeconds / 60

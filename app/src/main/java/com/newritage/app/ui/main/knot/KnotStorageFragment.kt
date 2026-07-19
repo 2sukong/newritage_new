@@ -12,10 +12,12 @@ import com.newritage.app.R
 import com.newritage.app.data.AppDatabase
 import com.newritage.app.data.KnotType
 import com.newritage.app.data.Session
+import com.newritage.app.data.UserPreferences
 import com.newritage.app.databinding.FragmentKnotStorageBinding
 import com.newritage.app.ui.main.knot.recommend.DiaryEntry
 import com.newritage.app.ui.main.knot.recommend.RecommendationEngine
 import com.newritage.app.util.DevClock
+import com.newritage.app.util.ThreadColors
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.util.Calendar
@@ -27,6 +29,7 @@ class KnotStorageFragment : Fragment() {
     private val binding get() = _binding!!
     private var currentYear = Calendar.getInstance().get(Calendar.YEAR)
     private val entriesState = mutableStateOf<List<KnotGridEntry>>(emptyList())
+    private val prefs by lazy { UserPreferences(requireContext()) }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -44,8 +47,19 @@ class KnotStorageFragment : Fragment() {
         binding.knotComposeGrid.setContent {
             KnotStorageGrid(
                 entries = entriesState.value,
-                onEntryClick = { yearMonth ->
-                    KnotDetailBottomSheetDialog(requireActivity(), yearMonth).show()
+                onEntryClick = { key ->
+                    if (prefs.debugShowAllCollection) {
+                        // 카탈로그 셀: 대응하는 실제 달이 없으므로 매듭 인덱스를 넘겨 상세를 연다(좌우로 순환 가능).
+                        entriesState.value.firstOrNull { it.key == key }?.let { entry ->
+                            KnotDetailBottomSheetDialog(
+                                requireActivity(),
+                                initialYearMonth = "",
+                                overrideKnotIndex = entry.knotType.ordinal
+                            ).show()
+                        }
+                    } else {
+                        KnotDetailBottomSheetDialog(requireActivity(), key).show()
+                    }
                 }
             )
         }
@@ -61,7 +75,29 @@ class KnotStorageFragment : Fragment() {
         loadYear()
     }
 
+    override fun onResume() {
+        super.onResume()
+        // 설정 탭에서 "전체 실/매듭 목록 보기" 토글을 바꾸고 돌아온 경우를 반영한다.
+        loadYear()
+    }
+
     private fun loadYear() {
+        // 디버그: 전체 매듭(10종) 카탈로그 표시 모드
+        if (prefs.debugShowAllCollection) {
+            binding.tvYearLabel.text = getString(R.string.settings_debug_show_all)
+            // 매듭마다 서로 다른 실 색을 임의로 입혀 구분이 잘 되게 한다(순서대로 12색 순환).
+            entriesState.value = KnotType.entries.mapIndexed { index, knotType ->
+                KnotGridEntry(
+                    key = knotType.name,
+                    label = knotType.displayName,
+                    knotType = knotType,
+                    tintColorHex = ThreadColors.ALL[index % ThreadColors.ALL.size].hex,
+                    isNew = false
+                )
+            }
+            return
+        }
+
         binding.tvYearLabel.text = getString(R.string.year_number_format, currentYear)
 
         lifecycleScope.launch {

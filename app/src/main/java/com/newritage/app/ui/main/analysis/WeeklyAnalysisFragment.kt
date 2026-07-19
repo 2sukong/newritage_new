@@ -5,15 +5,19 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
+import com.newritage.app.R
 import com.newritage.app.data.AppDatabase
 import com.newritage.app.databinding.FragmentWeeklyAnalysisBinding
+import com.newritage.app.ui.main.MainActivity
 import com.newritage.app.ui.main.analysis.model.ComparisonSummary
 import com.newritage.app.ui.util.applyAnalysisStyle
+import com.newritage.app.ui.util.setNavArrowEnabled
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -23,6 +27,7 @@ class WeeklyAnalysisFragment : Fragment() {
 
     private var _binding: FragmentWeeklyAnalysisBinding? = null
     private val binding get() = _binding!!
+    private val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
     private var currentWeekStart = Calendar.getInstance().also {
         it.set(Calendar.DAY_OF_WEEK, it.firstDayOfWeek)
     }
@@ -38,17 +43,42 @@ class WeeklyAnalysisFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         binding.btnBack.setOnClickListener { parentFragmentManager.popBackStack() }
 
-        // XML 파일의 화살표 ID가 주간용 명칭인 btnPrevWeek / btnNextWeek 인지 체크하세요!
-        binding.btnPrevWeek.setOnClickListener {
-            currentWeekStart.add(Calendar.WEEK_OF_YEAR, -1)
-            loadData()
-        }
-        binding.btnNextWeek.setOnClickListener {
-            currentWeekStart.add(Calendar.WEEK_OF_YEAR, 1)
-            loadData()
-        }
+        // ±1주 대신, 측정 기록이 있는 가장 가까운 주로 건너뛴다(측정 안 한 주는 건너뜀).
+        binding.btnPrevWeek.setOnClickListener { navigateToMeasured(-1) }
+        binding.btnNextWeek.setOnClickListener { navigateToMeasured(+1) }
+        binding.emptyStartMeasure.setOnClickListener { (activity as? MainActivity)?.switchToHomeTab() }
         setupChart()
-        loadData()
+        // 최초 진입 시 가장 최근 측정일이 속한 주로 맞춘다.
+        lifecycleScope.launch {
+            val dao = AppDatabase.getInstance(requireContext()).sessionDao()
+            dao.getLatestSessionDate()?.let { currentWeekStart = weekStartOf(it) }
+            loadData()
+        }
+    }
+
+    /** direction<0: 이전 측정 주, direction>0: 다음 측정 주로 이동. 없으면 토스트 후 그대로. */
+    private fun navigateToMeasured(direction: Int) {
+        lifecycleScope.launch {
+            val dao = AppDatabase.getInstance(requireContext()).sessionDao()
+            val weekEnd = (currentWeekStart.clone() as Calendar).apply { add(Calendar.DAY_OF_WEEK, 6) }
+            val target = if (direction < 0) {
+                dao.getPrevSessionDate(sdf.format(currentWeekStart.time))
+            } else {
+                dao.getNextSessionDate(sdf.format(weekEnd.time))
+            }
+            if (target == null) {
+                Toast.makeText(requireContext(), R.string.analysis_no_more_records, Toast.LENGTH_SHORT).show()
+                return@launch
+            }
+            currentWeekStart = weekStartOf(target)
+            loadData()
+        }
+    }
+
+    /** "yyyy-MM-dd" 날짜가 속한 주의 첫 날(firstDayOfWeek)로 맞춘 Calendar를 만든다. */
+    private fun weekStartOf(dateStr: String): Calendar = Calendar.getInstance().apply {
+        sdf.parse(dateStr)?.let { time = it }
+        set(Calendar.DAY_OF_WEEK, firstDayOfWeek)
     }
 
     private fun setupChart() {
@@ -56,7 +86,6 @@ class WeeklyAnalysisFragment : Fragment() {
     }
 
     private fun loadData() {
-        val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         val weekEnd = currentWeekStart.clone() as Calendar
         weekEnd.add(Calendar.DAY_OF_WEEK, 6)
 
@@ -74,8 +103,25 @@ class WeeklyAnalysisFragment : Fragment() {
 
         lifecycleScope.launch {
             val db = AppDatabase.getInstance(requireContext())
-            val sessions = db.sessionDao().getSessionsInRange(startStr, endStr)
-            val previousSessions = db.sessionDao().getSessionsInRange(prevStartStr, prevEndStr)
+            val dao = db.sessionDao()
+
+            // 측정 기록이 하나도 없으면 분석 섹션을 모두 감추고 안내만 보여준다.
+            if (dao.getLatestSessionDate() == null) {
+                binding.contentSections.visibility = View.GONE
+                binding.emptyState.visibility = View.VISIBLE
+                binding.btnPrevWeek.setNavArrowEnabled(false)
+                binding.btnNextWeek.setNavArrowEnabled(false)
+                return@launch
+            }
+            binding.contentSections.visibility = View.VISIBLE
+            binding.emptyState.visibility = View.GONE
+
+            // 이동 가능한 방향의 화살표만 활성화한다(더 없으면 회색 비활성).
+            binding.btnPrevWeek.setNavArrowEnabled(dao.getPrevSessionDate(startStr) != null)
+            binding.btnNextWeek.setNavArrowEnabled(dao.getNextSessionDate(endStr) != null)
+
+            val sessions = dao.getSessionsInRange(startStr, endStr)
+            val previousSessions = dao.getSessionsInRange(prevStartStr, prevEndStr)
             binding.comparisonCard.bind(ComparisonSummary.from(sessions, previousSessions))
 
             if (sessions.isNotEmpty()) {

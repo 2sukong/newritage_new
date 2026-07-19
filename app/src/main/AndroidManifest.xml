@@ -81,6 +81,11 @@
             android:name=".ui.settings.VibrationSettingsActivity"
             android:exported="false" />
 
+        <!-- 디버그 설정 -->
+        <activity
+            android:name=".ui.settings.DebugSettingsActivity"
+            android:exported="false" />
+
         <!-- 진동 패턴 선택 -->
         <activity
             android:name=".ui.settings.VibrationListActivity"

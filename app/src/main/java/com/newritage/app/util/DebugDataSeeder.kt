@@ -15,6 +15,11 @@ import java.util.Locale
  *      분류되는 감정 일기 + 실 색상을 한 개씩
  * 를 채워 넣는다(이미 세션이 있는 날짜는 건너뛰므로 여러 번 실행해도 안전).
  * 다 확인했으면 ENABLED를 다시 false로 돌려두면 된다.
+ *
+ * NOTE: 보관함을 가득 찬 모습으로 보고 싶다면 이제 DB에 가짜 데이터를 심는 대신, 설정 탭의
+ * "전체 실/매듭 목록 보기" 디버그 토글([UserPreferences.debugShowAllCollection])을 켜면 된다.
+ * 그 토글은 DB를 건드리지 않는 화면 표시 전용이라 끄면 실제로 모은 것만 다시 보인다. 그래서
+ * 이 시더는 기본적으로 꺼(false) 둔다.
  */
 object DebugDataSeeder {
     const val ENABLED = false

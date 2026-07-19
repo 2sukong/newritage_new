@@ -28,7 +28,6 @@ import com.newritage.app.ui.settings.SettingsActivity
 import com.newritage.app.ui.util.WaveStyle
 import com.newritage.app.util.DebugDataSeeder
 import com.newritage.app.util.DevClock
-import com.newritage.app.util.FeatureFlags
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -81,6 +80,7 @@ class MainActivity : AppCompatActivity() {
 
     /** 하단 개발자 날짜바: 임시 "오늘"을 하루씩 앞뒤로 넘긴다. 매월 1일로 넘어가면 매듭 팝업을 띄운다. */
     private fun setupDevDateBar() {
+        applyDevDateBarVisibility()
         renderDevDate()
         binding.btnDevPrevDay.setOnClickListener {
             prefs.devDateOffsetDays -= 1
@@ -96,6 +96,11 @@ class MainActivity : AppCompatActivity() {
                 showMonthlyKnotPopup(before)
             }
         }
+    }
+
+    /** 디버그 토글([UserPreferences.debugDateBarVisible])에 따라 날짜바를 보이거나 숨긴다. */
+    private fun applyDevDateBarVisibility() {
+        binding.devDateBar.visibility = if (prefs.debugDateBarVisible) View.VISIBLE else View.GONE
     }
 
     private fun renderDevDate() {
@@ -138,6 +143,12 @@ class MainActivity : AppCompatActivity() {
         BleManager.onConnectionChange = { connected -> updateConnectionBadge(connected) }
     }
 
+    override fun onResume() {
+        super.onResume()
+        // 설정 탭에서 디버그 토글을 바꾸고 돌아온 경우를 반영한다.
+        applyDevDateBarVisibility()
+    }
+
     override fun onStop() {
         super.onStop()
         BleManager.onConnectionChange = null
@@ -169,7 +180,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun startMeasurementFlow() {
-        if (FeatureFlags.REQUIRE_BLE_CONNECTION_TO_START && !BleManager.isConnected) {
+        if (prefs.requireBleConnectionToStart && !BleManager.isConnected) {
             Toast.makeText(this, R.string.connection_required_toast, Toast.LENGTH_SHORT).show()
             return
         }
@@ -209,6 +220,11 @@ class MainActivity : AppCompatActivity() {
         button.setTextColor(
             ContextCompat.getColor(this, if (selected) R.color.white else R.color.mode_unselected_text)
         )
+    }
+
+    /** 분석 빈 화면의 "측정하러가기"처럼 다른 화면에서 홈(측정 시작) 탭으로 보낼 때 쓴다. */
+    fun switchToHomeTab() {
+        binding.bottomNav.selectedItemId = R.id.nav_home
     }
 
     private fun setupBottomNav() {

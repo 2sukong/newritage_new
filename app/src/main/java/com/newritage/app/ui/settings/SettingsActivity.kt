@@ -17,6 +17,7 @@ class SettingsActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         setupUI()
+        setupDebug()
     }
 
     private fun setupUI() {
@@ -61,6 +62,17 @@ class SettingsActivity : AppCompatActivity() {
         binding.rowGuide.tvLabel.text = getString(R.string.settings_guide)
         binding.rowGuide.ivIcon.setImageResource(R.drawable.ic_settings_guide)
         binding.rowGuide.root.setOnClickListener { showNotReady() }
+    }
+
+    private fun setupDebug() {
+        binding.groupDebug.root.text = getString(R.string.settings_group_debug)
+        binding.rowDebug.tvLabel.text = getString(R.string.settings_debug_manage)
+        binding.rowDebug.ivIcon.setImageResource(R.drawable.ic_settings_debug)
+        binding.rowDebug.root.setOnClickListener {
+            startActivity(Intent(this, DebugSettingsActivity::class.java))
+            @Suppress("DEPRECATION")
+            overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
+        }
     }
 
     private fun showNotReady() {

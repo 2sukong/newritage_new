@@ -169,8 +169,12 @@ class SessionCompleteActivity : AppCompatActivity() {
             }
             SessionDataHolder.clear()
 
+            // 실 제공 화면에는 저장용 aiFeedback(Gemini·DailyAnalysis용)과 분리해, 일기·감정을 분석한
+            // 로컬 코멘트를 항상 보여준다(master 동작 복원).
+            val emotionComment = generateAiFeedback(emotion, keywords)
+
             runOnUiThread {
-                showSavedScreen(isFirstSession, colorObj, vibrationCount)
+                showSavedScreen(isFirstSession, colorObj, keywords, emotionComment)
             }
         }
     }
@@ -182,7 +186,8 @@ class SessionCompleteActivity : AppCompatActivity() {
     private fun showSavedScreen(
         isFirstSession: Boolean,
         colorObj: ThreadColors.ThreadColor,
-        vibrationCount: Int
+        keywords: List<String>,
+        emotionComment: String
     ) {
         showScreen(Screen.SAVED)
 
@@ -207,14 +212,14 @@ class SessionCompleteActivity : AppCompatActivity() {
             if (isFirstSession) {
                 assignedColor = colorObj
                 showScreen(Screen.THREAD)
-                showThreadProvide(vibrationCount)
+                showThreadProvide(keywords, emotionComment)
             } else {
                 goHome()
             }
         }
     }
 
-    private fun showThreadProvide(vibrationCount: Int) {
+    private fun showThreadProvide(keywords: List<String>, emotionComment: String) {
         val color = assignedColor
         if (color != null) {
             // 단색 대신 실 색상별 사진(drawableRes)을 프레임 안에 보여준다(master와 동일).
@@ -230,35 +235,13 @@ class SessionCompleteActivity : AppCompatActivity() {
             .roundToInt().coerceIn(0, TENSION_BADGE_MAX.toInt())
         binding.tvTensionBadge.text = getString(R.string.thread_tension_badge_format, tensionBadgeValue)
 
-        val (para1, para2) = buildThreadFeedback(vibrationCount)
-        binding.tvFeedbackPara1.text = para1
-        binding.tvFeedbackPara2.text = para2
+        // 오늘의 일기에서 뽑은 감정 키워드 + 그 감정을 분석한 코멘트(master 동작 복원).
+        binding.tvKeywords.text =
+            if (keywords.isEmpty()) "" else "오늘의 키워드: ${keywords.joinToString(", ")}"
+        binding.tvEmotionComment.text = emotionComment
 
         // 매듭은 "월 단위" 보상이라 세션마다 주지 않는다. 매듭 팝업은 메인 화면에서 날짜를 넘겨
         // 매월 1일이 될 때(MainActivity의 개발자 날짜바)에만 뜬다.
-    }
-
-    /**
-     * baseline 대비 평균 긴장도 수준 + 안정 상태 이탈 빈도, 두 문장을 만든다. 긴장도 수준 경계는
-     * ThreadColors.assignColor()가 실 색상을 나눌 때 쓰는 것과 같은 비율(1.1/1.3)을 재사용해
-     * "이 색 실을 받은 이유"와 "오늘의 피드백"이 서로 어긋나지 않게 했다.
-     */
-    private fun buildThreadFeedback(vibrationCount: Int): Pair<String, String> {
-        val ratio = avgPressure / prefs.baselineOverall.coerceAtLeast(1f)
-        val levelPara = when {
-            ratio < 1.1f -> "평소보다 여유로운 긴장도가 측정되었어요.\n편안한 상태를 잘 유지하셨습니다."
-            ratio < 1.3f -> "평소와 비슷한 안정적인 긴장도가 측정되었어요.\n꾸준한 리듬을 잘 지키고 계세요."
-            else -> "평소보다 비교적 높은 긴장도가 측정되었어요.\n천천히 호흡하면 몸의 긴장을 이완시킬 수 있어요."
-        }
-
-        // TODO: 이탈 빈도 구간(0 / 1~4 / 5+) 기준값은 실기 데이터 쌓이는 대로 조정
-        val deviationPara = when {
-            vibrationCount == 0 -> "긴장도 변화 없이 안정적으로 유지하셨어요.\n오늘도 좋은 흐름이었습니다."
-            vibrationCount < 5 -> "긴장도가 몇 차례 오르내렸지만 곧 다시 안정을 찾으셨어요.\n좋은 회복력이에요."
-            else -> "긴장도의 변화가 평소보다 자주 일어났어요.\n다음에는 좀 더 집중해보아요!"
-        }
-
-        return levelPara to deviationPara
     }
 
     private fun extractKeywords(text: String): List<String> {

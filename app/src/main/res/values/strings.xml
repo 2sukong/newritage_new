@@ -226,7 +226,16 @@
     <string name="settings_notice">공지사항</string>
     <string name="settings_cs">고객센터</string>
     <string name="settings_guide">이용 가이드</string>
+    <string name="settings_group_debug">디버그</string>
+    <string name="settings_debug_manage">디버그 옵션</string>
+    <string name="debug_settings_title">디버그</string>
+    <string name="settings_debug_date_bar">날짜 전환 바 표시</string>
+    <string name="settings_debug_show_all">전체 실/매듭 목록 보기</string>
+    <string name="settings_debug_require_ble">기기 미연결 시 측정 차단</string>
     <string name="feature_in_progress">준비 중인 기능입니다.</string>
+    <string name="analysis_no_more_records">그 방향에는 측정 기록이 없어요.</string>
+    <string name="analysis_empty_title">측정 기록이 없어요.</string>
+    <string name="analysis_empty_action">측정하러가기 &gt;</string>
 
     <!-- 공통 -->
     <string name="btn_back">뒤로</string>

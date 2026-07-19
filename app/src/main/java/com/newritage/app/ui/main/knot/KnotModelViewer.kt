@@ -40,6 +40,29 @@ fun knotTintColorOrNull(hex: String): Color? {
     }
 }
 
+/**
+ * 매듭별 3D 뷰어 초기 정렬 보정값.
+ * @param rotationY 기본 회전(x=-90) 위에 더할 Y축 회전(도). 원본이 뒤를 보고 있는 매듭은 180을 줘 정면을 맞춘다.
+ * @param scaleMul  scaleToUnits 기준 크기 배율. 1.0이 기본이고 살짝 키우고 싶은 매듭만 올린다.
+ * 값들은 실기기에서 눈으로 보며 조정한다(3D SurfaceView는 캡처가 안 돼 자동 검증이 불가).
+ */
+private data class KnotViewAdjust(val rotationY: Float = 0f, val scaleMul: Float = 1f)
+
+private fun knotViewAdjustFor(assetPath: String): KnotViewAdjust {
+    return when (assetPath.substringAfterLast('/').removeSuffix(".glb")) {
+        // 정면이 뒤를 향해 있어 180도 돌리고 살짝 키움
+        "garakji" -> KnotViewAdjust(rotationY = 180f, scaleMul = 1.15f)
+        "gukhwa" -> KnotViewAdjust(rotationY = 180f, scaleMul = 1.15f)
+        "samjeongja" -> KnotViewAdjust(rotationY = 180f, scaleMul = 1.15f)
+        "angyeong" -> KnotViewAdjust(rotationY = 180f, scaleMul = 1.15f)
+        // 위치는 좋고 크기만 10%가량 키움
+        "maehwa" -> KnotViewAdjust(scaleMul = 1.1f)
+        "saengjjok" -> KnotViewAdjust(scaleMul = 1.1f)
+        // dorae, nabi, byeongari, gajibangseok: 기본값
+        else -> KnotViewAdjust()
+    }
+}
+
 private fun MaterialInstance.tryTintBaseColor(color: Color) {
     for (paramName in BASE_COLOR_PARAMETER_CANDIDATES) {
         try {
@@ -100,14 +123,23 @@ fun KnotModelViewer(
                     materialInstance.tryTintBaseColor(tintColor)
                 }
             }
+            // 매듭마다 원본 모델의 정면 방향과 적정 크기가 조금씩 달라, 파일명 기준으로 개별
+            // 보정값(추가 Y축 회전 + 크기 배율)을 적용해 첫 렌더부터 정렬을 맞춘다.
+            // (모든 GLB는 지오메트리 중심이 원점에 오도록 정규화돼 있어, scaleToUnits+centerOrigin
+            //  조합만으로 확대해도 중앙 정렬이 유지된다.)
+            val adjust = knotViewAdjustFor(glbAssetPath)
             childNodes.add(
                 ModelNode(
                     modelInstance = modelInstance,
                     autoAnimate = false,
-                    scaleToUnits = 1f,
+                    scaleToUnits = adjust.scaleMul,
                     centerOrigin = Position(0f, 0f, 0f)
                 ).apply {
-                    rotation = modelRotation
+                    rotation = Rotation(
+                        x = modelRotation.x,
+                        y = modelRotation.y + adjust.rotationY,
+                        z = modelRotation.z
+                    )
                 }
             )
         }

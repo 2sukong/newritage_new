@@ -16,7 +16,6 @@ import com.newritage.app.data.UserPreferences
 import com.newritage.app.databinding.ActivityBaselineMeasurementBinding
 import com.newritage.app.ui.main.MainActivity
 import com.newritage.app.ui.util.WaveStyle
-import com.newritage.app.util.FeatureFlags
 
 class BaselineMeasurementActivity : AppCompatActivity() {
 
@@ -105,7 +104,7 @@ class BaselineMeasurementActivity : AppCompatActivity() {
 
         // 아까 바꾼 새로운 XML 디자인 속 '시작하기' 버튼 연결
         binding.btnStartMeasure.setOnClickListener {
-            if (FeatureFlags.REQUIRE_BLE_CONNECTION_TO_START && !BleManager.isConnected) {
+            if (prefs.requireBleConnectionToStart && !BleManager.isConnected) {
                 Toast.makeText(this, R.string.connection_required_toast, Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }

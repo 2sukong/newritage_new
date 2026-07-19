@@ -27,8 +27,19 @@ android {
     }
 
     buildTypes {
+        debug {
+            // 디버그 설치 용량 축소: 요즘 실기기(arm64)·에뮬레이터(x86_64)는 모두 64비트라
+            // 32비트 ABI(x86, armeabi-v7a)를 뺀다. Filament 네이티브가 ABI당 ~7MB라 효과가 크다.
+            // (구형 32비트 기기/에뮬레이터로 테스트하려면 해당 ABI를 잠시 다시 넣으면 된다.)
+            ndk {
+                abiFilters "arm64-v8a", "x86_64"
+            }
+        }
         release {
-            minifyEnabled false
+            // R8 코드 축소 + 미사용 리소스 제거로 dex/리소스 용량을 줄인다.
+            // 네이티브(Filament/SceneView)·차트 라이브러리는 proguard-rules.pro에서 keep 처리.
+            minifyEnabled true
+            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             // 실기기는 전부 ARM이라 x86/x86_64(에뮬레이터 전용)를 배포용 APK에서 뺀다.
             // Filament/gltfio 네이티브 라이브러리가 아키텍처당 수 MB라 이것만으로도 APK 용량이
@@ -37,6 +48,14 @@ android {
                 abiFilters "armeabi-v7a", "arm64-v8a"
             }
         }
+    }
+
+    // AAB(App Bundle)로 배포하면 Play가 기기별 ABI·화면밀도·언어 리소스만 골라 전달해
+    // 사용자 실제 다운로드 용량이 더 줄어든다. (./gradlew bundleRelease → .aab 업로드)
+    bundle {
+        abi { enableSplit true }
+        density { enableSplit true }
+        language { enableSplit true }
     }
 
     compileOptions {

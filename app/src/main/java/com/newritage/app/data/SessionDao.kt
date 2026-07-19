@@ -70,6 +70,18 @@ interface SessionDao {
     @Query("SELECT COUNT(DISTINCT date) FROM sessions")
     suspend fun getTotalActiveDays(): Int
 
+    /** 기준 날짜보다 이전에 측정된 가장 가까운 날짜 (분석 페이지 이전 이동용). 없으면 null */
+    @Query("SELECT MAX(date) FROM sessions WHERE date < :date")
+    suspend fun getPrevSessionDate(date: String): String?
+
+    /** 기준 날짜보다 이후에 측정된 가장 가까운 날짜 (분석 페이지 다음 이동용). 없으면 null */
+    @Query("SELECT MIN(date) FROM sessions WHERE date > :date")
+    suspend fun getNextSessionDate(date: String): String?
+
+    /** 가장 최근 측정 날짜 (분석 페이지 최초 진입 시 기준). 기록이 없으면 null */
+    @Query("SELECT MAX(date) FROM sessions")
+    suspend fun getLatestSessionDate(): String?
+
     /** 전체 세션 개수 (생애 최초 세션 여부 판단용) */
     @Query("SELECT COUNT(*) FROM sessions")
     suspend fun countAllSessions(): Int

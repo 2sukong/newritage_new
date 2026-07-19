@@ -15,9 +15,12 @@ import com.newritage.app.data.AppDatabase
 import com.newritage.app.data.GeminiRepository
 import com.newritage.app.data.KnotType
 import com.newritage.app.databinding.BottomSheetKnotDetailBinding
+import com.newritage.app.ui.main.knot.model.KnotRepository
 import com.newritage.app.ui.main.knot.recommend.DiaryEntry
 import com.newritage.app.ui.main.knot.recommend.RecommendationEngine
 import com.newritage.app.ui.util.configureFixedHeightSheet
+import com.newritage.app.ui.util.setNavArrowEnabled
+import com.newritage.app.util.ThreadColors
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.time.LocalDate
@@ -31,8 +34,16 @@ import java.util.Locale
  */
 class KnotDetailBottomSheetDialog(
     private val hostActivity: FragmentActivity,
-    initialYearMonth: String
+    initialYearMonth: String,
+    /**
+     * 디버그 "전체 매듭 목록 보기"에서 넘어온 카탈로그 시작 인덱스([KnotType.entries] 기준).
+     * null이 아니면 DB 조회/감정 분석 없이 카탈로그 모드로 동작하며, 좌우 버튼으로 전체 매듭을 순환한다.
+     */
+    private val overrideKnotIndex: Int? = null
 ) : BottomSheetDialog(hostActivity) {
+
+    // 카탈로그 모드에서 현재 보고 있는 매듭 인덱스
+    private var catalogIndex: Int = 0
 
     private lateinit var binding: BottomSheetKnotDetailBinding
     private val dao by lazy { AppDatabase.getInstance(hostActivity).sessionDao() }
@@ -72,6 +83,16 @@ class KnotDetailBottomSheetDialog(
         // dismiss()를 바로 부르면 물리적 슬라이드 없이 즉시 닫혀 배경 페이드아웃과 어긋난다.
         // STATE_HIDDEN으로 바꿔 스와이프다운과 동일한 슬라이드 애니메이션을 타게 한다.
         binding.btnBack.setOnClickListener { behavior.state = BottomSheetBehavior.STATE_HIDDEN }
+
+        if (overrideKnotIndex != null) {
+            // 카탈로그 모드: 좌우 버튼으로 전체 매듭을 순환한다.
+            catalogIndex = overrideKnotIndex
+            binding.btnPrevMonth.setOnClickListener { stepCatalog(-1) }
+            binding.btnNextMonth.setOnClickListener { stepCatalog(+1) }
+            renderCatalog()
+            return
+        }
+
         binding.btnPrevMonth.setOnClickListener {
             currentDate.add(Calendar.MONTH, -1)
             loadKnotData()
@@ -82,6 +103,39 @@ class KnotDetailBottomSheetDialog(
         }
 
         loadKnotData()
+    }
+
+    private fun stepCatalog(delta: Int) {
+        val next = catalogIndex + delta
+        // 양 끝을 넘어가지 않는다(끝에서는 화살표가 비활성이라 여기 오지 않지만 안전장치).
+        if (next < 0 || next >= KnotType.entries.size) return
+        catalogIndex = next
+        renderCatalog()
+    }
+
+    /**
+     * 디버그 카탈로그: DB/감정 분석 없이 [KnotType.entries]의 현재 매듭을 렌더링한다.
+     * 틴트 색은 매듭 보관함 그리드(KnotStorageFragment)와 같은 공식으로 매듭마다 다르게 준다.
+     */
+    private fun renderCatalog() {
+        val knotType = KnotType.entries[catalogIndex]
+        val tintHex = ThreadColors.ALL[catalogIndex % ThreadColors.ALL.size].hex
+        val knotInfo = KnotRepository.knots.firstOrNull { it.name == knotType.displayName }
+        binding.tvDateDisplay.text = knotType.displayName
+        binding.tvKnotNameDisplay.text = knotInfo?.name ?: knotType.displayName
+        binding.tvDescriptionText.text = knotInfo?.meaning ?: ""
+        binding.tvKnotReason.visibility = View.GONE
+        binding.knotComposeViewer.setContent {
+            KnotModelViewer(
+                glbAssetPath = knotType.assetPath,
+                interactive = true,
+                tintColor = knotTintColorOrNull(tintHex),
+                cameraDistance = 1.5f
+            )
+        }
+        // 양 끝에서는 해당 방향 화살표를 회색 비활성 처리한다.
+        binding.btnPrevMonth.setNavArrowEnabled(catalogIndex > 0)
+        binding.btnNextMonth.setNavArrowEnabled(catalogIndex < KnotType.entries.size - 1)
     }
 
     private fun loadKnotData() {

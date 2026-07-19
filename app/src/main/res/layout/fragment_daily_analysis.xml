@@ -72,6 +72,45 @@
                 android:layout_marginStart="16dp"/>
         </LinearLayout>
 
+        <!-- 측정 기록이 하나도 없을 때 보여줄 안내 (기본 숨김) -->
+        <LinearLayout
+            android:id="@+id/emptyState"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:visibility="gone"
+            android:paddingHorizontal="24dp"
+            android:paddingTop="120dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/analysis_empty_title"
+                android:textSize="16sp"
+                android:textColor="@color/text_secondary" />
+
+            <TextView
+                android:id="@+id/emptyStartMeasure"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:padding="8dp"
+                android:text="@string/analysis_empty_action"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="@color/primary_dark"
+                android:background="?attr/selectableItemBackground" />
+
+        </LinearLayout>
+
+        <!-- 측정 기록이 있을 때 보여줄 실제 분석 섹션들 -->
+        <LinearLayout
+            android:id="@+id/contentSections"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
         <!-- 3. 오늘의 한눈에 보기 섹션 (모든 칸 크기 및 비율 완벽 통일) -->
         <LinearLayout
             android:layout_width="match_parent"
@@ -281,6 +320,9 @@
                 android:textColor="@color/text_primary"
                 android:gravity="top|start" />
         </LinearLayout>
+
+        </LinearLayout>
+        <!-- /contentSections -->
 
     </LinearLayout>
 </ScrollView>

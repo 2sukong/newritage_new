@@ -14,9 +14,11 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.newritage.app.R
 import com.newritage.app.data.AppDatabase
+import com.newritage.app.data.UserPreferences
 import com.newritage.app.databinding.FragmentThreadStorageBinding
 import com.newritage.app.ui.util.GradientBorderDrawable
 import com.newritage.app.util.DevClock
+import com.newritage.app.util.ThreadColors
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -28,6 +30,7 @@ class ThreadStorageFragment : Fragment() {
     private val binding get() = _binding!!
 
     private var currentCalendar = Calendar.getInstance()
+    private val prefs by lazy { UserPreferences(requireContext()) }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -51,7 +54,20 @@ class ThreadStorageFragment : Fragment() {
         loadCalendar()
     }
 
+    override fun onResume() {
+        super.onResume()
+        // 설정 탭에서 "전체 실/매듭 목록 보기" 토글을 바꾸고 돌아온 경우를 반영한다.
+        loadCalendar()
+    }
+
     private fun loadCalendar() {
+        // 디버그: 전체 실 색상(12종) 카탈로그 표시 모드
+        if (prefs.debugShowAllCollection) {
+            binding.tvMonthLabel.text = getString(R.string.settings_debug_show_all)
+            renderAllThreadColors()
+            return
+        }
+
         val yearMonth = SimpleDateFormat("yyyy-MM", Locale.getDefault()).format(currentCalendar.time)
         val displayMonth = SimpleDateFormat("yyyy년 MM월", Locale.getDefault()).format(currentCalendar.time)
         binding.tvMonthLabel.text = displayMonth
@@ -142,6 +158,76 @@ class ThreadStorageFragment : Fragment() {
 
         // 마지막 줄이 4칸을 다 채우지 못했다면, 남은 자리를 투명한 빈 칸으로 채워
         // weight 기반 열 너비가 앞선 줄들과 같은 위치에서 정렬되게 한다.
+        if (columnInRow != 0) {
+            repeat(COLUMN_COUNT - columnInRow) {
+                currentRow?.addView(
+                    View(requireContext()).apply {
+                        layoutParams = LinearLayout.LayoutParams(0, 0, 1f)
+                    }
+                )
+            }
+        }
+    }
+
+    /**
+     * 디버그 표시 전용: DB와 무관하게 전체 실 색상(ThreadColors.ALL, 12종)을 4칸씩 채워 보여준다.
+     * DB를 건드리지 않으므로 토글을 끄면 실제로 모은 실만 다시 보인다. 클릭은 비활성화한다.
+     */
+    private fun renderAllThreadColors() {
+        val grid = binding.calendarGrid
+        grid.removeAllViews()
+
+        var currentRow: LinearLayout? = null
+        var columnInRow = 0
+
+        ThreadColors.ALL.forEachIndexed { index, color ->
+            if (columnInRow == 0) {
+                currentRow = newGridRow()
+                grid.addView(currentRow)
+            }
+
+            val cellView = LayoutInflater.from(requireContext())
+                .inflate(R.layout.item_calendar_cell, currentRow, false)
+
+            val tvDay = cellView.findViewById<TextView>(R.id.tvDay)
+            val threadNewFrame = cellView.findViewById<FrameLayout>(R.id.threadNewFrame)
+            val threadSquareFrame = cellView.findViewById<FrameLayout>(R.id.threadSquareFrame)
+            val threadSwatch = cellView.findViewById<View>(R.id.threadSwatch)
+            val tvNewBadge = cellView.findViewById<View>(R.id.tvNewBadge)
+
+            tvDay.text = getString(R.string.day_number_format, index + 1)
+            tvNewBadge.visibility = View.INVISIBLE
+            threadNewFrame.background = null
+            threadSquareFrame.background = GradientBorderDrawable(
+                strokeWidthPx = resources.displayMetrics.density * 1f,
+                cornerRadiusPx = resources.displayMetrics.density * 8f,
+                topColor = Color.parseColor("#D6D6D6"),
+                bottomColor = Color.parseColor("#BABCBA")
+            )
+
+            try {
+                val cornerRadius = resources.displayMetrics.density * 9f
+                threadSwatch.background = GradientDrawable().apply {
+                    shape = GradientDrawable.RECTANGLE
+                    this.cornerRadius = cornerRadius
+                    setColor(Color.parseColor(color.hex))
+                }
+                threadSwatch.visibility = View.VISIBLE
+            } catch (e: IllegalArgumentException) {
+                threadSwatch.visibility = View.INVISIBLE
+            }
+
+            // 카탈로그 셀은 대응하는 실제 세션이 없으므로 인덱스를 넘겨 상세를 연다(좌우로 순환 가능).
+            cellView.setOnClickListener {
+                ThreadDetailBottomSheetDialog(
+                    requireActivity(), initialDate = "", overrideColorIndex = index
+                ).show()
+            }
+
+            currentRow?.addView(cellView)
+            columnInRow = (columnInRow + 1) % COLUMN_COUNT
+        }
+
         if (columnInRow != 0) {
             repeat(COLUMN_COUNT - columnInRow) {
                 currentRow?.addView(
