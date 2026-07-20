@@ -34,6 +34,20 @@ object ThreadColors {
     val ALL = LOW + MEDIUM + HIGH
 
     /**
+     * 냉색→온색 12색 스펙트럼 순서(매듭 색상 알고리즘 전용). [LOW]/[MEDIUM]/[HIGH] 버킷 나열
+     * 순서와는 다르다 — 이건 실제 색상환상의 위치 기준 정렬이다.
+     * 쪽색 → 벽청색 → 비취색 → 옥색 → 버들색 → 송화색 → 유채색 → 개나리색 → 주홍색 → 동백색 → 석류색 → 단풍색
+     */
+    val SPECTRUM_ORDER: List<ThreadColor> = listOf(
+        "쪽색", "벽청색", "비취색", "옥색", "버들색", "송화색",
+        "유채색", "개나리색", "주홍색", "동백색", "석류색", "단풍색"
+    ).map { name -> ALL.first { it.nameKr == name } }
+
+    /** [SPECTRUM_ORDER] 안에서의 인덱스(0=가장 차가움, 11=가장 뜨거움). 못 찾으면 중간값. */
+    fun spectrumIndexOf(hex: String): Int =
+        SPECTRUM_ORDER.indexOfFirst { it.hex.equals(hex, true) }.takeIf { it >= 0 } ?: (SPECTRUM_ORDER.size / 2)
+
+    /**
      * 세션 평균 압력(avgPressure)을 baseline 대비 변화율로 계산해
      * -20% 이하: LOW(이완) / -20%~20%: MEDIUM(보통) / 20% 이상: HIGH(긴장)
      * 판단 후, 구간 안에서는 랜덤으로 색을 고른다.

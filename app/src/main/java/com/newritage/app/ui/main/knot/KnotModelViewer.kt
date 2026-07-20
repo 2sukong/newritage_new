@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -23,8 +24,11 @@ import io.github.sceneview.loaders.ModelLoader
 import io.github.sceneview.material.setColor
 import io.github.sceneview.math.Position
 import io.github.sceneview.math.Rotation
+import io.github.sceneview.model.renderableEntities
+import io.github.sceneview.model.renderableManager
 import io.github.sceneview.node.ModelNode
 import io.github.sceneview.rememberNodes
+import kotlin.math.sqrt
 
 // glTF 표준 PBR 머티리얼의 색상 파라미터 이름 후보. Filament의 gltfio 임포터가 생성하는
 // 머티리얼에 존재하는 이름만 실제로 적용되고, 나머지는 조용히 무시된다.
@@ -75,12 +79,92 @@ private fun MaterialInstance.tryTintBaseColor(color: Color) {
 }
 
 /**
+ * 클러스터 경계를 부드럽게 섞는 전이 폭을, "그 매듭 타입의 클러스터 간 평균 최근접 간격"에 이
+ * 비율을 곱해서 정한다. 매듭마다 object-space 스케일이 완전히 다르므로(예: 병아리매듭 bbox
+ * 대각선 ~580 vs 도래매듭 ~0.21) 절대값 상수 하나를 모든 매듭에 그대로 쓰면 어떤 매듭에서는
+ * 안 보이고 어떤 매듭에서는 전체가 뭉개진다. 이 비율만 조절하면 모든 매듭에서 일관되게 폭이
+ * 넓어지거나 좁아진다 — 0에 가까울수록 하드 엣지, 너무 크면(1 근처 이상) 인접 클러스터끼리 서로
+ * 넓게 섞여 7색이 다 탁해지므로 "경계 근처로만 국한"하려면 1보다 확실히 작게 유지해야 한다.
+ */
+private const val CLUSTER_BLEND_FRACTION = 0.3f
+
+/** [centers] 각 점에서 가장 가까운 다른 점까지의 거리를 평균한다. 점이 1개 이하면 0(블렌드 없음). */
+private fun averageNearestNeighborSpacing(centers: List<Position>): Float {
+    if (centers.size < 2) return 0f
+    var sum = 0f
+    for (i in centers.indices) {
+        var minDist = Float.MAX_VALUE
+        for (j in centers.indices) {
+            if (i == j) continue
+            val dx = centers[i].x - centers[j].x
+            val dy = centers[i].y - centers[j].y
+            val dz = centers[i].z - centers[j].z
+            val dist = sqrt(dx * dx + dy * dy + dz * dz)
+            if (dist < minDist) minDist = dist
+        }
+        sum += minDist
+    }
+    return sum / centers.size
+}
+
+/**
+ * knot_cluster.mat의 clusterCenters[7]/clusterColors[7]/clusterCount/clusterBlendWidth 유니폼을
+ * 채운다. centers·colorHexes는 [KnotClusterCenters]/[KnotClusterColorMapping]이 이미 클러스터
+ * 순서(중심 좌표 오름차순)로 1:1 대응하게 만들어 넘겨준다고 가정한다. 두 리스트 길이가 다르면
+ * 짧은 쪽에 맞춘다.
+ */
+private fun MaterialInstance.setClusterUniforms(centers: List<Position>, colorHexes: List<String>) {
+    val count = minOf(centers.size, colorHexes.size, KnotClusterCenters.CLUSTER_COUNT)
+    val centerFloats = FloatArray(KnotClusterCenters.CLUSTER_COUNT * 3)
+    val colorFloats = FloatArray(KnotClusterCenters.CLUSTER_COUNT * 3)
+    for (i in 0 until count) {
+        val c = centers[i]
+        centerFloats[i * 3] = c.x
+        centerFloats[i * 3 + 1] = c.y
+        centerFloats[i * 3 + 2] = c.z
+
+        val argb = android.graphics.Color.parseColor(colorHexes[i])
+        colorFloats[i * 3] = android.graphics.Color.red(argb) / 255f
+        colorFloats[i * 3 + 1] = android.graphics.Color.green(argb) / 255f
+        colorFloats[i * 3 + 2] = android.graphics.Color.blue(argb) / 255f
+    }
+    setParameter(
+        "clusterCenters", MaterialInstance.FloatElement.FLOAT3,
+        centerFloats, 0, KnotClusterCenters.CLUSTER_COUNT
+    )
+    setParameter(
+        "clusterColors", MaterialInstance.FloatElement.FLOAT3,
+        colorFloats, 0, KnotClusterCenters.CLUSTER_COUNT
+    )
+    setParameter("clusterCount", count)
+    setParameter("clusterBlendWidth", averageNearestNeighborSpacing(centers.take(count)) * CLUSTER_BLEND_FRACTION)
+}
+
+/** [modelInstance]의 모든 프리미티브 머티리얼을 [materialInstance] 하나로 교체한다. */
+private fun applyMaterialToAllPrimitives(
+    modelInstance: com.google.android.filament.gltfio.FilamentInstance,
+    materialInstance: MaterialInstance
+) {
+    val renderableManager = modelInstance.renderableManager
+    modelInstance.renderableEntities.forEach { entity ->
+        val renderable = renderableManager.getInstance(entity)
+        val primitiveCount = renderableManager.getPrimitiveCount(renderable)
+        for (primitiveIndex in 0 until primitiveCount) {
+            renderableManager.setMaterialInstanceAt(renderable, primitiveIndex, materialInstance)
+        }
+    }
+}
+
+/**
  * assets/[glbAssetPath] 위치의 GLB 매듭 모델을 보여준다.
  *
  * @param interactive false면 회전/줌/이동 제스처를 전부 잠가 캘린더 그리드용 "고정된 썸네일"로 쓰고,
  *   true면 회전(orbit)만 가능하고 이동(pan)·줌은 잠근 상세보기 뷰어로 동작한다.
  * @param tintColor null이면 모델에 저장된 원래 색을 그대로 쓰고, 값을 주면 모든 머티리얼의 기본색을
- *   이 색으로 덮어쓴다(이달의 색상 알고리즘이 정해지기 전까지 임시로 세션의 실 색상을 그대로 사용한다).
+ *   이 색으로 덮어쓴다. [monthlyThreadColorHexes]가 비어 있을 때만 쓰이는 3순위(단색) 폴백이다.
+ * @param monthlyThreadColorHexes 그 달의 실 색 hex 리스트(하루당 하나, 순서 무관). 비어 있지 않으면
+ *   2순위(공간 클러스터링 + 좌표 기반 커스텀 셰이더)로 매듭을 여러 색 덩어리로 칠한다 — [tintColor]보다
+ *   우선한다. 비어 있으면(그 달에 실 데이터가 없으면) [tintColor] 단색 틴트로 폴백한다.
  * @param engine/modelLoader 기본값은 [KnotEngineHolder]가 앱 전체에서 공유하는 단일 엔진이다.
  *   화면(그리드 썸네일/상세보기)마다 엔진을 새로 만들고 파괴하면 한 화면이 사라지며 엔진을 파괴하는
  *   시점과 다른 화면이 새 엔진을 만드는 시점이 겹쳐 Filament 네이티브 크래시가 나기 때문에, 항상 이
@@ -92,13 +176,25 @@ fun KnotModelViewer(
     modifier: Modifier = Modifier,
     interactive: Boolean = true,
     tintColor: Color? = null,
+    monthlyThreadColorHexes: List<String> = emptyList(),
     backgroundColor: Color = Color(0xFFF4F5EF),
     modelRotation: Rotation = Rotation(x = -90f, y = 0f, z = 0f),
     cameraDistance: Float = 3f,
     engine: Engine = KnotEngineHolder.engine(),
     modelLoader: ModelLoader = KnotEngineHolder.modelLoader(LocalContext.current)
 ) {
+    val context = LocalContext.current
     val childNodes = rememberNodes()
+    // 2순위 클러스터 MaterialInstance는 Filament 네이티브 리소스라 GC로 안 치워진다. 매번 새로
+    // 만들 때 이전 것을 직접 destroy해야 하므로, Compose 재구성과 무관하게 참조를 들고 있을 배열
+    // 하나짜리 홀더(굳이 State로 만들어 재구성을 유발할 필요가 없다)를 둔다.
+    val activeClusterMaterialInstance = remember { arrayOfNulls<MaterialInstance>(1) }
+    DisposableEffect(engine) {
+        onDispose {
+            activeClusterMaterialInstance[0]?.let { engine.destroyMaterialInstance(it) }
+            activeClusterMaterialInstance[0] = null
+        }
+    }
     val cameraManipulator = remember(interactive, cameraDistance) {
         CameraGestureDetector.DefaultCameraManipulator(
             Manipulator.Builder()
@@ -112,13 +208,33 @@ fun KnotModelViewer(
     }
     var isLoading by remember { mutableStateOf(true) }
 
-    LaunchedEffect(glbAssetPath, tintColor, modelRotation, modelLoader) {
+    LaunchedEffect(glbAssetPath, tintColor, monthlyThreadColorHexes, modelRotation, modelLoader) {
         // 날짜를 넘길 때마다 이전 매듭 모델을 지우지 않으면 원점에 계속 겹쳐 쌓인다.
         childNodes.toList().forEach { it.destroy() }
         childNodes.clear()
+        // 이번 실행에서 2순위를 다시 쓰든 안 쓰든, 지난번에 만든 클러스터 MaterialInstance부터
+        // 먼저 정리한다 — 이번엔 실 데이터가 없어져 3순위로 폴백하더라도 새는 일이 없게.
+        activeClusterMaterialInstance[0]?.let { engine.destroyMaterialInstance(it) }
+        activeClusterMaterialInstance[0] = null
+
         val modelInstance = modelLoader.loadModelInstance(glbAssetPath)
         if (modelInstance != null) {
-            if (tintColor != null) {
+            val clusterColors = KnotClusterColorMapping.mapMonthlyColorsToClusters(
+                monthlyThreadColorHexes,
+                KnotClusterCenters.CLUSTER_COUNT
+            )
+            if (clusterColors.isNotEmpty()) {
+                // 2순위: 공간 클러스터링 + 좌표 기반 커스텀 셰이더로 여러 색 덩어리를 칠한다.
+                // 지금은 클러스터 경계를 하드 엣지로 그대로 둔다(knot_cluster.mat의 nearest-center
+                // 룩업). 나중에 경계가 딱딱해 보이면 여러 중심까지의 거리를 가중치로 부드럽게 섞는
+                // 옵션을 셰이더에 추가할 수 있다 — 지금은 "확실히 동작하는 것"을 우선한다.
+                val centers = KnotClusterCenters.forAssetPath(glbAssetPath)
+                val clusterMaterialInstance = KnotEngineHolder.clusterMaterialInstance(context)
+                clusterMaterialInstance.setClusterUniforms(centers, clusterColors)
+                applyMaterialToAllPrimitives(modelInstance, clusterMaterialInstance)
+                activeClusterMaterialInstance[0] = clusterMaterialInstance
+            } else if (tintColor != null) {
+                // 3순위 폴백: 그 달 실 데이터가 없을 때만(threadColor 세션이 아직 없는 달) 단색 틴트.
                 modelInstance.materialInstances.forEach { materialInstance ->
                     materialInstance.tryTintBaseColor(tintColor)
                 }

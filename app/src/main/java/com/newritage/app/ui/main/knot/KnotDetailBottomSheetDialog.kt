@@ -170,15 +170,20 @@ class KnotDetailBottomSheetDialog(
                 } else {
                     binding.tvKnotReason.visibility = View.GONE
                 }
-                // 틴트 색상은 sumin_new처럼 그 달에 실을 받은(threadColor가 있는) 세션에서 가져온다.
-                // 일기 유무와 무관하게 그 달 전체 세션을 보므로, 일기를 건너뛴 날에 받은 실 색도 반영된다.
-                val threadColorSession = allMonthSessions.filter { it.threadColor.isNotBlank() }.maxByOrNull { it.date }
+                // 그 달에 실을 받은(threadColor가 있는) 세션 전체 — 2순위(공간 클러스터링) 색 배열의
+                // 입력이다. 일기 유무와 무관하게 그 달 전체 세션을 보므로, 일기를 건너뛴 날에 받은 실
+                // 색도 반영된다.
+                val monthThreadColorSessions = allMonthSessions.filter { it.threadColor.isNotBlank() }
+                val monthlyThreadColorHexes = monthThreadColorSessions.map { it.threadColor }
+                // 3순위 폴백용 단색: 위 리스트가 비었을 때(그 달에 실 데이터가 아직 없을 때)만 쓰인다.
+                val latestThreadColorHex = monthThreadColorSessions.maxByOrNull { it.date }?.threadColor
                 // 상세보기: 위치 이동(pan)은 막고 회전(orbit)만 가능하게 한다.
                 binding.knotComposeViewer.setContent {
                     KnotModelViewer(
                         glbAssetPath = knotType.assetPath,
                         interactive = true,
-                        tintColor = threadColorSession?.let { knotTintColorOrNull(it.threadColor) },
+                        tintColor = latestThreadColorHex?.let { knotTintColorOrNull(it) },
+                        monthlyThreadColorHexes = monthlyThreadColorHexes,
                         cameraDistance = 1.5f
                     )
                 }
