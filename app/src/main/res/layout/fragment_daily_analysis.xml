@@ -219,6 +219,15 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent" />
             </FrameLayout>
+
+            <TextView
+                android:id="@+id/tvTrendComment"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:textSize="13sp"
+                android:lineSpacingExtra="4dp"
+                android:textColor="@color/text_secondary" />
         </LinearLayout>
 
         <!-- 5. 센서별 상세 분석 (★ 새로운 추가 스크롤 영역) -->

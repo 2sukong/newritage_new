@@ -28,14 +28,30 @@ object GeminiApi {
         .readTimeout(120, TimeUnit.SECONDS)
         .build()
 
-    /** [systemPrompt]/[userPrompt]로 콘텐츠 생성 요청을 보내고 첫 응답 후보의 텍스트를 반환한다. */
+    /**
+     * [systemPrompt]/[userPrompt]로 콘텐츠 생성 요청을 보내고 첫 응답 후보의 텍스트를 반환한다.
+     * [imageBase64]를 함께 넘기면 이미지([imageMimeType])를 같은 user content의 parts에 추가해
+     * Gemini의 비전 기능으로 이미지를 함께 해석하도록 요청한다.
+     */
     suspend fun chatCompletion(
         systemPrompt: String,
-        userPrompt: String
+        userPrompt: String,
+        imageBase64: String? = null,
+        imageMimeType: String = "image/png"
     ): String = withContext(Dispatchers.IO) {
         val apiKey = BuildConfig.GEMINI_API_KEY
         if (apiKey.isBlank()) {
             throw IllegalStateException("GEMINI_API_KEY가 비어 있습니다. local.properties에 키를 설정해주세요.")
+        }
+
+        val userParts = JSONArray().put(JSONObject().apply { put("text", userPrompt) })
+        if (imageBase64 != null) {
+            userParts.put(JSONObject().apply {
+                put("inlineData", JSONObject().apply {
+                    put("mimeType", imageMimeType)
+                    put("data", imageBase64)
+                })
+            })
         }
 
         val requestBody = JSONObject().apply {
@@ -45,7 +61,7 @@ object GeminiApi {
             put("contents", JSONArray().put(
                 JSONObject().apply {
                     put("role", "user")
-                    put("parts", JSONArray().put(JSONObject().apply { put("text", userPrompt) }))
+                    put("parts", userParts)
                 }
             ))
             put("generationConfig", JSONObject().apply {

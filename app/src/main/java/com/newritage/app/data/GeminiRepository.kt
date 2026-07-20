@@ -43,6 +43,15 @@ class GeminiRepository(private val sessionDao: SessionDao) {
         GeminiApi.chatCompletion(system, user)
     }.onFailure { Log.e(TAG, "일간 AI 피드백 생성 실패", it) }.getOrNull()
 
+    /**
+     * 하루 압력 변화 그래프 이미지([chartImageBase64], PNG를 base64로 인코딩한 값)를 첨부해
+     * 오늘의 전반적인 명상 추세를 분석한 문구를 생성한다. 실패 시 null.
+     */
+    suspend fun generateDailyTrendFeedback(session: Session, chartImageBase64: String): String? = runCatching {
+        val (system, user) = PromptBuilder.buildDailyTrendPrompt(session)
+        GeminiApi.chatCompletion(system, user, imageBase64 = chartImageBase64)
+    }.onFailure { Log.e(TAG, "일간 추세 이미지 분석 실패", it) }.getOrNull()
+
     /** [endDate](yyyy-MM-dd, 보통 오늘)로부터 최근 30일 세션을 바탕으로 월간 피드백 생성. 실패 시 null. */
     suspend fun generateMonthlyFeedback(endDate: String): String? {
         val startDate = shiftDate(endDate, -29)

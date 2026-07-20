@@ -1,7 +1,9 @@
 package com.newritage.app.ui.main.analysis
 
+import android.graphics.Bitmap
 import android.graphics.Color
 import android.os.Bundle
+import android.util.Base64
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,12 +16,15 @@ import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet
 import com.newritage.app.R
 import com.newritage.app.data.AppDatabase
+import com.newritage.app.data.GeminiRepository
 import com.newritage.app.data.SensorReading
+import com.newritage.app.data.Session
 import com.newritage.app.databinding.FragmentDailyAnalysisBinding
 import com.newritage.app.ui.main.MainActivity
 import com.newritage.app.ui.util.applyAnalysisStyle
 import com.newritage.app.ui.util.setNavArrowEnabled
 import kotlinx.coroutines.launch
+import java.io.ByteArrayOutputStream
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -132,6 +137,8 @@ class DailyAnalysisFragment : Fragment() {
                 val readings = db.sessionDao().getReadingsByDate(dateStr)
                 binding.lineChart.data = buildDailyPressureData(readings)
                 binding.lineChart.invalidate()
+
+                loadTrendComment(GeminiRepository(db.sessionDao()), session, readings)
             } else {
                 binding.tvAvgPressure1.text = "--.-"
                 binding.tvAvgPressure3.text = "--.-"
@@ -140,7 +147,33 @@ class DailyAnalysisFragment : Fragment() {
                 binding.tvSensorBDetail.text = "데이터가 없습니다."
                 binding.tvSensorCDetail.text = "데이터가 없습니다."
                 binding.tvDailyComment.text = "측정된 데이터가 없어 코멘트를 생성할 수 없습니다."
+                binding.tvTrendComment.text = ""
                 binding.lineChart.clear()
+            }
+        }
+    }
+
+    /** 압력 변화 그래프를 이미지로 캡처해 Gemini에 첨부, 오늘의 전반적인 명상 추세 문구를 받아온다. */
+    private fun loadTrendComment(repository: GeminiRepository, session: Session, readings: List<SensorReading>) {
+        if (readings.isEmpty()) {
+            binding.tvTrendComment.text = ""
+            return
+        }
+        binding.tvTrendComment.text = getString(R.string.ai_comment_loading)
+
+        // 차트가 새 데이터로 다시 그려진 뒤에 캡처해야 하므로 레이아웃/드로우가 끝난 다음 프레임에서 실행한다.
+        binding.lineChart.post {
+            val chart = _binding?.lineChart ?: return@post
+            lifecycleScope.launch {
+                val imageBase64 = runCatching {
+                    val output = ByteArrayOutputStream()
+                    chart.chartBitmap.compress(Bitmap.CompressFormat.PNG, 100, output)
+                    Base64.encodeToString(output.toByteArray(), Base64.NO_WRAP)
+                }.getOrNull()
+
+                val comment = imageBase64?.let { repository.generateDailyTrendFeedback(session, it) }
+                _binding?.tvTrendComment?.text =
+                    comment ?: "지금은 그래프를 분석할 수 없어요. 잠시 후 다시 시도해주세요."
             }
         }
     }
