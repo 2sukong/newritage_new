@@ -97,7 +97,6 @@
     <string name="chart_level_high">높음</string>
     <string name="btn_stop">명상 완료</string>
     <string name="realtime_chart_label">실시간 압력 그래프</string>
-    <string name="unit_kpa">kPa</string>
 
     <!-- 세션 완료 -->
     <string name="session_complete_title">측정이 완료되었습니다</string>

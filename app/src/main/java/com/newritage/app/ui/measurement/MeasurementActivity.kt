@@ -22,7 +22,6 @@ import com.newritage.app.data.SessionDataHolder
 import com.newritage.app.data.UserPreferences
 import com.newritage.app.databinding.ActivityMeasurementBinding
 import com.newritage.app.ui.util.WaveStyle
-import com.newritage.app.util.PressureDisplay
 
 class MeasurementActivity : AppCompatActivity() {
 
@@ -128,7 +127,7 @@ class MeasurementActivity : AppCompatActivity() {
             xAxis.setDrawGridLines(false)
             axisLeft.textColor = Color.parseColor("#5A6B5A")
             axisLeft.axisMinimum = 0f
-            axisLeft.axisMaximum = CHART_DISPLAY_MAX_KPA
+            axisLeft.axisMaximum = CHART_DISPLAY_MAX_RAW
             // 기본 자동 라벨 개수(약 6~7개) 대비 절반 수준으로 줄여 가로 그리드선 간격을 넓힌다.
             axisLeft.setLabelCount(4, false)
             axisLeft.setDrawLimitLinesBehindData(true)
@@ -137,11 +136,11 @@ class MeasurementActivity : AppCompatActivity() {
             // baseline 대비 낮음/적정/높음 구간 참조선. 경계 비율(1.1/1.3)은 ThreadColors의
             // 낮음·보통·높음 분류 기준과 동일하게 맞췄다. 낮음 참조선 위치는 고정 경계가 없어
             // baseline의 60%를 임의 기준으로 표시한다(TODO: 실기 데이터로 조정).
-            val baselineKpa = (baselineTotal / PressureDisplay.SCALE).coerceAtLeast(1f)
+            val baselineRaw = baselineTotal.toFloat().coerceAtLeast(1f)
             axisLeft.removeAllLimitLines()
-            axisLeft.addLimitLine(levelLimitLine(baselineKpa * 0.6f, getString(R.string.chart_level_low)))
-            axisLeft.addLimitLine(levelLimitLine(baselineKpa * 1.1f, getString(R.string.chart_level_moderate)))
-            axisLeft.addLimitLine(levelLimitLine(baselineKpa * 1.3f, getString(R.string.chart_level_high)))
+            axisLeft.addLimitLine(levelLimitLine(baselineRaw * 0.6f, getString(R.string.chart_level_low)))
+            axisLeft.addLimitLine(levelLimitLine(baselineRaw * 1.1f, getString(R.string.chart_level_moderate)))
+            axisLeft.addLimitLine(levelLimitLine(baselineRaw * 1.3f, getString(R.string.chart_level_high)))
         }
     }
 
@@ -247,22 +246,21 @@ class MeasurementActivity : AppCompatActivity() {
                 binding.tvTimer.text = String.format("%02d:%02d", min, sec)
             }
 
-            // 압력값·물결·그래프는 바로바로 반영되도록 빠른 주기로 갱신 (표시는 kPa 스케일로 환산)
-            val pressureKpa = pressure / PressureDisplay.SCALE
-            binding.tvCurrentPressure.text = String.format("%.0f", pressureKpa)
+            // 압력값·물결·그래프는 바로바로 반영되도록 빠른 주기로 갱신 (raw 값 그대로 표시)
+            binding.tvCurrentPressure.text = String.format("%.0f", pressure)
 
             // 웨이브뷰: baseline*2를 가득 찬 기준으로 삼아 setPressure()가 기대하는 0~80 스케일에 근사 매핑
             val waveInput = (pressure / (baselineTotal.coerceAtLeast(1) * 2f)).coerceIn(0f, 1f) * 80f
             binding.waveView.setPressure(waveInput)
 
-            appendChartEntry(elapsedMillis / 1000f, pressureKpa)
+            appendChartEntry(elapsedMillis / 1000f, pressure)
 
             handler.postDelayed(this, TICK_INTERVAL_MS)
         }
     }
 
-    private fun appendChartEntry(xSeconds: Float, pressureKpa: Float) {
-        chartDataSet.addEntry(Entry(xSeconds, pressureKpa))
+    private fun appendChartEntry(xSeconds: Float, pressureRaw: Float) {
+        chartDataSet.addEntry(Entry(xSeconds, pressureRaw))
         while (chartDataSet.entryCount > 1 && xSeconds - chartDataSet.getEntryForIndex(0).x > CHART_WINDOW_SECONDS) {
             chartDataSet.removeFirst()
         }
@@ -398,6 +396,7 @@ class MeasurementActivity : AppCompatActivity() {
 
         private const val TICK_INTERVAL_MS = 100L
         private const val CHART_WINDOW_SECONDS = 60f
-        private const val CHART_DISPLAY_MAX_KPA = 60f
+        // 센서 3개(엄지·검지중지·손바닥) 12비트 ADC 합산 최대치(4095 × 3). raw total 그대로 표시.
+        private const val CHART_DISPLAY_MAX_RAW = 12285f
     }
 }

@@ -18,7 +18,6 @@ import com.newritage.app.stats.StatsCalculator
 import com.newritage.app.ui.main.MainActivity
 import com.newritage.app.ui.util.WaveStyle
 import com.newritage.app.util.DevClock
-import com.newritage.app.util.PressureDisplay
 import com.newritage.app.util.ThreadColors
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -89,9 +88,9 @@ class SessionCompleteActivity : AppCompatActivity() {
             String.format("%02d:%02d", durationSeconds / 60, durationSeconds % 60)
         }
 
-        val avgN = PressureDisplay.toDisplayValue(avgPressure).roundToInt()
-        val maxN = PressureDisplay.toDisplayValue(maxPressure).roundToInt()
-        val minN = PressureDisplay.toDisplayValue(minPressure).roundToInt()
+        val avgN = avgPressure.roundToInt()
+        val maxN = maxPressure.roundToInt()
+        val minN = minPressure.roundToInt()
         binding.tvRecordAvgPressure.text = getString(R.string.review_tension_value_format, avgN)
         binding.tvRecordMinMaxPressure.text = getString(R.string.review_minmax_format, maxN, minN)
         binding.tvRecordDeviationCount.text =

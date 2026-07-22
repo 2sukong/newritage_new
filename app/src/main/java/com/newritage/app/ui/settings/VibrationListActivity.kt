@@ -182,6 +182,10 @@ class VibrationListActivity : AppCompatActivity() {
             stopPreview()
             return
         }
+        playPreview(pattern)
+    }
+
+    private fun playPreview(pattern: VibrationPattern) {
         previewRunnable?.let { previewHandler.removeCallbacks(it) }
 
         BleManager.sendVibration(pattern.effect, pattern.count, pattern.intervalMs)
@@ -204,8 +208,10 @@ class VibrationListActivity : AppCompatActivity() {
     }
 
     private fun selectPattern(pattern: VibrationPattern) {
+        val changed = adapter.selectedId != pattern.id
         adapter.selectedId = pattern.id
         updateSelectButton()
+        if (changed) playPreview(pattern)
     }
 
     private fun updateSelectButton() {
