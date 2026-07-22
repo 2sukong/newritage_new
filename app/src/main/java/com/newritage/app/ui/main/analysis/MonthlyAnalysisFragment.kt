@@ -122,7 +122,8 @@ class MonthlyAnalysisFragment : Fragment() {
             val previousSessions = dao.getSessionsByMonth(previousYearMonth)
 
             binding.comparisonCard.bind(ComparisonSummary.from(sessions, previousSessions))
-            val indicators = buildDayIndicators(sessions)
+            val baselineOverall = UserPreferences(requireContext()).baselineOverall
+            val indicators = buildDayIndicators(sessions, baselineOverall)
             binding.monthCalendar.bind(
                 year = currentMonth.get(Calendar.YEAR),
                 month = currentMonth.get(Calendar.MONTH) + 1,
@@ -188,20 +189,24 @@ class MonthlyAnalysisFragment : Fragment() {
         }
     }
 
-    /** 일자별 평균 압력을 기준으로 가장 안정적인 날(초록)/가장 긴장했던 날(빨강)/그 외 기록 있는 날(주황)을 표시한다. */
-    private fun buildDayIndicators(sessions: List<Session>): Map<Int, DayIndicatorStatus> {
+    /**
+     * 일자별 평균 압력을 baseline(긴장도 측정 페이지에서 저장한 기준값) 대비 변화율로 판정한다.
+     * ThreadColors.assignColor와 동일한 절대 기준(±20%)을 사용하여
+     * 한 달에 초록/빨강이 각각 하나씩만 나오는 상대 평가(최솟값/최댓값)를 피한다.
+     */
+    private fun buildDayIndicators(sessions: List<Session>, baselineOverall: Float): Map<Int, DayIndicatorStatus> {
         val avgPressureByDate = sessions.groupBy { it.date }
             .mapValues { (_, daySessions) -> daySessions.map { it.avgPressure }.average() }
         if (avgPressureByDate.isEmpty()) return emptyMap()
 
-        val mostStableDate = avgPressureByDate.minByOrNull { it.value }?.key
-        val mostTenseDate = avgPressureByDate.maxByOrNull { it.value }?.key
+        val safeBaseline = baselineOverall.coerceAtLeast(1f)
 
-        return avgPressureByDate.keys.associate { date ->
+        return avgPressureByDate.entries.associate { (date, avgPressure) ->
             val day = date.substringAfterLast("-").toIntOrNull() ?: 0
-            val status = when (date) {
-                mostStableDate -> DayIndicatorStatus.STABLE
-                mostTenseDate -> DayIndicatorStatus.TENSE
+            val changeRate = ((avgPressure - safeBaseline) / safeBaseline) * 100f
+            val status = when {
+                changeRate >= 20f -> DayIndicatorStatus.TENSE
+                changeRate <= -20f -> DayIndicatorStatus.STABLE
                 else -> DayIndicatorStatus.NORMAL
             }
             day to status
