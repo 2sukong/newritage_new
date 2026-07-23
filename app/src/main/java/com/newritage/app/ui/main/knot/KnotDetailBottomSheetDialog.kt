@@ -20,6 +20,7 @@ import com.newritage.app.ui.main.knot.recommend.DiaryEntry
 import com.newritage.app.ui.main.knot.recommend.RecommendationEngine
 import com.newritage.app.ui.util.configureFixedHeightSheet
 import com.newritage.app.ui.util.setNavArrowEnabled
+import com.newritage.app.util.DevClock
 import com.newritage.app.util.ThreadColors
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -148,8 +149,11 @@ class KnotDetailBottomSheetDialog(
             val allMonthSessions = dao.getSessionsByMonth(yearMonth)
             val monthSessions = allMonthSessions.filter { it.emotion.isNotBlank() }
             val latestSession = monthSessions.maxByOrNull { it.date }
+            // 진행 중인 이번 달은 아직 닫히지 않아 매듭이 없다(KnotStorageFragment 그리드와 동일한 기준) —
+            // 화살표로 넘어와도 다음 달 1일 전까지는 "아직 없음"으로 보여준다.
+            val isCurrentUnclosedMonth = yearMonth == DevClock.yearMonthString(hostActivity)
 
-            if (latestSession != null) {
+            if (latestSession != null && !isCurrentUnclosedMonth) {
                 val diaryEntries = monthSessions.map {
                     DiaryEntry(date = LocalDate.parse(it.date), content = it.emotion)
                 }

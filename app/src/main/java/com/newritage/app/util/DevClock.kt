@@ -31,4 +31,6 @@ object DevClock {
 
     /** "yyyy-MM" 형식의 가상 이번 달. */
     fun yearMonthString(prefs: UserPreferences): String = today(prefs).format(MONTH_FORMAT)
+
+    fun yearMonthString(context: Context): String = yearMonthString(UserPreferences(context))
 }

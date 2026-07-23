@@ -67,4 +67,16 @@ object ThreadColors {
     fun findByHex(hex: String): ThreadColor? = ALL.firstOrNull { it.hex.equals(hex, true) }
 
     fun findByColorName(name: String): ThreadColor? = ALL.firstOrNull { it.nameKr == name }
+
+    /**
+     * 여러 hex 색 중 유효한 색만 중복 제거해 냉색→온색([SPECTRUM_ORDER]) 순으로 정렬해 돌려준다.
+     * [com.newritage.app.ui.main.knot.KnotClusterColorMapping]과 같은 원칙 — 그 달 실제로 받은 색만
+     * 후보로 쓰고, RGB 평균 등으로 새 색을 합성하지 않는다(합성한 색은 채도가 죽어 탁하게 보이고,
+     * 실제로 받은 어떤 색과도 일치하지 않아 상세보기의 클러스터 색과 어긋나 보인다). 보관함 썸네일은
+     * 이 리스트를 그라데이션 틴트로 입혀 "실제 받은 색들이 섞인" 인상을 준다.
+     */
+    fun spectrumSortedDistinct(hexes: List<String>): List<String> =
+        hexes.filter { it.isNotBlank() }
+            .distinctBy { it.lowercase() }
+            .sortedBy { spectrumIndexOf(it) }
 }
