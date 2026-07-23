@@ -105,21 +105,29 @@ class KnotStorageFragment : Fragment() {
             val sessions = db.sessionDao().getSessionsByYear(currentYear.toString())
             // NEW 배지는 시연용 가상 오늘 기준으로 표시한다.
             val todayStr = DevClock.todayString(requireContext())
+            // 진행 중인 이번 달은 아직 "닫히지" 않았으므로 매듭을 주지 않는다 — 다음 달 1일로
+            // 날짜가 넘어가야(MainActivity.showMonthlyKnotPopup) 그 달의 매듭이 보관함에 추가된다.
+            val currentYearMonth = DevClock.yearMonthString(prefs)
 
             fun monthOf(session: Session) = session.date.substring(5, 7).toInt()
 
             // 매듭은 월 단위로 지급되며, 그 달에 쓴 일기(emotion)들을 감정 분석해 "이달의 매듭"을
-            // 추천한다(일기가 하나도 없는 달은 칸 자체가 생기지 않는다).
+            // 추천한다(일기가 하나도 없는 달은 칸 자체가 생기지 않는다). 아직 끝나지 않은 이번 달도
+            // 제외한다 — 첫 명상만으로 매듭이 바로 부여되면 안 되고, 달이 넘어가야 부여된다.
             val emotionByMonth: Map<Int, List<Session>> = sessions
                 .filter { it.emotion.isNotBlank() }
+                .filter { String.format(Locale.getDefault(), "%04d-%02d", currentYear, monthOf(it)) != currentYearMonth }
                 .groupBy(::monthOf)
 
-            // 틴트 색상은 sumin_new처럼 그 달에 실을 받은(threadColor가 있는) 세션에서 가져온다.
-            // 일기 유무와 무관하게 그 달 전체 세션을 보므로, 일기를 건너뛴 날에 받은 실 색도 반영된다.
+            // 틴트 색상은 그 달에 실을 받은(threadColor가 있는) 세션 전체를 평균 섞어서 만든다.
+            // 상세보기(KnotDetailBottomSheetDialog)의 3D 모델이 그 달 실 색 전체를 공간 클러스터링으로
+            // 섞어 보여주는 것과 같은 인상을 썸네일에도 주기 위함 — 마지막 세션 색 하나만 쓰면 상세보기와
+            // 어긋난다. 일기 유무와 무관하게 그 달 전체 세션을 보므로, 일기를 건너뛴 날에 받은 실 색도
+            // 반영된다.
             val threadColorByMonth: Map<Int, String> = sessions
                 .filter { it.threadColor.isNotBlank() }
                 .groupBy(::monthOf)
-                .mapValues { (_, list) -> list.maxByOrNull { it.date }!!.threadColor }
+                .mapValues { (_, list) -> ThreadColors.blendHex(list.map { it.threadColor }) ?: "" }
 
             entriesState.value = emotionByMonth.entries
                 .sortedBy { it.key }

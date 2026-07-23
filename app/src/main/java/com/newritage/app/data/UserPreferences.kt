@@ -45,20 +45,19 @@ class UserPreferences(context: Context) {
     }
 
     /**
-     * 기기(BLE)가 연결되어 있지 않으면 측정 시작을 막을지 여부. 기본값 false(연결 여부와 무관하게
-     * 바로 측정 시작 가능 — 기존 FeatureFlags 기본 동작 유지). 메인 측정과 초기 기준 측정
-     * 시작 지점에서 이 값을 확인한다.
+     * 기기(BLE)가 연결되어 있지 않으면 측정 시작을 막을지 여부. 기본값 true(연결되지 않으면 측정
+     * 시작 차단). 메인 측정과 초기 기준 측정 시작 지점에서 이 값을 확인한다.
      */
     var requireBleConnectionToStart: Boolean
-        get() = prefs.getBoolean(KEY_REQUIRE_BLE_TO_START, false)
+        get() = prefs.getBoolean(KEY_REQUIRE_BLE_TO_START, true)
         set(value) = prefs.edit().putBoolean(KEY_REQUIRE_BLE_TO_START, value).apply()
 
     /**
-     * 디버그: 메인 화면 하단의 시연용 날짜 전환 바를 보일지 여부. 기본값 true(기존 동작 유지).
+     * 디버그: 메인 화면 하단의 시연용 날짜 전환 바를 보일지 여부. 기본값 false.
      * [com.newritage.app.ui.main.MainActivity]가 이 값으로 날짜바 visibility를 토글한다.
      */
     var debugDateBarVisible: Boolean
-        get() = prefs.getBoolean(KEY_DEBUG_DATE_BAR_VISIBLE, true)
+        get() = prefs.getBoolean(KEY_DEBUG_DATE_BAR_VISIBLE, false)
         set(value) = prefs.edit().putBoolean(KEY_DEBUG_DATE_BAR_VISIBLE, value).apply()
 
     /**

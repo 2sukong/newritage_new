@@ -2,10 +2,12 @@ package com.newritage.app.ui.baseline
 
 import android.content.Intent
 import android.content.res.ColorStateList
+import android.graphics.Outline
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.view.View
+import android.view.ViewOutlineProvider
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -92,6 +94,12 @@ class BaselineMeasurementActivity : AppCompatActivity() {
     }
 
     private fun setupUI() {
+        // GradientDrawable(oval)의 outlineProvider="background"는 API에 따라 outline을
+        // 못 만들어 elevation 그림자가 아예 안 보이는 경우가 있어, 원형 outline을 직접
+        // 지정해 확실히 그림자가 그려지게 한다.
+        binding.gaugeCircleContainer.applyOvalShadowOutline()
+        binding.gaugeCircleComplete.applyOvalShadowOutline()
+
         // 최초 상태는 준비 화면(Screen.GUIDE)으로 세팅
         showScreen(Screen.GUIDE)
 
@@ -235,5 +243,14 @@ class BaselineMeasurementActivity : AppCompatActivity() {
         const val TICK_INTERVAL_MS = 100L
         const val MEASURING_PRESSURE_SCALE_MAX = 8000f
         const val TRANSITION_DURATION_MS = 450L
+    }
+}
+
+/** 뷰 크기 그대로의 타원 outline을 지정해, 배경이 oval GradientDrawable이라도 elevation 그림자가 뜨게 한다. */
+private fun View.applyOvalShadowOutline() {
+    outlineProvider = object : ViewOutlineProvider() {
+        override fun getOutline(view: View, outline: Outline) {
+            outline.setOval(0, 0, view.width, view.height)
+        }
     }
 }

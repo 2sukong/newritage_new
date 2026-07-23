@@ -170,8 +170,13 @@ class MainActivity : AppCompatActivity() {
 
         binding.switchThresholdAlert.isChecked = prefs.isTensionVibrationEnabled
         binding.switchThresholdAlert.setOnCheckedChangeListener { _, checked ->
-            prefs.isTensionVibrationEnabled = checked
+            // 가이드모드에서 토글을 강제로 끌 때도 이 리스너가 불리는데, 그건 실제 사용자 설정이
+            // 아니므로 저장하지 않는다(자율모드로 돌아오면 저장된 값으로 복원돼야 하기 때문).
+            if (selectedMode != MeasurementMode.GUIDE) {
+                prefs.isTensionVibrationEnabled = checked
+            }
         }
+        updateThresholdAlertAvailability()
 
         binding.groupIdle.setOnClickListener { startMeasurementFlow() }
         binding.btnHelpHome.setOnClickListener {
@@ -205,6 +210,22 @@ class MainActivity : AppCompatActivity() {
         if (selectedMode == mode) return
         selectedMode = mode
         updateModeButtonStyles()
+        updateThresholdAlertAvailability()
+    }
+
+    /**
+     * 가이드모드는 안내 음성/애니메이션이 흐름을 이끄는 방식이라 임계치 이상 알림(진동)이 동작하지
+     * 않는다. 그래서 가이드모드를 고르면 토글을 꺼진 채로 비활성화하고, 자율모드로 돌아오면 사용자가
+     * 저장해둔 설정값으로 되돌린다.
+     */
+    private fun updateThresholdAlertAvailability() {
+        if (selectedMode == MeasurementMode.GUIDE) {
+            binding.switchThresholdAlert.isChecked = false
+            binding.switchThresholdAlert.isEnabled = false
+        } else {
+            binding.switchThresholdAlert.isEnabled = true
+            binding.switchThresholdAlert.isChecked = prefs.isTensionVibrationEnabled
+        }
     }
 
     private fun updateModeButtonStyles() {
