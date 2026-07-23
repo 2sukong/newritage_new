@@ -163,9 +163,7 @@ class KnotDetailBottomSheetDialog(
                 binding.tvDescriptionText.text = recommendedKnot.meaning
 
                 if (aiResult != null) {
-                    binding.tvKnotReason.text = hostActivity.getString(
-                        R.string.knot_reason_label
-                    ) + "\n\n" + aiResult.reason
+                    binding.tvKnotReason.text = aiResult.reason
                     binding.tvKnotReason.visibility = View.VISIBLE
                 } else {
                     binding.tvKnotReason.visibility = View.GONE
