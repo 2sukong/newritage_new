@@ -90,9 +90,8 @@ class SessionCompleteActivity : AppCompatActivity() {
 
         val avgN = avgPressure.roundToInt()
         val maxN = maxPressure.roundToInt()
-        val minN = minPressure.roundToInt()
         binding.tvRecordAvgPressure.text = getString(R.string.review_tension_value_format, avgN)
-        binding.tvRecordMinMaxPressure.text = getString(R.string.review_minmax_format, maxN, minN)
+        binding.tvRecordMinMaxPressure.text = getString(R.string.review_tension_value_format, maxN)
         binding.tvRecordDeviationCount.text =
             getString(R.string.review_deviation_count_format, SessionDataHolder.vibrationCount)
     }
