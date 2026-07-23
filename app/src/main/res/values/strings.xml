@@ -108,7 +108,7 @@
     <string name="review_today_record">오늘의 기록</string>
     <string name="review_row_med_time">명상 시간</string>
     <string name="review_row_avg_tension">평균 긴장도</string>
-    <string name="review_row_minmax_tension">최고/최저 긴장도</string>
+    <string name="review_row_minmax_tension">최고 긴장도</string>
     <string name="review_row_deviation_count">안정 상태 이탈 빈도</string>
     <string name="review_deviation_count_format">%d회</string>
     <string name="review_tension_value_format">%dN</string>
@@ -138,7 +138,6 @@
     <string name="knot_dummy_date"></string>
     <string name="knot_dummy_name"></string>
     <string name="knot_description_placeholder"></string>
-    <string name="knot_reason_label">AI 추천 이유</string>
 
     <!-- 하단 내비 -->
     <string name="nav_home">홈</string>
