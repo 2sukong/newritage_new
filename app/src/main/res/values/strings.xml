@@ -127,7 +127,6 @@
     <string name="thread_eyebrow">오늘의 실</string>
     <string name="thread_provide_title">오늘의 실이 생성되었어요</string>
     <string name="thread_provide_subtitle">오늘 명상 데이터를 바탕으로 실 색상이 결정되었습니다.</string>
-    <string name="thread_tension_badge_format">긴장도 %1$d/255</string>
     <string name="btn_view_thread">실 설명 보기</string>
 
     <!-- 매듭 상세 -->

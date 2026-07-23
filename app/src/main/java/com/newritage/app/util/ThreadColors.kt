@@ -1,7 +1,6 @@
 package com.newritage.app.util
 
 import com.newritage.app.R
-import kotlin.math.roundToInt
 
 object ThreadColors {
     data class ThreadColor(
@@ -70,19 +69,14 @@ object ThreadColors {
     fun findByColorName(name: String): ThreadColor? = ALL.firstOrNull { it.nameKr == name }
 
     /**
-     * 여러 hex 색을 RGB 채널별 평균으로 섞은 hex 문자열. 매듭 상세(3D 뷰어)는 공간 클러스터링으로
-     * 그 달에 받은 색을 부위별로 섞어 보여주지만, 보관함 썸네일은 정적 이미지에 단색 Modulate 틴트만
-     * 입힐 수 있어(성능상 라이브 3D 렌더러를 쓰지 않음) 같은 "섞인 색" 인상을 이 평균색으로 근사한다.
-     * 유효한 색이 하나도 없으면 null.
+     * 여러 hex 색 중 유효한 색만 중복 제거해 냉색→온색([SPECTRUM_ORDER]) 순으로 정렬해 돌려준다.
+     * [com.newritage.app.ui.main.knot.KnotClusterColorMapping]과 같은 원칙 — 그 달 실제로 받은 색만
+     * 후보로 쓰고, RGB 평균 등으로 새 색을 합성하지 않는다(합성한 색은 채도가 죽어 탁하게 보이고,
+     * 실제로 받은 어떤 색과도 일치하지 않아 상세보기의 클러스터 색과 어긋나 보인다). 보관함 썸네일은
+     * 이 리스트를 그라데이션 틴트로 입혀 "실제 받은 색들이 섞인" 인상을 준다.
      */
-    fun blendHex(hexes: List<String>): String? {
-        val colors = hexes.mapNotNull { hex ->
-            runCatching { android.graphics.Color.parseColor(hex) }.getOrNull()
-        }
-        if (colors.isEmpty()) return null
-        val r = colors.map { android.graphics.Color.red(it) }.average().roundToInt()
-        val g = colors.map { android.graphics.Color.green(it) }.average().roundToInt()
-        val b = colors.map { android.graphics.Color.blue(it) }.average().roundToInt()
-        return String.format("#%02X%02X%02X", r, g, b)
-    }
+    fun spectrumSortedDistinct(hexes: List<String>): List<String> =
+        hexes.filter { it.isNotBlank() }
+            .distinctBy { it.lowercase() }
+            .sortedBy { spectrumIndexOf(it) }
 }

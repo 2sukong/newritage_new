@@ -230,10 +230,6 @@ class SessionCompleteActivity : AppCompatActivity() {
         binding.tvThreadDate.text =
             DevClock.today(prefs).format(THREAD_DATE_DISPLAY)
 
-        val tensionBadgeValue = ((avgPressure / RAW_PRESSURE_MAX) * TENSION_BADGE_MAX)
-            .roundToInt().coerceIn(0, TENSION_BADGE_MAX.toInt())
-        binding.tvTensionBadge.text = getString(R.string.thread_tension_badge_format, tensionBadgeValue)
-
         // 오늘의 일기에서 뽑은 감정 키워드 + 그 감정을 분석한 코멘트(master 동작 복원).
         binding.tvKeywords.text =
             if (keywords.isEmpty()) "" else "오늘의 키워드: ${keywords.joinToString(", ")}"
@@ -393,10 +389,6 @@ class SessionCompleteActivity : AppCompatActivity() {
         const val SAVED_FILL_TARGET = 65f
         const val SAVED_FILL_DURATION_MS = 1400L
         const val SAVED_SCREEN_DURATION_MS = 2600L
-
-        // 원시 total 이론상 최댓값(4095*3)을 0~255 범위의 "긴장도" 배지 표시값으로 환산한다.
-        const val RAW_PRESSURE_MAX = 12285f
-        const val TENSION_BADGE_MAX = 255f
 
         val THREAD_DATE_DISPLAY: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy.MM.dd")
     }

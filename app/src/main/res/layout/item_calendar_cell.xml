@@ -35,10 +35,12 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:padding="4dp">
-            <View
+            <ImageView
                 android:id="@+id/threadSwatch"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:contentDescription="@null"
                 android:visibility="invisible" />
         </FrameLayout>
     </FrameLayout>

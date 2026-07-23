@@ -177,8 +177,12 @@ class BaselineMeasurementActivity : AppCompatActivity() {
             elapsedMillis += TICK_INTERVAL_MS
             val elapsedSecondsNow = (elapsedMillis / 1000).toInt()
 
-            // BLE SENSOR 특성에서 흘러들어온 실제 f0/f1/f2/total 값을 그대로 사용
-            val rawPressure = latestTotal.toFloat() / 3f   // 3부위 평균으로 스케일 통일
+            // BLE SENSOR 특성에서 흘러들어온 실제 total(f0+f1+f2) 값을 raw 그대로 사용한다.
+            // MeasurementActivity(실제 측정 화면)도 total을 나누지 않고 그대로 쓰므로, 여기서
+            // 3으로 나누면 여기서 저장하는 baselineOverall만 3배 작아져 이후 세션들의 avgPressure와
+            // 스케일이 어긋난다(ThreadColors.assignColor의 baseline 대비 변화율 계산이 항상 크게
+            // 틀어져 거의 매번 HIGH로 분류되는 원인이었다).
+            val rawPressure = latestTotal.toFloat()
             pressureReadings.add(rawPressure)
             thumbReadings.add(latestThumb.toFloat())
             imReadings.add(latestIm.toFloat())
@@ -241,7 +245,9 @@ class BaselineMeasurementActivity : AppCompatActivity() {
 
     private companion object {
         const val TICK_INTERVAL_MS = 100L
-        const val MEASURING_PRESSURE_SCALE_MAX = 8000f
+        // rawPressure가 더 이상 3으로 나누지 않으므로, 물결 게이지가 예전과 똑같이 움직이도록
+        // 기준값도 3배(8000f -> 24000f) 올려 맞춘다.
+        const val MEASURING_PRESSURE_SCALE_MAX = 24000f
         const val TRANSITION_DURATION_MS = 450L
     }
 }

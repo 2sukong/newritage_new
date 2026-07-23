@@ -20,10 +20,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.CompositingStrategy
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.Font
@@ -46,7 +49,8 @@ data class KnotGridEntry(
     /** 칸 아래 표시할 라벨(예: "2월") */
     val label: String,
     val knotType: KnotType,
-    val tintColorHex: String,
+    /** 그 달에 실제로 받은 실 색(냉색→온색 정렬, 중복 없음). 2개 이상이면 그라데이션 틴트로 섞어 보여준다. */
+    val tintColorHexes: List<String>,
     val isNew: Boolean
 )
 
@@ -61,6 +65,21 @@ private val FRAME_BORDER_WIDTH = 1.dp
 // NEW 상태일 때 회색 테두리 프레임 위에 덧씌우는 별도의 두꺼운 프레임.
 private val NEW_FRAME_SHAPE = RoundedCornerShape(12.dp)
 private val NEW_FRAME_BORDER_WIDTH = 3.dp
+
+/**
+ * [colors]를 세로로 같은 폭씩 나눠 칠하는 하드 엣지 그라데이션. 경계에 같은 좌표에서 색이 바뀌는
+ * stop 쌍을 둬서(보간 폭이 0) 매끄럽게 섞이지 않고 뚜렷한 밴드로 나뉘게 한다.
+ */
+private fun hardBandedGradient(colors: List<Color>): Brush {
+    val n = colors.size
+    val stops = buildList {
+        colors.forEachIndexed { i, color ->
+            add(i.toFloat() / n to color)
+            add((i + 1).toFloat() / n to color)
+        }
+    }
+    return Brush.verticalGradient(colorStops = stops.toTypedArray())
+}
 
 /**
  * 매듭을 얻은 날짜만큼만 칸이 늘어나는 그리드. 각 칸은 회전/줌 없이 고정된 각도로만 보이므로,
@@ -134,15 +153,46 @@ private fun KnotGridCell(
                         shape = FRAME_SHAPE
                     )
             ) {
-                Image(
-                    painter = painterResource(entry.knotType.thumbnailRes),
-                    contentDescription = null,
-                    colorFilter = knotTintColorOrNull(entry.tintColorHex)
-                        ?.let { ColorFilter.tint(it, BlendMode.Modulate) },
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(4.dp)
-                )
+                val tintColors = entry.tintColorHexes.mapNotNull { knotTintColorOrNull(it) }
+                when (tintColors.size) {
+                    // 실 색이 없는 달(실 데이터가 아직 없음): 원본 흰색 재질 그대로.
+                    0 -> Image(
+                        painter = painterResource(entry.knotType.thumbnailRes),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(4.dp)
+                    )
+                    // 색이 하나면 단색 Modulate 틴트로 충분하다.
+                    1 -> Image(
+                        painter = painterResource(entry.knotType.thumbnailRes),
+                        contentDescription = null,
+                        colorFilter = ColorFilter.tint(tintColors[0], BlendMode.Modulate),
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(4.dp)
+                    )
+                    // 색이 여럿이면 실제로 받은 색들을 하드 엣지 밴드로 이어 붙여 "섞인" 인상을 준다.
+                    // 매듭 상세보기(KnotModelViewer)의 공간 클러스터 셰이더도 색을 부드럽게 보간하지
+                    // 않고 하드 엣지로 나눠 칠하므로(KnotClusterColorMapping 참고), 그 결과와
+                    // 최대한 같은 인상을 주려면 여기서도 매끄러운 그라데이션 대신 색이 뚜렷이 구분되는
+                    // 밴드를 써야 한다 — 비슷한 색끼리 부드럽게 섞으면(예: 붉은 계열끼리) 밴드 경계가
+                    // 뭉개져 실제로 받은 색과 다른 탁한 단색처럼 보인다.
+                    // ColorFilter.tint는 단색만 받으므로, offscreen 레이어에 그린 뒤 그 위에
+                    // Modulate 블렌드로 밴드를 곱해 넣는다(그려진 실루엣 밖은 alpha가 0이라 영향받지 않는다).
+                    else -> Image(
+                        painter = painterResource(entry.knotType.thumbnailRes),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(4.dp)
+                            .graphicsLayer(compositingStrategy = CompositingStrategy.Offscreen)
+                            .drawWithContent {
+                                drawContent()
+                                drawRect(brush = hardBandedGradient(tintColors), blendMode = BlendMode.Modulate)
+                            }
+                    )
+                }
             }
         }
 

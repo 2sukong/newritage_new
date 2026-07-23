@@ -91,7 +91,7 @@ class KnotStorageFragment : Fragment() {
                     key = knotType.name,
                     label = knotType.displayName,
                     knotType = knotType,
-                    tintColorHex = ThreadColors.ALL[index % ThreadColors.ALL.size].hex,
+                    tintColorHexes = listOf(ThreadColors.ALL[index % ThreadColors.ALL.size].hex),
                     isNew = false
                 )
             }
@@ -119,15 +119,16 @@ class KnotStorageFragment : Fragment() {
                 .filter { String.format(Locale.getDefault(), "%04d-%02d", currentYear, monthOf(it)) != currentYearMonth }
                 .groupBy(::monthOf)
 
-            // 틴트 색상은 그 달에 실을 받은(threadColor가 있는) 세션 전체를 평균 섞어서 만든다.
-            // 상세보기(KnotDetailBottomSheetDialog)의 3D 모델이 그 달 실 색 전체를 공간 클러스터링으로
-            // 섞어 보여주는 것과 같은 인상을 썸네일에도 주기 위함 — 마지막 세션 색 하나만 쓰면 상세보기와
-            // 어긋난다. 일기 유무와 무관하게 그 달 전체 세션을 보므로, 일기를 건너뛴 날에 받은 실 색도
-            // 반영된다.
-            val threadColorByMonth: Map<Int, String> = sessions
+            // 틴트 색상은 그 달에 실을 받은(threadColor가 있는) 세션 전체에서 실제로 받은 색만 모아
+            // 냉색→온색 순으로 정렬한 리스트다. 상세보기(KnotDetailBottomSheetDialog)의 3D 모델이 그 달
+            // 실 색 전체를 공간 클러스터링으로 섞어 보여주는 것과 같은 인상을 썸네일에도 주기 위함 —
+            // 마지막 세션 색 하나만 쓰면 상세보기와 어긋난다. RGB 평균 등으로 새 색을 합성하지 않는다
+            // (합성색은 탁하게 보이고 실제로 받은 색과 달라 보인다). 일기 유무와 무관하게 그 달 전체
+            // 세션을 보므로, 일기를 건너뛴 날에 받은 실 색도 반영된다.
+            val threadColorByMonth: Map<Int, List<String>> = sessions
                 .filter { it.threadColor.isNotBlank() }
                 .groupBy(::monthOf)
-                .mapValues { (_, list) -> ThreadColors.blendHex(list.map { it.threadColor }) ?: "" }
+                .mapValues { (_, list) -> ThreadColors.spectrumSortedDistinct(list.map { it.threadColor }) }
 
             entriesState.value = emotionByMonth.entries
                 .sortedBy { it.key }
@@ -142,7 +143,7 @@ class KnotStorageFragment : Fragment() {
                         key = yearMonth,
                         label = getString(R.string.month_number_format, month),
                         knotType = KnotType.fromRecommendationId(recommendedKnot.id),
-                        tintColorHex = threadColorByMonth[month] ?: "",
+                        tintColorHexes = threadColorByMonth[month] ?: emptyList(),
                         isNew = latestSession.date == todayStr
                     )
                 }

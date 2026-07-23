@@ -1,12 +1,12 @@
 package com.newritage.app.ui.main.thread
 
 import android.graphics.Color
-import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.content.ContextCompat
@@ -113,7 +113,7 @@ class ThreadStorageFragment : Fragment() {
             val tvDay = cellView.findViewById<TextView>(R.id.tvDay)
             val threadNewFrame = cellView.findViewById<FrameLayout>(R.id.threadNewFrame)
             val threadSquareFrame = cellView.findViewById<FrameLayout>(R.id.threadSquareFrame)
-            val threadSwatch = cellView.findViewById<View>(R.id.threadSwatch)
+            val threadSwatch = cellView.findViewById<ImageView>(R.id.threadSwatch)
             val tvNewBadge = cellView.findViewById<View>(R.id.tvNewBadge)
 
             tvDay.text = getString(R.string.day_number_format, day)
@@ -136,15 +136,14 @@ class ThreadStorageFragment : Fragment() {
                 bottomColor = Color.parseColor("#BABCBA")
             )
 
-            try {
-                val cornerRadius = resources.displayMetrics.density * 9f
-                threadSwatch.background = GradientDrawable().apply {
-                    shape = GradientDrawable.RECTANGLE
-                    this.cornerRadius = cornerRadius
-                    setColor(Color.parseColor(threadColor))
-                }
+            // 실을 받을 때(SessionCompleteActivity)/상세보기(ThreadDetailBottomSheetDialog)와 완전히
+            // 같은 사진 리소스를 보여준다 — 예전엔 hex로 그린 단색 사각형을 썼는데, 실제로 받은
+            // 실 사진과 색감이 달라 보여서(매치가 안 됨) 같은 drawable로 통일한다.
+            val threadOption = ThreadColors.findByHex(threadColor)
+            if (threadOption != null) {
+                threadSwatch.setImageResource(threadOption.drawableRes)
                 threadSwatch.visibility = View.VISIBLE
-            } catch (e: IllegalArgumentException) {
+            } else {
                 threadSwatch.visibility = View.INVISIBLE
             }
 
@@ -192,7 +191,7 @@ class ThreadStorageFragment : Fragment() {
             val tvDay = cellView.findViewById<TextView>(R.id.tvDay)
             val threadNewFrame = cellView.findViewById<FrameLayout>(R.id.threadNewFrame)
             val threadSquareFrame = cellView.findViewById<FrameLayout>(R.id.threadSquareFrame)
-            val threadSwatch = cellView.findViewById<View>(R.id.threadSwatch)
+            val threadSwatch = cellView.findViewById<ImageView>(R.id.threadSwatch)
             val tvNewBadge = cellView.findViewById<View>(R.id.tvNewBadge)
 
             tvDay.text = getString(R.string.day_number_format, index + 1)
@@ -205,17 +204,8 @@ class ThreadStorageFragment : Fragment() {
                 bottomColor = Color.parseColor("#BABCBA")
             )
 
-            try {
-                val cornerRadius = resources.displayMetrics.density * 9f
-                threadSwatch.background = GradientDrawable().apply {
-                    shape = GradientDrawable.RECTANGLE
-                    this.cornerRadius = cornerRadius
-                    setColor(Color.parseColor(color.hex))
-                }
-                threadSwatch.visibility = View.VISIBLE
-            } catch (e: IllegalArgumentException) {
-                threadSwatch.visibility = View.INVISIBLE
-            }
+            threadSwatch.setImageResource(color.drawableRes)
+            threadSwatch.visibility = View.VISIBLE
 
             // 카탈로그 셀은 대응하는 실제 세션이 없으므로 인덱스를 넘겨 상세를 연다(좌우로 순환 가능).
             cellView.setOnClickListener {
