@@ -19,14 +19,14 @@ import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.os.ParcelUuid
+import com.newritage.app.util.SecurityUtils
 import java.util.UUID
 
 /**
  * ESP32(GATT 서버) <-> 앱(GATT 클라이언트) 연결을 담당하는 싱글턴.
  *
- * 기기는 연결되면 항상 SENSOR 특성으로 압력값을 스트리밍한다. "측정 시작/종료" 명령은 없으므로,
- * 세션 경계는 [onSensorData]/[onConnectionChange] 콜백을 붙였다 떼는 것으로 앱이 처리한다.
- * 긴장도 분류·baseline 비교는 이 클래스의 책임이 아니며, 값을 그대로 위로 올려주기만 한다.
+ * 보안 강화: 센서 데이터는 AES/GCM/NoPadding으로 암호화되어 전송됨.
+ * 패킷 구조: [12 bytes IV] + [Ciphertext + 16 bytes Tag]
  */
 object BleManager {
 
@@ -231,8 +231,13 @@ object BleManager {
     }
 
     private fun handleSensorPayload(bytes: ByteArray?) {
-        val payload = bytes?.toString(Charsets.UTF_8) ?: return
-        val parts = payload.split(",")
+        val rawBytes = bytes ?: return
+        
+        // 보안 전공자 요청: AES/GCM/NoPadding 복호화
+        // 기기에서 보낸 패킷(Raw Binary)을 복호화하여 평문 CSV("f0,f1,f2,total")를 얻음
+        val decryptedPayload = SecurityUtils.decryptBleData(rawBytes) ?: return
+        
+        val parts = decryptedPayload.split(",")
         if (parts.size != 4) return
 
         val f0 = parts[0].toIntOrNull() ?: return
