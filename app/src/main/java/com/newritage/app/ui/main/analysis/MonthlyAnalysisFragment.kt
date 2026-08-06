@@ -142,8 +142,12 @@ class MonthlyAnalysisFragment : Fragment() {
                     _binding?.aiCommentCard?.setComment(cachedComment)
                 } else {
                     _binding?.aiCommentCard?.setComment(getString(R.string.ai_comment_loading))
-                    val today = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
-                    val aiComment = GeminiRepository(db.sessionDao()).generateMonthlyFeedback(today)
+                    // 해당 월의 마지막 날을 기준으로 AI 피드백을 요청한다.
+                    val cal = currentMonth.clone() as Calendar
+                    cal.set(Calendar.DAY_OF_MONTH, cal.getActualMaximum(Calendar.DAY_OF_MONTH))
+                    val endDateStr = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(cal.time)
+
+                    val aiComment = GeminiRepository(db.sessionDao()).generateMonthlyFeedback(endDateStr)
                     if (aiComment != null) {
                         prefs.monthlyAiComment = aiComment
                         prefs.monthlyAiCommentSessionId = latestSessionId

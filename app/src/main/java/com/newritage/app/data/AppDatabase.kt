@@ -6,13 +6,14 @@ import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 
 @Database(
-    entities = [Session::class, SensorReading::class],
-    version = 4,
+    entities = [Session::class, SensorReading::class, User::class],
+    version = 5,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun sessionDao(): SessionDao
+    abstract fun userDao(): UserDao
 
     companion object {
         @Volatile private var INSTANCE: AppDatabase? = null

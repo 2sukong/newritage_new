@@ -13,13 +13,13 @@ import java.io.IOException
 import java.util.concurrent.TimeUnit
 
 /**
- * Gemini(gemini-3.5-flash) generateContent API 호출만 담당하는 클라이언트.
+ * Gemini(gemini-1.5-flash) generateContent API 호출만 담당하는 클라이언트.
  * 프롬프트 구성이나 DB 접근은 하지 않으며, 실패 시 예외를 던져 호출자([com.newritage.app.data.GeminiRepository])가
  * 로컬 로직으로 폴백할 수 있게 한다.
  */
 object GeminiApi {
 
-    private const val MODEL = "gemini-3.5-flash"
+    private const val MODEL = "gemini-1.5-flash"
     private const val ENDPOINT =
         "https://generativelanguage.googleapis.com/v1beta/models/$MODEL:generateContent"
 

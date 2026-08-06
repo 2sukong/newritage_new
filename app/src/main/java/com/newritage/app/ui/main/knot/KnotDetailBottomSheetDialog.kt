@@ -157,10 +157,12 @@ class KnotDetailBottomSheetDialog(
                 val diaryEntries = monthSessions.map {
                     DiaryEntry(date = LocalDate.parse(it.date), content = it.emotion)
                 }
-                // 최근 30일 감정 기록으로 Gemini API를 우선 시도하고, 실패 시에만 표시 중인 달 기준
-                // 로컬 추천(RecommendationEngine)으로 폴백한다.
-                val todayStr = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
-                val aiResult = geminiRepository.recommendKnot(todayStr)
+                // 해당 월의 마지막 날을 기준으로 AI 추천을 요청한다 (그 달의 일기를 반영하기 위함).
+                val cal = currentDate.clone() as Calendar
+                cal.set(Calendar.DAY_OF_MONTH, cal.getActualMaximum(Calendar.DAY_OF_MONTH))
+                val endDateStr = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(cal.time)
+
+                val aiResult = geminiRepository.recommendKnot(endDateStr)
                 val recommendedKnot = aiResult?.knot ?: RecommendationEngine.recommendKnot(diaryEntries)
                 val knotType = KnotType.fromRecommendationId(recommendedKnot.id)
                 binding.tvKnotNameDisplay.text = recommendedKnot.name

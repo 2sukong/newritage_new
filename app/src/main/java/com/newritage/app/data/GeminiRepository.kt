@@ -13,7 +13,7 @@ import java.util.Locale
 data class KnotRecommendation(val knot: KnotInfo, val reason: String)
 
 /**
- * Gemini API(gemini-3.5-flash) 연동 저장소.
+ * Gemini API(gemini-1.5-flash) 연동 저장소.
  *
  * AI(GeminiApi)는 DB에 직접 접근하지 않는다 — 이 Repository가 [sessionDao]로 필요한 데이터를 조회하고
  * [PromptBuilder]로 프롬프트를 구성한 뒤 [GeminiApi]를 호출한다. API 호출이 실패하면(키 누락, 네트워크 오류,
@@ -86,7 +86,9 @@ class GeminiRepository(private val sessionDao: SessionDao) {
      * 형식이 맞지 않거나 이름이 [KnotRepository] 후보 중 하나와 매칭되지 않으면 null(폴백 대상).
      */
     private fun parseKnotRecommendation(raw: String): KnotRecommendation? {
-        val parts = raw.split(Regex("추천\\s*이유\\s*[:：]"), limit = 2)
+        // 마크다운 기호(**, #) 등을 제거하고 앞뒤 공백을 정리한다.
+        val cleaned = raw.replace("**", "").replace("#", "").trim()
+        val parts = cleaned.split(Regex("추천\\s*이유\\s*[:：]"), limit = 2)
         if (parts.size != 2) return null
 
         val nameText = parts[0].replace(Regex("추천\\s*매듭\\s*[:：]"), "").trim()
