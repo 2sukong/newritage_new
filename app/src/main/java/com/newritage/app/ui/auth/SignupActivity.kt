@@ -11,10 +11,19 @@ import com.newritage.app.data.UserPreferences
 import com.newritage.app.databinding.ActivitySignupBinding
 import com.newritage.app.ui.baseline.BaselineMeasurementActivity
 
+import androidx.lifecycle.lifecycleScope
+import com.newritage.app.data.AppDatabase
+import com.newritage.app.data.User
+import com.newritage.app.util.SecurityUtils
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+
 class SignupActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivitySignupBinding
     private lateinit var prefs: UserPreferences
+    private lateinit var db: AppDatabase
     private var isDuplicateChecked = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -23,6 +32,7 @@ class SignupActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         prefs = UserPreferences(this)
+        db = AppDatabase.getInstance(this)
 
         setupUI()
         setupLiveValidation()
@@ -33,12 +43,22 @@ class SignupActivity : AppCompatActivity() {
 
         binding.btnCheckDuplicate.setOnClickListener {
             val id = binding.etUsername.text?.toString()?.trim() ?: ""
-            if (id.length < 4) {
+            if (id.length < 4 || !USERNAME_PATTERN.matches(id)) {
                 Toast.makeText(this, getString(R.string.error_invalid_id), Toast.LENGTH_SHORT).show()
             } else {
-                isDuplicateChecked = true
-                Toast.makeText(this, "사용 가능한 아이디입니다.", Toast.LENGTH_SHORT).show()
-                binding.btnCheckDuplicate.text = "확인완료"
+                lifecycleScope.launch {
+                    val existingUser = withContext(Dispatchers.IO) {
+                        db.userDao().getUserByUsername(id)
+                    }
+                    if (existingUser != null) {
+                        Toast.makeText(this@SignupActivity, "이미 사용 중인 아이디입니다.", Toast.LENGTH_SHORT).show()
+                        isDuplicateChecked = false
+                    } else {
+                        isDuplicateChecked = true
+                        Toast.makeText(this@SignupActivity, "사용 가능한 아이디입니다.", Toast.LENGTH_SHORT).show()
+                        binding.btnCheckDuplicate.text = "확인완료"
+                    }
+                }
             }
         }
 
@@ -66,6 +86,14 @@ class SignupActivity : AppCompatActivity() {
                 Toast.makeText(this, getString(R.string.error_fill_all), Toast.LENGTH_SHORT).show()
                 return
             }
+            !USERNAME_PATTERN.matches(id) -> {
+                Toast.makeText(this, getString(R.string.error_invalid_id), Toast.LENGTH_SHORT).show()
+                return
+            }
+            !isPasswordValid(pw) -> {
+                Toast.makeText(this, "비밀번호 형식이 올바르지 않습니다.", Toast.LENGTH_SHORT).show()
+                return
+            }
             pw != pwConfirm -> {
                 Toast.makeText(this, getString(R.string.error_password_mismatch), Toast.LENGTH_SHORT).show()
                 return
@@ -76,11 +104,30 @@ class SignupActivity : AppCompatActivity() {
             }
         }
 
-        // 가입 정보 로컬 저장
-        prefs.username = id
-        prefs.isLoggedIn = true
+        lifecycleScope.launch {
+            val salt = SecurityUtils.generateSalt()
+            val hash = SecurityUtils.hashPassword(pw, salt)
+            val newUser = User(
+                username = id,
+                passwordHash = hash,
+                salt = salt,
+                email = email,
+                phone = phone
+            )
 
-        SignupCompleteDialog(this) { navigateToBaseline() }.show()
+            try {
+                withContext(Dispatchers.IO) {
+                    db.userDao().insertUser(newUser)
+                }
+                // 가입 정보 로컬 저장 (세션 유지용)
+                prefs.username = id
+                prefs.isLoggedIn = true
+
+                SignupCompleteDialog(this@SignupActivity) { navigateToBaseline() }.show()
+            } catch (e: Exception) {
+                Toast.makeText(this@SignupActivity, "가입 중 오류가 발생했습니다.", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 
     // 💡 팝업의 '확인' 버튼을 눌렀을 때 Baseline 화면으로 넘어가도록 이 메서드를 호출할 것입니다.
