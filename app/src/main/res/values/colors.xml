@@ -18,11 +18,12 @@
     <color name="surface">#FFFFFF</color>
 
     <!-- 텍스트 -->
-    <color name="text_primary">#2D3A2D</color>
+    <color name="text_primary">#1A2722</color>
     <color name="text_secondary">#5A6B5A</color>
     <color name="text_hint">#9AAA9A</color>
     <color name="text_other">#82A68D</color>
     <color name="text_add">#67706C</color>
+    <color name="text_accent_sage">#85AC7B</color>
 
 
     <!-- 새로 얻은 실/매듭 강조색 -->

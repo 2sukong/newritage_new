@@ -31,7 +31,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/measurement_title"
-                android:textSize="16sp"
+                android:textSize="13sp"
                 android:textColor="@color/text_primary"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -54,12 +54,12 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/measurement_help"
-                    android:textSize="14sp"
+                    android:textSize="10sp"
                     android:textColor="#7DAA84" />
 
                 <ImageView
-                    android:layout_width="18dp"
-                    android:layout_height="18dp"
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
                     android:layout_marginStart="4dp"
                     android:src="@drawable/icon_help" />
             </LinearLayout>
@@ -88,12 +88,12 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:text="@string/measurement_instruction"
-                    android:textSize="14sp"
+                    android:textSize="15sp"
                     android:textColor="@color/text_add"
                     android:lineSpacingExtra="4dp"
                     android:layout_marginStart="24dp"
                     android:layout_marginEnd="24dp"
-                    android:layout_marginTop="16dp"
+                    android:layout_marginTop="28dp"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toEndOf="parent" />
@@ -101,8 +101,8 @@
                 <!-- 원형 게이지 (측정 화면의 원과 동일한 크기를 공유) -->
                 <FrameLayout
                     android:id="@+id/gaugeContainer"
-                    android:layout_width="220dp"
-                    android:layout_height="220dp"
+                    android:layout_width="227dp"
+                    android:layout_height="227dp"
                     android:layout_marginTop="32dp"
                     android:gravity="center"
                     android:background="@drawable/bg_gauge_shadow_base"
@@ -126,7 +126,7 @@
                         android:layout_gravity="center_horizontal"
                         android:text="@string/measurement_waiting"
                         android:textColor="@color/text_secondary"
-                        android:textSize="13sp" />
+                        android:textSize="12sp" />
 
                     <LinearLayout
                         android:id="@+id/groupIdle"
@@ -179,34 +179,29 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="6dp"
                         android:text="@string/connection_disconnected"
-                        android:textSize="13sp"
+                        android:textSize="10sp"
                         android:textColor="@color/text_primary" />
                 </LinearLayout>
 
                 <!-- 측정 모드 선택 (자율 모드 / 가이드 모드) -->
                 <LinearLayout
                     android:id="@+id/rowModeSelect"
-                    android:layout_width="300dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:layout_marginTop="24dp"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginEnd="16dp"
                     app:layout_constraintTop_toBottomOf="@id/badgeConnection"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toEndOf="parent">
 
                     <TextView
                         android:id="@+id/btnModeAutonomous"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
+                        android:layout_width="108dp"
+                        android:layout_height="33dp"
                         android:gravity="center"
-                        android:paddingTop="10dp"
-                        android:paddingBottom="10dp"
                         android:text="@string/mode_autonomous"
                         android:fontFamily="@font/inter_medium"
-                        android:textSize="15sp"
+                        android:textSize="12sp"
                         android:textColor="@color/white"
                         android:background="@drawable/bg_mode_button_selected"
                         android:clickable="true"
@@ -214,15 +209,12 @@
 
                     <TextView
                         android:id="@+id/btnModeGuide"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:layout_marginStart="12dp"
+                        android:layout_width="108dp"
+                        android:layout_height="33dp"
+                        android:layout_marginStart="14dp"
                         android:gravity="center"
-                        android:paddingTop="10dp"
-                        android:paddingBottom="10dp"
                         android:text="@string/mode_guide"
-                        android:textSize="15sp"
+                        android:textSize="12sp"
                         android:fontFamily="@font/inter_medium"
                         android:textColor="@color/mode_unselected_text"
                         android:background="@drawable/bg_mode_button_unselected"
@@ -234,12 +226,11 @@
                 <!-- 임계치 이상 알림 토글 -->
                 <LinearLayout
                     android:id="@+id/rowThresholdAlert"
-                    android:layout_width="300dp"
+                    android:layout_width="230dp"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginEnd="16dp"
+                    android:layout_marginTop="8dp"
                     app:layout_constraintTop_toBottomOf="@id/rowModeSelect"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toEndOf="parent">
@@ -250,7 +241,7 @@
                         android:layout_weight="1"
                         android:text="@string/threshold_alert_toggle_label"
                         android:gravity="right"
-                        android:textSize="14sp"
+                        android:textSize="10sp"
                         android:textColor="@color/text_add" />
 
                     <com.google.android.material.switchmaterial.SwitchMaterial
@@ -268,7 +259,10 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:background="@drawable/bg_card_surface_bordered"
-                    android:padding="20dp"
+                    android:paddingTop="18dp"
+                    android:paddingBottom="19dp"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp"
                     android:layout_marginTop="24dp"
                     android:layout_marginStart="16dp"
                     android:layout_marginEnd="16dp"
@@ -281,7 +275,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/guide_title"
-                        android:textSize="16sp"
+                        android:textSize="11sp"
                         android:textColor="@color/text_primary"
                         android:fontFamily="@font/inter_bold"
                         app:layout_constraintTop_toTopOf="parent"
@@ -293,18 +287,18 @@
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
                         android:gravity="center_vertical"
-                        android:layout_marginTop="20dp"
+                        android:layout_marginTop="12dp"
                         app:layout_constraintTop_toBottomOf="@id/tvGuideTitle"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintEnd_toEndOf="parent">
 
                         <FrameLayout
-                            android:layout_width="28dp"
-                            android:layout_height="28dp"
+                            android:layout_width="23dp"
+                            android:layout_height="23dp"
                             android:background="@drawable/bg_icon_circle">
                             <ImageView
-                                android:layout_width="20dp"
-                                android:layout_height="20dp"
+                                android:layout_width="16dp"
+                                android:layout_height="16dp"
                                 android:layout_gravity="center"
                                 android:src="@drawable/guide_one" />
                         </FrameLayout>
@@ -313,9 +307,9 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:layout_marginStart="12dp"
+                            android:layout_marginStart="9dp"
                             android:text="@string/guide_step_1"
-                            android:textSize="14sp"
+                            android:textSize="9sp"
                             android:textColor="@color/text_primary" />
                     </LinearLayout>
 
@@ -325,18 +319,18 @@
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
                         android:gravity="center_vertical"
-                        android:layout_marginTop="8dp"
+                        android:layout_marginTop="4dp"
                         app:layout_constraintTop_toBottomOf="@id/rowGuide1"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintEnd_toEndOf="parent">
 
                         <FrameLayout
-                            android:layout_width="28dp"
-                            android:layout_height="28dp"
+                            android:layout_width="23dp"
+                            android:layout_height="23dp"
                             android:background="@drawable/bg_icon_circle">
                             <ImageView
-                                android:layout_width="20dp"
-                                android:layout_height="20dp"
+                                android:layout_width="16dp"
+                                android:layout_height="16dp"
                                 android:layout_gravity="center"
                                 android:src="@drawable/guide_two" />
                         </FrameLayout>
@@ -345,9 +339,9 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:layout_marginStart="12dp"
+                            android:layout_marginStart="9dp"
                             android:text="@string/guide_step_2"
-                            android:textSize="14sp"
+                            android:textSize="9sp"
                             android:textColor="@color/text_primary" />
                     </LinearLayout>
 
@@ -357,18 +351,18 @@
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
                         android:gravity="center_vertical"
-                        android:layout_marginTop="8dp"
+                        android:layout_marginTop="4dp"
                         app:layout_constraintTop_toBottomOf="@id/rowGuide2"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintEnd_toEndOf="parent">
 
                         <FrameLayout
-                            android:layout_width="28dp"
-                            android:layout_height="28dp"
+                            android:layout_width="23dp"
+                            android:layout_height="23dp"
                             android:background="@drawable/bg_icon_circle">
                             <ImageView
-                                android:layout_width="20dp"
-                                android:layout_height="20dp"
+                                android:layout_width="16dp"
+                                android:layout_height="16dp"
                                 android:layout_gravity="center"
                                 android:src="@drawable/guide_three" />
                         </FrameLayout>
@@ -377,9 +371,9 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:layout_marginStart="12dp"
+                            android:layout_marginStart="9dp"
                             android:text="@string/guide_step_3"
-                            android:textSize="14sp"
+                            android:textSize="9sp"
                             android:textColor="@color/text_primary" />
                     </LinearLayout>
 
@@ -389,15 +383,15 @@
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
                         android:gravity="center_vertical"
-                        android:layout_marginTop="8dp"
+                        android:layout_marginTop="4dp"
                         app:layout_constraintTop_toBottomOf="@id/rowGuide3"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintBottom_toBottomOf="parent">
 
                         <FrameLayout
-                            android:layout_width="28dp"
-                            android:layout_height="28dp"
+                            android:layout_width="23dp"
+                            android:layout_height="23dp"
                             android:background="@drawable/bg_icon_circle">
                             <ImageView
                                 android:layout_width="16dp"
@@ -410,9 +404,9 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:layout_marginStart="12dp"
+                            android:layout_marginStart="9dp"
                             android:text="@string/guide_step_4"
-                            android:textSize="14sp"
+                            android:textSize="9sp"
                             android:textColor="@color/text_primary" />
                     </LinearLayout>
 
@@ -488,7 +482,7 @@
         android:background="@color/surface"
         app:menu="@menu/bottom_nav_menu"
         app:itemIconTint="@color/nav_selector"
-        app:itemIconSize="36dp"
+        app:itemIconSize="28dp"
         app:labelVisibilityMode="unlabeled"
         app:itemRippleColor="@android:color/transparent"
         app:layout_constraintBottom_toBottomOf="parent"
