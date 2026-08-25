@@ -13,7 +13,7 @@
     <color name="gradient_end">#FFF4DC</color>
 
     <!-- 배경 -->
-    <color name="background">#FBFDF8</color>
+    <color name="background">#FFFFFF</color>
     <color name="background_75">#BFFBFDF8</color>
     <color name="surface">#FFFFFF</color>
 
@@ -24,6 +24,7 @@
     <color name="text_other">#82A68D</color>
     <color name="text_add">#67706C</color>
     <color name="text_accent_sage">#85AC7B</color>
+    <color name="menu">#7EA089</color>
 
 
     <!-- 새로 얻은 실/매듭 강조색 -->

@@ -31,7 +31,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/measurement_title"
-                android:textSize="13sp"
+                android:fontFamily="@font/spoqaHanSansNeo_Regular"
+                android:textSize="14sp"
                 android:textColor="@color/text_primary"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -54,6 +55,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/measurement_help"
+                    android:fontFamily="@font/inter_semibold"
                     android:textSize="10sp"
                     android:textColor="#7DAA84" />
 
@@ -88,7 +90,8 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:text="@string/measurement_instruction"
-                    android:textSize="15sp"
+                    android:fontFamily="@font/spoqaHanSansNeo_Regular"
+                    android:textSize="16sp"
                     android:textColor="@color/text_add"
                     android:lineSpacingExtra="4dp"
                     android:layout_marginStart="24dp"
@@ -125,6 +128,7 @@
                         android:layout_marginBottom="24dp"
                         android:layout_gravity="center_horizontal"
                         android:text="@string/measurement_waiting"
+                        android:fontFamily="@font/spoqaHanSansNeo_Regular"
                         android:textColor="@color/text_secondary"
                         android:textSize="12sp" />
 
@@ -179,6 +183,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="6dp"
                         android:text="@string/connection_disconnected"
+                        android:fontFamily="@font/inter_medium"
                         android:textSize="10sp"
                         android:textColor="@color/text_primary" />
                 </LinearLayout>
@@ -241,6 +246,7 @@
                         android:layout_weight="1"
                         android:text="@string/threshold_alert_toggle_label"
                         android:gravity="right"
+                        android:fontFamily="@font/inter_medium"
                         android:textSize="10sp"
                         android:textColor="@color/text_add" />
 
@@ -275,9 +281,9 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/guide_title"
-                        android:textSize="11sp"
+                        android:textSize="15sp"
                         android:textColor="@color/text_primary"
-                        android:fontFamily="@font/inter_bold"
+                        android:fontFamily="@font/spoqaHanSansNeo_Bold"
                         app:layout_constraintTop_toTopOf="parent"
                         app:layout_constraintStart_toStartOf="parent" />
 
@@ -309,7 +315,8 @@
                             android:layout_weight="1"
                             android:layout_marginStart="9dp"
                             android:text="@string/guide_step_1"
-                            android:textSize="9sp"
+                            android:fontFamily="@font/spoqaHanSansNeo_Regular"
+                            android:textSize="12sp"
                             android:textColor="@color/text_primary" />
                     </LinearLayout>
 
@@ -341,7 +348,8 @@
                             android:layout_weight="1"
                             android:layout_marginStart="9dp"
                             android:text="@string/guide_step_2"
-                            android:textSize="9sp"
+                            android:fontFamily="@font/spoqaHanSansNeo_Regular"
+                            android:textSize="12sp"
                             android:textColor="@color/text_primary" />
                     </LinearLayout>
 
@@ -373,7 +381,8 @@
                             android:layout_weight="1"
                             android:layout_marginStart="9dp"
                             android:text="@string/guide_step_3"
-                            android:textSize="9sp"
+                            android:fontFamily="@font/spoqaHanSansNeo_Regular"
+                            android:textSize="12sp"
                             android:textColor="@color/text_primary" />
                     </LinearLayout>
 
@@ -406,7 +415,8 @@
                             android:layout_weight="1"
                             android:layout_marginStart="9dp"
                             android:text="@string/guide_step_4"
-                            android:textSize="9sp"
+                            android:fontFamily="@font/spoqaHanSansNeo_Regular"
+                            android:textSize="12sp"
                             android:textColor="@color/text_primary" />
                     </LinearLayout>
 
@@ -481,12 +491,15 @@
         android:layout_height="wrap_content"
         android:background="@color/surface"
         app:menu="@menu/bottom_nav_menu"
-        app:itemIconTint="@color/nav_selector"
-        app:itemIconSize="28dp"
-        app:labelVisibilityMode="unlabeled"
+        app:itemIconTint="@color/menu"
+        app:itemTextColor="@color/menu"
+        app:itemIconSize="25dp"
+        app:labelVisibilityMode="labeled"
         app:itemRippleColor="@android:color/transparent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:itemTextAppearanceInactive="@style/BottomNavTextInactive"
+        app:itemTextAppearanceActive="@style/BottomNavTextActive"/>/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
