@@ -55,6 +55,12 @@ class MeasurementActivity : AppCompatActivity() {
     private val sensorReadings = mutableListOf<SensorReading>()
     private var vibrationCount = 0
 
+    // BLE 연결 직후 첫 실측 패킷이 도착하기 전까지 latestTotal은 초기값(0)이다. 이 0을 그대로
+    // pressureReadings에 넣으면 실제로는 손가락을 누르고 있었어도 measurement delay 때문에
+    // minPressure가 항상 0으로 기록되는 문제가 생긴다. 첫 실측 데이터를 받기 전까지는 통계에서
+    // 제외한다.
+    private var hasReceivedRealSensorData = false
+
     // BLE SENSOR 특성에서 마지막으로 받은 f0(엄지)/f1(검지·중지)/f2(손바닥)/total 값
     private var latestThumb = 0
     private var latestIm = 0
@@ -118,6 +124,7 @@ class MeasurementActivity : AppCompatActivity() {
             latestIm = f1
             latestPalm = f2
             latestTotal = total
+            hasReceivedRealSensorData = true
         }
     }
 
@@ -235,6 +242,7 @@ class MeasurementActivity : AppCompatActivity() {
         pressureReadings.clear()
         sensorReadings.clear()
         vibrationCount = 0
+        hasReceivedRealSensorData = false
         tensionState = TensionState.CALM
         lastTensionVibrationAtMillis = -TENSION_COOLDOWN_MS
         timerVibrationFired = false
@@ -273,17 +281,22 @@ class MeasurementActivity : AppCompatActivity() {
 
             // BLE SENSOR 특성에서 흘러들어온 실제 total(f0+f1+f2) 값을 baseline과 비교해 분류
             val pressure = latestTotal.toFloat()
-            pressureReadings.add(pressure)
-            sensorReadings.add(
-                SensorReading(
-                    sessionId = 0L, // SessionCompleteActivity에서 실제 세션 저장 후 채워짐
-                    timestamp = System.currentTimeMillis(),
-                    thumb = latestThumb.toFloat(),
-                    indexMiddle = latestIm.toFloat(),
-                    palm = latestPalm.toFloat(),
-                    overall = pressure
+            // 첫 실측 패킷이 도착하기 전(hasReceivedRealSensorData == false) 틱은 latestTotal이
+            // 초기값 0이라 통계에 넣지 않는다 - 그래야 measurement delay 때문에 minPressure가
+            // 항상 0으로 나오는 문제가 생기지 않는다.
+            if (hasReceivedRealSensorData) {
+                pressureReadings.add(pressure)
+                sensorReadings.add(
+                    SensorReading(
+                        sessionId = 0L, // SessionCompleteActivity에서 실제 세션 저장 후 채워짐
+                        timestamp = System.currentTimeMillis(),
+                        thumb = latestThumb.toFloat(),
+                        indexMiddle = latestIm.toFloat(),
+                        palm = latestPalm.toFloat(),
+                        overall = pressure
+                    )
                 )
-            )
+            }
 
             // 긴장 판정·타이머·진동은 노이즈에 흔들리지 않도록 실제 1초 경계에서만 갱신한다.
             if (elapsedSecondsNow != lastTimerSecond) {
