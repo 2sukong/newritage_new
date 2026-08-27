@@ -27,149 +27,144 @@
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
             android:text="@string/analysis_title"
-            android:textSize="15sp"
+            android:fontFamily="@font/spoqahansansneo_regular"
+            android:textSize="14sp"
             android:textColor="@color/text_primary" />
     </RelativeLayout>
 
-    <!-- 2. 하단 콘텐츠 카드 영역 (좌우 패딩을 제거하여 화면 끝까지 꽉 차게 만듭니다) -->
+    <!-- 2. 하단 콘텐츠 영역 (Figma node 1843:2011 정합화) -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
         android:background="@drawable/greencard"
         android:orientation="vertical"
-        android:paddingTop="40dp"> <!-- 상단 패딩 40dp만 유지 -->
+        android:paddingTop="96dp">
 
-        <!-- 나의 명상 타이틀 (개별 좌우 마진 부여) -->
+        <!-- 나의 명상 타이틀 -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="24dp"
-            android:layout_marginEnd="24dp"
+            android:layout_marginStart="30dp"
+            android:layout_marginEnd="30dp"
             android:text="@string/my_meditation"
-            android:textColor="#607D67"
-            android:textSize="22sp"
-            android:textStyle="bold" />
+            android:fontFamily="@font/spoqahansansneo_medium"
+            android:textColor="@color/text_primary"
+            android:textSize="24sp" />
 
-        <!-- 설명 문구 (개별 좌우 마진 부여) -->
+        <!-- 설명 문구 -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="24dp"
-            android:layout_marginEnd="24dp"
-            android:paddingTop="12dp"
+            android:layout_marginStart="30dp"
+            android:layout_marginEnd="30dp"
+            android:layout_marginTop="6dp"
             android:text="@string/analysis_desc"
-            android:textColor="@color/text_secondary"
-            android:textSize="14sp" />
+            android:fontFamily="@font/spoqahansansneo_regular"
+            android:textColor="@color/text_add"
+            android:textSize="16sp" />
 
-        <!-- 3. 일간 분석 리스트 아이템 (내부에 paddingStart/End를 주어 글자만 안으로 밀기) -->
+        <!-- 3. 일간 분석 카드 -->
         <LinearLayout
             android:id="@+id/rowDailyAnalysis"
             android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:layout_marginTop="60dp"
-            android:background="@android:color/transparent"
+            android:layout_height="69dp"
+            android:layout_marginStart="30dp"
+            android:layout_marginEnd="28dp"
+            android:layout_marginTop="32dp"
+            android:background="@drawable/bg_analysis_card"
+            android:outlineProvider="background"
+            android:clipToOutline="true"
+            android:elevation="8dp"
             android:foreground="?attr/selectableItemBackground"
             android:gravity="center_vertical"
             android:orientation="horizontal"
-            android:paddingStart="24dp"
-            android:paddingEnd="24dp">
+            android:paddingStart="26dp"
+            android:paddingEnd="22dp">
 
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="@string/daily_analysis"
+                android:fontFamily="@font/spoqahansansneo_medium"
                 android:textColor="@color/text_primary"
-                android:textSize="16sp"
-                android:textStyle="bold" />
+                android:textSize="20sp" />
 
             <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
+                android:layout_width="8dp"
+                android:layout_height="15dp"
                 android:contentDescription="이동"
                 android:src="@drawable/next" />
         </LinearLayout>
 
-        <!-- 구분선: 이제 부모인 카드가 패딩이 없으므로 좌우 끝까지 꽉 찹니다 -->
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginStart="24dp"
-            android:layout_marginEnd="24dp"
-            android:background="#CCE0D0" />
-
-        <!-- 4. 주간 분석 리스트 아이템 -->
+        <!-- 4. 주간 분석 카드 -->
         <LinearLayout
             android:id="@+id/rowWeeklyAnalysis"
             android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:layout_marginTop="40dp"
-            android:background="@android:color/transparent"
+            android:layout_height="69dp"
+            android:layout_marginStart="30dp"
+            android:layout_marginEnd="28dp"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/bg_analysis_card"
+            android:outlineProvider="background"
+            android:clipToOutline="true"
+            android:elevation="8dp"
             android:foreground="?attr/selectableItemBackground"
             android:gravity="center_vertical"
             android:orientation="horizontal"
-            android:paddingStart="24dp"
-            android:paddingEnd="24dp">
+            android:paddingStart="26dp"
+            android:paddingEnd="22dp">
 
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="@string/weekly_analysis"
+                android:fontFamily="@font/spoqahansansneo_medium"
                 android:textColor="@color/text_primary"
-                android:textSize="16sp"
-                android:textStyle="bold" />
+                android:textSize="20sp" />
 
             <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
+                android:layout_width="8dp"
+                android:layout_height="15dp"
                 android:contentDescription="이동"
                 android:src="@drawable/next" />
         </LinearLayout>
 
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginStart="24dp"
-            android:layout_marginEnd="24dp"
-            android:background="#CCE0D0" />
-
-        <!-- 5. 월간 분석 리스트 아이템 -->
+        <!-- 5. 월간 분석 카드 -->
         <LinearLayout
             android:id="@+id/rowMonthlyAnalysis"
             android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:layout_marginTop="40dp"
-            android:background="@android:color/transparent"
+            android:layout_height="69dp"
+            android:layout_marginStart="30dp"
+            android:layout_marginEnd="28dp"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/bg_analysis_card"
+            android:outlineProvider="background"
+            android:clipToOutline="true"
+            android:elevation="8dp"
             android:foreground="?attr/selectableItemBackground"
             android:gravity="center_vertical"
             android:orientation="horizontal"
-            android:paddingStart="24dp"
-            android:paddingEnd="24dp">
+            android:paddingStart="26dp"
+            android:paddingEnd="22dp">
 
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="@string/monthly_analysis"
+                android:fontFamily="@font/spoqahansansneo_medium"
                 android:textColor="@color/text_primary"
-                android:textSize="16sp"
-                android:textStyle="bold" />
+                android:textSize="20sp" />
 
             <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
+                android:layout_width="8dp"
+                android:layout_height="15dp"
                 android:contentDescription="이동"
                 android:src="@drawable/next" />
         </LinearLayout>
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginStart="24dp"
-            android:layout_marginEnd="24dp"
-            android:background="#CCE0D0" />
 
     </LinearLayout>
 
