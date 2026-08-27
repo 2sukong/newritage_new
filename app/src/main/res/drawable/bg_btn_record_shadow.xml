@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 건너뛰기/기록하기 버튼(btn_outline_bg, 알약 모양) 뒤에 깔리는 우측하단 방향의 옅은 그림자.
+     버튼과 정확히 같은 좌상단(top|start)에 겹쳐 놓으면 버튼(불투명)이 좌측/상단 영역을 가리고,
+     버튼 경계보다 큰 우측/하단 여분만 비쳐 보이는 방식(하단 내비게이션 notch 처리와 동일 원리).
+     여러 겹의 반투명 알약 레이어를 우측/하단으로 갈수록 크게+옅게 쌓아 경계선이 도드라지지
+     않는 부드러운 번짐을 흉내냄(minSdk 26이라 RenderEffect 블러 사용 불가). 2026-08-26 후속:
+     기존보다 더 옅고 짧게(확산 6dp→3dp, 알파도 대폭 낮춤) 조정. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- 가장 바깥쪽(버튼 기준 3dp 확산), 가장 옅음 -->
+    <item
+        android:left="0dp"
+        android:top="0dp"
+        android:right="0dp"
+        android:bottom="0dp">
+        <shape android:shape="rectangle">
+            <corners android:radius="16dp" />
+            <solid android:color="#05000000" />
+        </shape>
+    </item>
+
+    <item
+        android:left="0dp"
+        android:top="0dp"
+        android:right="1dp"
+        android:bottom="1dp">
+        <shape android:shape="rectangle">
+            <corners android:radius="16dp" />
+            <solid android:color="#0A000000" />
+        </shape>
+    </item>
+
+    <!-- 가장 안쪽(버튼 경계에 가장 가까움), 가장 진함(그래도 옅음) -->
+    <item
+        android:left="0dp"
+        android:top="0dp"
+        android:right="2dp"
+        android:bottom="2dp">
+        <shape android:shape="rectangle">
+            <corners android:radius="16dp" />
+            <solid android:color="#10000000" />
+        </shape>
+    </item>
+
+</layer-list>

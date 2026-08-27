@@ -175,6 +175,9 @@ class WaveView @JvmOverloads constructor(
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
+        // Layout Editor(Design/Split 프리뷰)는 무한 반복 애니메이션이 계속 invalidate()를
+        // 호출하면 렌더링에 실패해 전체 레이아웃이 위젯 클래스명 placeholder로 깨진다.
+        if (isInEditMode) return
         if (!idleSpinAnimator.isStarted) idleSpinAnimator.start()
     }
 
