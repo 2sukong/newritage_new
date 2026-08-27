@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 도움말 카드 그림자. stroke width(6dp)/color(#20000000)는 사용자가 Android Studio에서
+     직접 수정해 확정한 값이라(2026-08-27 명시) 더 이상 건드리지 않음 — 이 파일에서 내가
+     조정하는 건 아래 <item>의 인셋과 <corners radius>뿐. "카드와 그림자 사이 여백이
+     존재한다"는 2026-08-27 피드백에 따라, 스트로크가 카드 경계 바로 바깥에 거의 붙도록
+     오프셋을 20dp → 3dp(스트로크 두께 6dp의 절반, 즉 스트로크의 안쪽 면이 카드 경계와
+     거의 맞닿는 지점)로 줄임 → inset = 40dp(root 여백, dialog_help_image.xml/
+     HelpImageDialog.kt의 CARD_SHADOW_MARGIN_DP와 동일해야 함) - 3dp = 37dp,
+     corner radius = 30dp(카드 자체 반경, bg_help_card_translucent.xml 참고) + 3dp = 33dp.
+     ⚠️ 실기 미확인 — 여백 없이 자연스럽게 붙어 보이는지 확인 필요. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:left="37dp"
+        android:top="37dp"
+        android:right="37dp"
+        android:bottom="37dp">
+        <shape android:shape="rectangle">
+            <corners android:radius="33dp" />
+            <stroke
+                android:width="6dp"
+                android:color="#20000000" />
+        </shape>
+    </item>
+</layer-list>

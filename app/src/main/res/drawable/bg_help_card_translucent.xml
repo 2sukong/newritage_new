@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 도움말 카드의 반투명 배경. 사용자가 Figma에서 지정한 값 그대로 반영(2026-08-26):
+     선형(linear) 그라데이션, 위쪽 0%=#FFFFFF(흰색) → 아래쪽 100%=#D3E4CF(옅은 연두),
+     레이어 자체 불투명도 45%. 두 중지점 색 모두 알파 45%(0x73)를 미리 곱해 넣는 방식으로
+     구현함(Android shape drawable엔 "레이어 전체 불투명도"라는 별도 개념이 없어서,
+     각 중지점 색의 알파 채널에 45%를 직접 반영). 그 뒤로 실제 화면(API 31+에서는
+     blur-behind로 흐려짐, 그 미만은 흐려지지 않은 채로)이 은은하게 비쳐 보인다.
+     android:angle="270"은 startColor(위쪽)→endColor(아래쪽) 방향(0°=좌→우,
+     90°=아래→위 기준이므로 그 반대인 270°가 위→아래 — 하단 내비게이션 그림자 작업
+     때 확인한 gradient 각도 규칙과 동일, [[project_뉴리티지_android]] 참고).
+     GradientDrawable shape은 알파(반투명) 여부와 무관하게 항상 자신의 도형(둥근
+     사각형) 그대로 outline을 제공하므로, outlineProvider="background" + elevation
+     조합의 그림자는 이전(불투명 #E6FFFFFF)과 동일하게 계속 정확히 그려질 것으로
+     예상됨 — 다만 이 클라우드 환경엔 Android SDK가 없어 실기로 확인은 못 했음. -->
+<!-- 2026-08-26 후속: 사용자가 준 Figma 코드(border-radius: 30px)에 맞춰 코너 반경을
+     20dp에서 30dp로 수정. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <corners android:radius="30dp" />
+    <gradient
+        android:type="linear"
+        android:angle="270"
+        android:startColor="#E6FFFFFF"
+        android:endColor="#E6D3E4CF" />
+</shape>

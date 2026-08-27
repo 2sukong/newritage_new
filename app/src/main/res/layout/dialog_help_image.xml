@@ -8,60 +8,181 @@
     android:clickable="true"
     android:focusable="true">
 
-    <!-- 뒤 화면을 캡처해 블러 처리한 배경 (frosted glass) -->
-    <ImageView
-        android:id="@+id/ivBackdrop"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:scaleType="fitXY" />
+    <!-- 2026-08-26 6차 개편: 다이얼로그 윈도우 자체를 화면 전체가 아니라 "카드 + 그림자
+         여백" 크기로만 잡도록 바꿈(HelpImageDialog.kt의 applyCardWindowBounds() 참고).
+         그래서 이 root(ConstraintLayout)의 match_parent는 이제 화면 전체가 아니라 그
+         작은 윈도우 크기와 같음 — 예전에 있던 화면 전체를 덮는 overlayWhite(반투명 흰색)와
+         4개의 화면-기준 퍼센트 Guideline은 더 이상 필요 없어져서 제거함. "카드가 겹치는
+         부분만 불투명해 보이고, 나머지 화면은 완전히 투명하게(블러도 안 걸리게) 보이도록
+         해달라"는 요청 반영 — blur-behind(HelpImageDialog.kt의
+         applyBlurBehindIfSupported())는 윈도우 사각형 뒤쪽만 흐리게 만드는 API라, 윈도우
+         자체를 작게 잡으면 그 바깥 화면은 전혀 영향을 안 받음. 다만 윈도우가 사각형이고
+         카드는 둥근 모서리라, 카드 모서리 바깥의 (그림자가 있는) 네 모서리 부분에는 아주
+         살짝 블러가 새어 보일 수 있음(실기 미확인, project memory 참고). -->
 
-    <!-- 가장자리가 뿌옇게 보이도록 씌우는 반투명 흰색 오버레이 -->
+    <!-- 카드 그림자. 가로는 root 폭 그대로 채움(카드 폭이 marginStart/End=40dp 고정이라
+         root 기준으로 항상 일치). 세로는 더 이상 match_parent(=root 전체, 즉 "최대 카드
+         높이" 기준)로 채우지 않음 — 카드 높이가 wrap_content라 내용이 짧으면 카드 실제
+         높이가 root보다 작아지는데, match_parent로 채우면 그림자 아래쪽이 실제 카드보다
+         한참 밑까지 내려가 보이는 문제가 있었음(2026-08-27 피드백). 대신 top/bottom을
+         helpCard(카드 자체)에 -40dp 마진으로 걸어서, "카드 상/하단에서 바깥으로 40dp"라는
+         관계를 root 기준이 아니라 카드 기준으로 다시 표현함 — card top이 항상
+         root top + 40dp이므로 위쪽은 기존과 동일하게 유지되고, 아래쪽은 카드의 실제(가변)
+         하단을 따라가게 됨. 이 뒤에 bg_help_card_shadow_ring.xml의 37dp 인셋이 적용돼
+         기존과 같은 카드-그림자 간격(3dp)이 나옴. -->
     <View
-        android:id="@+id/overlayWhite"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/white"
-        android:alpha="0.45" />
-
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideImageStart"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintGuide_percent="0" />
-
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideImageEnd"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintGuide_percent="1" />
-
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideImageTop"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.17" />
-
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideImageBottom"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.83" />
-
-    <!-- help.png: 그 자체로 투명 배경이라 별도 카드/도형 없이 중앙에 크게 표시 -->
-    <ImageView
-        android:id="@+id/ivHelpImage"
+        android:id="@+id/viewHelpCardShadow"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:scaleType="fitCenter"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/helpCard"
+        app:layout_constraintBottom_toBottomOf="@id/helpCard"
+        android:layout_marginTop="-40dp"
+        android:layout_marginBottom="-40dp"
+        android:background="@drawable/bg_help_card_shadow_ring" />
+
+    <!-- 도움말 카드: 폭은 고정(HelpImageDialog.kt에서 화면 폭의 84%로 계산해 윈도우 폭에
+         반영, 여기서는 root 기준 marginStart/End=40dp로 그 안쪽에 꽉 채움). 높이는 여전히
+         wrap+constrainedHeight 조합으로 내용 길이에 맞춰 줄어들되, 윈도우 자체 높이(=최대
+         카드 높이 + 그림자 여백)를 넘지 않고 넘치면 스크롤. 텍스트 폰트/색/크기는 디자인팀
+         지정값 그대로이며 조정하지 않음. -->
+    <ScrollView
+        android:id="@+id/helpCard"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:clickable="true"
         android:focusable="true"
-        app:layout_constraintStart_toStartOf="@id/guideImageStart"
-        app:layout_constraintEnd_toEndOf="@id/guideImageEnd"
-        app:layout_constraintTop_toTopOf="@id/guideImageTop"
-        app:layout_constraintBottom_toBottomOf="@id/guideImageBottom" />
+        android:background="@drawable/bg_help_card_translucent"
+        android:scrollbars="none"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintHeight_default="wrap"
+        app:layout_constrainedHeight="true"
+        app:layout_constraintVertical_bias="0"
+        android:layout_marginStart="40dp"
+        android:layout_marginEnd="40dp"
+        android:layout_marginTop="40dp"
+        android:layout_marginBottom="40dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:id="@+id/tvHelpTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/help_dialog_title"
+                android:fontFamily="@font/spoqahansansneo_bold"
+                android:textSize="20sp"
+                android:textColor="@color/primary_dark"
+                android:layout_marginBottom="8dp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/help_intro"
+                android:fontFamily="@font/inter_medium"
+                android:textSize="12sp"
+                android:textColor="@color/help"
+                android:lineSpacingExtra="1dp"
+                android:layout_marginBottom="14dp" />
+
+            <!-- 섹션 1 -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/help_section_1_title"
+                android:fontFamily="@font/inter_semibold"
+                android:textSize="12sp"
+                android:textColor="@color/help"
+                android:layout_marginBottom="4dp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/help_section_1_body"
+                android:fontFamily="@font/spoqahansansneo_medium"
+                android:textSize="10sp"
+                android:textColor="@color/helpsmall"
+                android:lineSpacingExtra="3dp"
+                android:layout_marginBottom="10dp" />
+
+            <!-- 섹션 2 -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/help_section_2_title"
+                android:fontFamily="@font/inter_semibold"
+                android:textSize="12sp"
+                android:textColor="@color/help"
+                android:layout_marginBottom="4dp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/help_section_2_body"
+                android:fontFamily="@font/spoqahansansneo_medium"
+                android:textSize="10sp"
+                android:textColor="@color/helpsmall"
+                android:lineSpacingExtra="3dp"
+                android:layout_marginBottom="10dp" />
+
+            <!-- 섹션 3 -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/help_section_3_title"
+                android:fontFamily="@font/inter_semibold"
+                android:textSize="12sp"
+                android:textColor="@color/help"
+                android:layout_marginBottom="4dp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/help_section_3_body"
+                android:fontFamily="@font/spoqahansansneo_medium"
+                android:textSize="10sp"
+                android:textColor="@color/helpsmall"
+                android:lineSpacingExtra="3dp"
+                android:layout_marginBottom="10dp" />
+
+            <!-- 섹션 4 -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/help_section_4_title"
+                android:fontFamily="@font/inter_semibold"
+                android:textSize="12sp"
+                android:textColor="@color/help"
+                android:layout_marginBottom="4dp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/help_section_4_body"
+                android:fontFamily="@font/spoqahansansneo_medium"
+                android:textSize="10sp"
+                android:textColor="@color/helpsmall"
+                android:lineSpacingExtra="3dp"
+                android:layout_marginBottom="10dp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/help_footer"
+                android:fontFamily="@font/spoqahansansneo_medium"
+                android:textSize="12sp"
+                android:textColor="@color/help"
+                android:lineSpacingExtra="3dp" />
+
+        </LinearLayout>
+    </ScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
