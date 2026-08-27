@@ -5,10 +5,15 @@ import android.graphics.Color
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.view.View
+import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import com.github.mikephil.charting.components.LimitLine
+import androidx.core.content.ContextCompat
+import androidx.core.content.res.ResourcesCompat
+import androidx.core.graphics.ColorUtils
 import com.github.mikephil.charting.components.XAxis
+import com.github.mikephil.charting.components.YAxis
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
@@ -21,7 +26,9 @@ import com.newritage.app.data.SensorReading
 import com.newritage.app.data.SessionDataHolder
 import com.newritage.app.data.UserPreferences
 import com.newritage.app.databinding.ActivityMeasurementBinding
+import com.newritage.app.ui.main.HelpImageDialog
 import com.newritage.app.ui.util.WaveStyle
+import kotlin.math.roundToInt
 
 class MeasurementActivity : AppCompatActivity() {
 
@@ -80,7 +87,9 @@ class MeasurementActivity : AppCompatActivity() {
         binding.waveView.seedIdleAngle(idleAngle)
 
         binding.waveView.setWaveStyle(WaveStyle.MEASURING)
+        setupNeedle()
         setupChart()
+        positionLevelLabels()
         connectBle()
         startMeasurement()
 
@@ -91,6 +100,7 @@ class MeasurementActivity : AppCompatActivity() {
         }
         binding.btnStop.setOnClickListener { stopMeasurement() }
         binding.btnPause.setOnClickListener { togglePause() }
+        binding.btnHelp.setOnClickListener { HelpImageDialog(this).show() }
     }
 
     private fun connectBle() {
@@ -116,59 +126,103 @@ class MeasurementActivity : AppCompatActivity() {
         BleManager.onSensorData = null
     }
 
+    /**
+     * 바늘(ivNeedle)은 needle.xml 벡터 좌상단(0,0)이 뾰족한 끝 지점이 되도록 그려져 있다.
+     * pivotX/Y를 0으로 두면 rotation을 걸어도 그 끝 지점의 화면 좌표는 x/y와 정확히 같게
+     * 유지되므로, 매 tick마다 x/y만 그래프 마지막 데이터 포인트의 픽셀 좌표로 옮기면 된다.
+     */
+    private fun setupNeedle() {
+        binding.ivNeedle.apply {
+            pivotX = 0f
+            pivotY = 0f
+            rotation = NEEDLE_ROTATION_DEGREES
+        }
+    }
+
     private fun setupChart() {
+        val axisLabelColor = ColorUtils.setAlphaComponent(
+            ContextCompat.getColor(this, R.color.text_primary),
+            (255 * 0.66f).roundToInt()
+        )
+        val axisTypeface = ResourcesCompat.getFont(this, R.font.spoqahansansneo_regular)
+
         binding.lineChart.apply {
             description.isEnabled = false
             legend.isEnabled = false
             setTouchEnabled(false)
             setBackgroundColor(Color.TRANSPARENT)
             xAxis.position = XAxis.XAxisPosition.BOTTOM
-            xAxis.textColor = Color.parseColor("#5A6B5A")
+            xAxis.textColor = axisLabelColor
+            xAxis.typeface = axisTypeface
             xAxis.setDrawGridLines(false)
-            axisLeft.textColor = Color.parseColor("#5A6B5A")
+            axisLeft.textColor = axisLabelColor
+            axisLeft.typeface = axisTypeface
             axisLeft.axisMinimum = 0f
-            axisLeft.axisMaximum = CHART_DISPLAY_MAX_RAW
+            axisLeft.axisMaximum = chartAxisMaximum()
             // 기본 자동 라벨 개수(약 6~7개) 대비 절반 수준으로 줄여 가로 그리드선 간격을 넓힌다.
             axisLeft.setLabelCount(4, false)
-            axisLeft.setDrawLimitLinesBehindData(true)
             axisRight.isEnabled = false
-
-            // baseline 대비 낮음/적정/높음 구간 참조선. 경계 비율(1.1/1.3)은 ThreadColors의
-            // 낮음·보통·높음 분류 기준과 동일하게 맞췄다. 낮음 참조선 위치는 고정 경계가 없어
-            // baseline의 60%를 임의 기준으로 표시한다(TODO: 실기 데이터로 조정).
-            val baselineRaw = baselineTotal.toFloat().coerceAtLeast(1f)
-            axisLeft.removeAllLimitLines()
-            axisLeft.addLimitLine(levelLimitLine(baselineRaw * 0.6f, getString(R.string.chart_level_low)))
-            axisLeft.addLimitLine(levelLimitLine(baselineRaw * 1.1f, getString(R.string.chart_level_moderate)))
-            axisLeft.addLimitLine(levelLimitLine(baselineRaw * 1.3f, getString(R.string.chart_level_high)))
+            // 곡선·바늘·축이 오른쪽의 높음/적정/낮음 라벨(카드 우측 끝, tvLevelHigh 등)과
+            // 겹치지 않도록, 플로팅 영역 자체를 오른쪽으로 이만큼 줄여서 라벨을 위한 여백을
+            // 만든다. 값은 라벨 텍스트 폭(2글자, 10sp) + marginEnd(4dp)를 넉넉히 덮는
+            // 근사치라 실제 화면에서 확인 후 조정이 필요할 수 있다.
+            extraRightOffset = 40f
+            // x축 라벨이 cardChart(FrameLayout)의 아래쪽 경계에 바짝 붙어 그려지면서 그
+            // 아래의 완료 버튼과 시각적으로 붙어 보이는 것을 막기 위해 하단에도 여백을 둔다.
+            extraBottomOffset = 12f
         }
     }
 
-    private fun levelLimitLine(valueKpa: Float, label: String): LimitLine {
-        return LimitLine(valueKpa, label).apply {
-            lineColor = Color.parseColor("#B5C9A5")
-            lineWidth = 1f
-            enableDashedLine(6f, 4f, 0f)
-            textColor = Color.parseColor("#5A6B5A")
-            textSize = 10f
-            labelPosition = LimitLine.LimitLabelPosition.RIGHT_TOP
+    /**
+     * 세로축 최댓값(맨 위 줄)을 baseline 기준으로 잡아, 균등 간격 자동눈금의 2~4번째 줄이
+     * 높음(1.3배)/적정(1.1배)/낮음(0.6배) 값 근처에 오도록 한다(정확한 일치는 아님 - 세
+     * 값의 간격이 서로 달라 균등눈금으로는 딱 맞출 수 없다). 하드웨어 최댓값(센서 3개 ADC
+     * 합산 최대치)을 넘지 않도록 상한을 둔다. baseline이 아직 없으면 하드웨어 최댓값을 그대로
+     * 쓴다.
+     */
+    private fun chartAxisMaximum(): Float {
+        if (baselineTotal <= 0) return CHART_DISPLAY_MAX_RAW
+        return (baselineTotal * CHART_AXIS_MAX_OVER_BASELINE_RATIO).coerceAtMost(CHART_DISPLAY_MAX_RAW)
+    }
+
+    /**
+     * 높음/적정/낮음 기준값의 세로 위치를 계산해 라벨을 배치한다. 예전에는 MPAndroidChart의
+     * LimitLine(점선 + 라벨)을 축 안쪽에 그렸지만, 점선은 지우고 텍스트만 곡선·바늘보다
+     * 오른쪽 바깥(카드 우측 끝)에 두기 위해 별도 오버레이 TextView로 직접 배치한다. 경계
+     * 비율(1.1/1.3)은 ThreadColors의 낮음·보통·높음 분류 기준과 동일하게 맞췄다. 낮음
+     * 기준선 위치는 고정 경계가 없어 baseline의 60%를 임의 기준으로 표시한다(TODO: 실기
+     * 데이터로 조정). baseline과 축 범위(0~CHART_DISPLAY_MAX_RAW)는 세션 내내 고정이라
+     * 위치도 최초 1회만 계산하면 된다(바늘처럼 매 tick 갱신할 필요 없음).
+     */
+    private fun positionLevelLabels() {
+        val baselineRaw = baselineTotal.toFloat().coerceAtLeast(1f)
+        binding.lineChart.post {
+            val chart = binding.lineChart
+            val transformer = chart.getTransformer(YAxis.AxisDependency.LEFT)
+            positionLevelLabel(binding.tvLevelHigh, transformer.getPixelForValues(0f, baselineRaw * LEVEL_HIGH_RATIO).y)
+            positionLevelLabel(binding.tvLevelModerate, transformer.getPixelForValues(0f, baselineRaw * LEVEL_MODERATE_RATIO).y)
+            positionLevelLabel(binding.tvLevelLow, transformer.getPixelForValues(0f, baselineRaw * LEVEL_LOW_RATIO).y)
         }
+    }
+
+    private fun positionLevelLabel(label: TextView, pixelY: Double) {
+        label.y = binding.lineChart.top + pixelY.toFloat() - label.height / 2f
     }
 
     /** 측정 시작 시 그래프를 빈 데이터셋으로 초기화한다. */
     private fun resetChartData() {
         chartDataSet = LineDataSet(mutableListOf(), "압력").apply {
-            color = Color.parseColor("#8B9E7B")
+            color = Color.parseColor("#81A68D")
             setDrawCircles(false)
             setDrawValues(false)
             lineWidth = 2f
-            setDrawFilled(true)
-            fillColor = Color.parseColor("#8B9E7B")
-            fillAlpha = 50
+            setDrawFilled(false)
             mode = LineDataSet.Mode.CUBIC_BEZIER
         }
         binding.lineChart.data = LineData(chartDataSet)
         binding.lineChart.invalidate()
+        // 새 세션 시작 시 아직 데이터가 없으므로, 첫 그래프 값이 들어올 때까지 바늘을 숨긴다.
+        binding.ivNeedle.visibility = View.GONE
     }
 
     private fun startMeasurement() {
@@ -267,6 +321,27 @@ class MeasurementActivity : AppCompatActivity() {
         binding.lineChart.data?.notifyDataChanged()
         binding.lineChart.notifyDataSetChanged()
         binding.lineChart.invalidate()
+        updateNeedlePosition(xSeconds, pressureRaw)
+    }
+
+    /**
+     * 바늘 끝을 그래프 곡선의 마지막(가장 최신) 데이터 포인트 위로 옮긴다. 차트는 removeFirst로
+     * 오래된 값만 밀어내고 x축 범위를 데이터에 맞춰 자동으로 재계산하므로, 최신 포인트는 항상
+     * 차트 콘텐츠 영역의 오른쪽 끝 부근에 위치한다 - 즉 바늘은 그래프가 오르내리는 대로 세로로만
+     * 움직이는 것처럼 보인다. lineChart.invalidate() 직후에는 Transformer가 아직 새 축 범위로
+     * 갱신되지 않았을 수 있어, 실제 draw 패스가 끝난 뒤(post) 픽셀 좌표를 계산한다.
+     */
+    private fun updateNeedlePosition(xSeconds: Float, pressureRaw: Float) {
+        binding.lineChart.post {
+            val chart = binding.lineChart
+            val pixel = chart.getTransformer(YAxis.AxisDependency.LEFT)
+                .getPixelForValues(xSeconds, pressureRaw)
+            binding.ivNeedle.apply {
+                x = chart.left + pixel.x.toFloat()
+                y = chart.top + pixel.y.toFloat()
+                visibility = View.VISIBLE
+            }
+        }
     }
 
     /**
@@ -396,7 +471,19 @@ class MeasurementActivity : AppCompatActivity() {
 
         private const val TICK_INTERVAL_MS = 100L
         private const val CHART_WINDOW_SECONDS = 60f
+        // 바늘의 고정 회전각(시계방향, 도). needle.xml 원본이 이미 끝(뾰족한 부분)이 위쪽을
+        // 향하고 구멍 있는 두꺼운 쪽이 아래로 늘어지는 모양으로 그려져 있어 추가 회전이 필요
+        // 없다(0도) - 시안 이미지 속 바늘 아이콘의 각도와 동일하다. 끝은 pivotX/Y=0 덕분에
+        // 이 값과 무관하게 항상 그래프 마지막 값 좌표에 고정된다.
+        private const val NEEDLE_ROTATION_DEGREES = 0f
         // 센서 3개(엄지·검지중지·손바닥) 12비트 ADC 합산 최대치(4095 × 3). raw total 그대로 표시.
         private const val CHART_DISPLAY_MAX_RAW = 12285f
+        // 높음/적정/낮음 판정 비율. ThreadColors의 낮음·보통·높음 분류 기준과 동일하게 맞췄다.
+        // 낮음 기준선 위치는 고정 경계가 없어 baseline의 60%를 임의 기준으로 표시한다.
+        private const val LEVEL_HIGH_RATIO = 1.3f
+        private const val LEVEL_MODERATE_RATIO = 1.1f
+        private const val LEVEL_LOW_RATIO = 0.6f
+        // 세로축 최댓값 = baseline × 이 배율. chartAxisMaximum() 참고.
+        private const val CHART_AXIS_MAX_OVER_BASELINE_RATIO = 1.75f
     }
 }
