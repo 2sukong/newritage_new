@@ -20,6 +20,7 @@ import com.github.mikephil.charting.data.LineDataSet
 import com.newritage.app.R
 import com.newritage.app.ble.BleManager
 import com.newritage.app.ble.BreathingCues
+import com.newritage.app.ble.MockPressureSimulator
 import com.newritage.app.ble.VibrationPatterns
 import com.newritage.app.data.BreathingTechniques
 import com.newritage.app.data.SensorReading
@@ -71,6 +72,9 @@ class MeasurementActivity : AppCompatActivity() {
     private var lastTensionVibrationAtMillis = -TENSION_COOLDOWN_MS
     private var timerVibrationFired = false
     private var sessionStartAtMillis = 0L
+
+    // 실기기 미연결 시(개발/시연) 사람이 명상하는 것처럼 자연스럽게 변하는 압력값을 대신 흘려보낸다.
+    private val mockSimulator = MockPressureSimulator()
 
     private val permissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { granted ->
@@ -252,6 +256,9 @@ class MeasurementActivity : AppCompatActivity() {
         binding.btnStop.isEnabled = true
         binding.waveView.startWave()
         resetChartData()
+        if (!BleManager.isConnected) {
+            mockSimulator.resetForSession(baselineTotal)
+        }
         if (mode == Mode.GUIDE) {
             BleManager.sendVibration(BreathingCues.START)
         }
@@ -278,6 +285,16 @@ class MeasurementActivity : AppCompatActivity() {
             if (!measuring) return
             elapsedMillis += TICK_INTERVAL_MS
             val elapsedSecondsNow = (elapsedMillis / 1000).toInt()
+
+            // 실기기가 연결되어 있지 않으면(개발/시연 환경) 가상 센서값으로 대체한다.
+            if (!BleManager.isConnected) {
+                val mock = mockSimulator.next(isSession = true)
+                latestThumb = mock.f0
+                latestIm = mock.f1
+                latestPalm = mock.f2
+                latestTotal = mock.total
+                hasReceivedRealSensorData = true
+            }
 
             // BLE SENSOR 특성에서 흘러들어온 실제 total(f0+f1+f2) 값을 baseline과 비교해 분류
             val pressure = latestTotal.toFloat()

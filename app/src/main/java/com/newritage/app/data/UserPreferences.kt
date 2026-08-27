@@ -45,11 +45,12 @@ class UserPreferences(context: Context) {
     }
 
     /**
-     * 기기(BLE)가 연결되어 있지 않으면 측정 시작을 막을지 여부. 기본값 true(연결되지 않으면 측정
-     * 시작 차단). 메인 측정과 초기 기준 측정 시작 지점에서 이 값을 확인한다.
+     * 기기(BLE)가 연결되어 있지 않으면 측정 시작을 막을지 여부. 기본값 false(실기기가 없어도
+     * 측정 시작 가능 — 미연결 시 [com.newritage.app.ble.MockPressureSimulator]가 가상 압력값을
+     * 대신 흘려보낸다). 메인 측정과 초기 기준 측정 시작 지점에서 이 값을 확인한다.
      */
     var requireBleConnectionToStart: Boolean
-        get() = prefs.getBoolean(KEY_REQUIRE_BLE_TO_START, true)
+        get() = prefs.getBoolean(KEY_REQUIRE_BLE_TO_START, false)
         set(value) = prefs.edit().putBoolean(KEY_REQUIRE_BLE_TO_START, value).apply()
 
     /**

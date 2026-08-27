@@ -14,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.newritage.app.R
 import com.newritage.app.ble.BleManager
+import com.newritage.app.ble.MockPressureSimulator
 import com.newritage.app.data.UserPreferences
 import com.newritage.app.databinding.ActivityBaselineMeasurementBinding
 import com.newritage.app.ui.main.MainActivity
@@ -39,6 +40,9 @@ class BaselineMeasurementActivity : AppCompatActivity() {
     private var latestIm = 0
     private var latestPalm = 0
     private var latestTotal = 0
+
+    // 실기기 미연결 시(개발/시연) 사람이 손을 가볍게 얹은 것처럼 자연스러운 압력값을 대신 흘려보낸다.
+    private val mockSimulator = MockPressureSimulator()
 
     private val permissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { granted ->
@@ -167,6 +171,10 @@ class BaselineMeasurementActivity : AppCompatActivity() {
         binding.waveView.setWaveStyle(WaveStyle.MEASURING)
         binding.waveView.startWave()
 
+        if (!BleManager.isConnected) {
+            mockSimulator.resetForBaseline()
+        }
+
         measureLoop.run()
     }
 
@@ -176,6 +184,15 @@ class BaselineMeasurementActivity : AppCompatActivity() {
 
             elapsedMillis += TICK_INTERVAL_MS
             val elapsedSecondsNow = (elapsedMillis / 1000).toInt()
+
+            // 실기기가 연결되어 있지 않으면(개발/시연 환경) 가상 센서값으로 대체한다.
+            if (!BleManager.isConnected) {
+                val mock = mockSimulator.next(isSession = false)
+                latestThumb = mock.f0
+                latestIm = mock.f1
+                latestPalm = mock.f2
+                latestTotal = mock.total
+            }
 
             // BLE SENSOR 특성에서 흘러들어온 실제 total(f0+f1+f2) 값을 raw 그대로 사용한다.
             // MeasurementActivity(실제 측정 화면)도 total을 나누지 않고 그대로 쓰므로, 여기서
