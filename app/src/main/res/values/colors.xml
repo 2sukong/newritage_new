@@ -20,11 +20,18 @@
     <!-- 텍스트 -->
     <color name="text_primary">#1A2722</color>
     <color name="text_secondary">#5A6B5A</color>
-    <color name="text_hint">#9AAA9A</color>
+    <color name="text_hint">#638A6F</color>
     <color name="text_other">#82A68D</color>
     <color name="text_add">#67706C</color>
     <color name="text_accent_sage">#85AC7B</color>
     <color name="menu">#7EA089</color>
+    <color name="result">#6D9279</color>
+
+    <!-- 도움말 다이얼로그(dialog_help_image.xml) 전용 텍스트 색 — 2026-08-26 Figma 정합화
+         에서 그대로 가져온 값. rgba(28,29,29, alpha)를 8자리 ARGB로 미리 계산해 넣음. -->
+    <color name="help">#1C1D1D</color>
+    <color name="helpsmall">#575858</color>
+
 
 
     <!-- 새로 얻은 실/매듭 강조색 -->

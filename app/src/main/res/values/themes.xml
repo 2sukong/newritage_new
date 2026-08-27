@@ -1,6 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <!-- 선택되지 않았을 때의 텍스트 스타일 -->
+    <style name="BottomNavTextInactive">
+        <item name="android:fontFamily">@font/spoqahansansneo_bold</item>
+        <item name="android:textSize">10sp</item>
+    </style>
+
+    <!-- 선택되었을 때의 텍스트 스타일 -->
+    <style name="BottomNavTextActive">
+        <item name="android:fontFamily">@font/spoqahansansneo_bold</item>
+        <item name="android:textSize">10sp</item>
+    </style>
+
     <style name="Theme.NewRitage" parent="Theme.MaterialComponents.Light.NoActionBar">
         <item name="colorPrimary">@color/primary</item>
         <item name="colorPrimaryDark">@color/primary_dark</item>
@@ -8,13 +20,11 @@
         <item name="android:windowBackground">@color/background</item>
         <item name="android:statusBarColor">@color/background</item>
         <item name="android:windowLightStatusBar">true</item>
-        <item name="android:fontFamily">@font/inter</item>
     </style>
 
     <style name="Theme.NewRitage.Splash" parent="Theme.MaterialComponents.Light.NoActionBar">
         <item name="android:windowBackground">@color/onboarding_bg</item>
         <item name="android:statusBarColor">@color/onboarding_bg</item>
-        <item name="android:fontFamily">@font/inter</item>
     </style>
 
     <style name="Animation.HelpImageDialog" parent="android:Animation">

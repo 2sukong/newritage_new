@@ -84,6 +84,19 @@
     <string name="connection_disconnected">연결안됨</string>
     <string name="connection_required_toast">기기와 먼저 연결해주세요</string>
 
+    <!-- 도움말 다이얼로그(dialog_help_image.xml) -->
+    <string name="help_dialog_title">도움말</string>
+    <string name="help_intro">블루투스 연결이 안 되나요?\n기기와의 연결이 원활하지 않다면 아래 내용을 확인해 주세요.</string>
+    <string name="help_section_1_title">1. 기기 전원 및 배터리 확인</string>
+    <string name="help_section_1_body">• 명상 보조 기기의 전원이 켜져 있는지 확인해 주세요.\n• 배터리가 부족하면 블루투스 연결이 불안정할 수 있습니다.\n• 기기를 충분히 충전한 후 다시 연결을 시도해 주세요.</string>
+    <string name="help_section_2_title">2. 스마트폰 블루투스 및 권한 확인</string>
+    <string name="help_section_2_body">• 스마트폰의 블루투스가 켜져 있는지 확인해 주세요.\n• 블루투스를 껐다가 다시 켜면 연결 문제가 해결될 수 있습니다.\n• 앱이 블루투스 기기를 검색하려면 위치 서비스(GPS)와 관련 권한이 \n  필요합니다.\n• 다음 권한이 허용되어 있는지 확인해 주세요.\n   위치, 주변 기기 → \'앱 사용 중에만 허용\' 또는 \'항상 허용\' 설정</string>
+    <string name="help_section_3_title">3. 기기와 스마트폰을 가까이 두기</string>
+    <string name="help_section_3_body">• 기기와 스마트폰의 거리를 1m 이내로 유지해 주세요.\n• 주변에 와이파이 공유기나 다른 블루투스 기기가 많으면 신호 \n 간섭이 발생할 수 있습니다.\n• 가능하다면 다른 장소에서 다시 시도해 주세요.</string>
+    <string name="help_section_4_title">4. 앱 및 기기 재시작</string>
+    <string name="help_section_4_body">위 방법으로도 연결되지 않는다면:\n• 스마트폰의 블루투스를 껐다가 다시 켜기\n• 앱 완전 종료 후 재실행하기\n• 명상 보조 기기 전원 껐다가 다시 켜기</string>
+    <string name="help_footer">위 과정을 완료한 후 다시 연결을 시도해 주세요.\n문제가 계속된다면 고객지원으로 문의해 주세요.</string>
+
     <!-- 측정 모드 선택 -->
     <string name="mode_autonomous">자율모드</string>
     <string name="mode_guide">가이드모드</string>
@@ -115,7 +128,7 @@
     <string name="review_minmax_format">%1$dN/%2$dN</string>
     <string name="review_time_range_format">%1$s-%2$s</string>
     <string name="review_today_emotion">오늘의 감정</string>
-    <string name="review_emotion_hint">오늘 하루 무슨 일이 있었나요?</string>
+    <string name="review_emotion_hint">오늘 하루 무슨 일이 있었나요? 자유롭게 작성해주세요:)</string>
     <string name="btn_skip_record">건너뛰기</string>
     <string name="btn_save_record">기록하기</string>
 
@@ -178,6 +191,9 @@
     <string name="monthly_analysis">월간 분석</string>
     <string name="feedback_title">피드백</string>
     <string name="ai_comment_loading">AI 코멘트를 생성하는 중입니다…</string>
+    <string name="error_ai_comment_failed">AI 코멘트를 불러오지 못했습니다.</string>
+    <string name="error_ai_feedback_failed">AI 피드백을 불러오지 못했습니다.</string>
+    <string name="error_ai_knot_failed">AI 매듭 추천을 불러오지 못했습니다.</string>
 
     <!-- 분석 공통 -->
     <string name="label_avg_tension">평균 압력</string>
