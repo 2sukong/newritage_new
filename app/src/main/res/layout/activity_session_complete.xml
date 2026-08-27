@@ -38,8 +38,9 @@
                 android:layout_weight="1"
                 android:gravity="center"
                 android:text="@string/review_label"
-                android:textColor="@color/text_hint"
-                android:textSize="13sp"
+                android:fontFamily="@font/spoqahansansneo_regular"
+                android:textColor="@color/text_primary"
+                android:textSize="14sp"
                 android:letterSpacing="0.12" />
 
             <View android:layout_width="40dp" android:layout_height="40dp" />
@@ -61,19 +62,19 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
                 android:text="@string/review_today_record"
-                android:textSize="18sp"
-                android:textStyle="bold"
+                android:fontFamily="@font/spoqahansansneo_medium"
+                android:textSize="20sp"
                 android:textColor="@color/text_primary" />
 
             <!-- 통계 카드 -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardCornerRadius="14dp"
+                app:cardCornerRadius="15dp"
                 app:cardElevation="0dp"
-                app:strokeWidth="1dp"
-                app:strokeColor="#E3E3E3"
-                app:cardBackgroundColor="#FAFAFA">
+                app:strokeWidth="2dp"
+                app:strokeColor="#F2F1F0"
+                app:cardBackgroundColor="#FEFDFE">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -83,7 +84,7 @@
 
                     <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="48dp"
+                        android:layout_height="40dp"
                         android:gravity="center_vertical"
                         android:orientation="horizontal">
                         <TextView
@@ -91,21 +92,23 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="@string/review_row_med_time"
-                            android:textColor="@color/text_secondary"
-                            android:textSize="14sp" />
+                            android:fontFamily="@font/spoqahansansneo_regular"
+                            android:textColor="@color/text_primary"
+                            android:textSize="13sp" />
                         <TextView
                             android:id="@+id/tvRecordMedTime"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="--:----:--"
-                            android:textColor="@color/text_primary"
-                            android:textSize="14sp" />
+                            android:fontFamily="@font/spoqahansansneo_regular"
+                            android:textColor="@color/result"
+                            android:textSize="13sp" />
                     </LinearLayout>
-                    <View android:layout_width="match_parent" android:layout_height="0.5dp" android:background="@color/divider" />
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E3E3E3" />
 
                     <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="48dp"
+                        android:layout_height="40dp"
                         android:gravity="center_vertical"
                         android:orientation="horizontal">
                         <TextView
@@ -113,21 +116,23 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="@string/review_row_avg_tension"
-                            android:textColor="@color/text_secondary"
-                            android:textSize="14sp" />
+                            android:fontFamily="@font/spoqahansansneo_regular"
+                            android:textColor="@color/text_primary"
+                            android:textSize="13sp" />
                         <TextView
                             android:id="@+id/tvRecordAvgPressure"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="--N"
-                            android:textColor="@color/text_primary"
-                            android:textSize="14sp" />
+                            android:fontFamily="@font/spoqahansansneo_regular"
+                            android:textColor="@color/result"
+                            android:textSize="13sp" />
                     </LinearLayout>
-                    <View android:layout_width="match_parent" android:layout_height="0.5dp" android:background="@color/divider" />
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E3E3E3" />
 
                     <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="48dp"
+                        android:layout_height="40dp"
                         android:gravity="center_vertical"
                         android:orientation="horizontal">
                         <TextView
@@ -135,21 +140,23 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="@string/review_row_minmax_tension"
-                            android:textColor="@color/text_secondary"
-                            android:textSize="14sp" />
+                            android:fontFamily="@font/spoqahansansneo_regular"
+                            android:textColor="@color/text_primary"
+                            android:textSize="13sp" />
                         <TextView
                             android:id="@+id/tvRecordMinMaxPressure"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="--N"
-                            android:textColor="@color/text_primary"
-                            android:textSize="14sp" />
+                            android:fontFamily="@font/spoqahansansneo_regular"
+                            android:textColor="@color/result"
+                            android:textSize="13sp" />
                     </LinearLayout>
-                    <View android:layout_width="match_parent" android:layout_height="0.5dp" android:background="@color/divider" />
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E3E3E3" />
 
                     <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="48dp"
+                        android:layout_height="40dp"
                         android:gravity="center_vertical"
                         android:orientation="horizontal">
                         <TextView
@@ -157,15 +164,17 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="@string/review_row_deviation_count"
-                            android:textColor="@color/text_secondary"
-                            android:textSize="14sp" />
+                            android:fontFamily="@font/spoqahansansneo_regular"
+                            android:textColor="@color/text_primary"
+                            android:textSize="13sp" />
                         <TextView
                             android:id="@+id/tvRecordDeviationCount"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="--회"
-                            android:textColor="@color/text_primary"
-                            android:textSize="14sp" />
+                            android:fontFamily="@font/spoqahansansneo_regular"
+                            android:textColor="@color/result"
+                            android:textSize="13sp" />
                     </LinearLayout>
 
                 </LinearLayout>
@@ -176,11 +185,11 @@
                 android:id="@+id/tvTodayEmotionTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
+                android:layout_marginTop="36dp"
                 android:layout_marginBottom="10dp"
                 android:text="@string/review_today_emotion"
-                android:textSize="18sp"
-                android:textStyle="bold"
+                android:fontFamily="@font/spoqahansansneo_medium"
+                android:textSize="20sp"
                 android:textColor="@color/text_primary" />
 
             <EditText
@@ -192,9 +201,11 @@
                 android:background="@drawable/bg_mind"
                 android:gravity="top|start"
                 android:hint="@string/review_emotion_hint"
-                android:textColorHint="@color/text_hint"
+                android:fontFamily="@font/spoqahansansneo_medium"
+                android:textColorHint="@color/primary_dark"
+                android:alpha="0.91"
                 android:padding="18dp"
-                android:textSize="14sp"
+                android:textSize="12sp"
                 android:textColor="@color/text_primary"
                 android:inputType="textMultiLine" />
 
@@ -211,28 +222,73 @@
             android:background="@color/background"
             android:elevation="4dp">
 
-            <Button
-                android:id="@+id/btnSkipRecord"
-                android:layout_width="wrap_content"
-                android:layout_height="40dp"
-                android:layout_marginEnd="8dp"
-                android:paddingHorizontal="20dp"
-                android:text="@string/btn_skip_record"
-                android:textColor="@color/text_secondary"
-                android:textSize="14sp"
-                android:background="@drawable/btn_outline_bg"
-                app:backgroundTint="@null" />
+            <!-- 그림자(bg_btn_record_shadow)가 버튼과 같은 좌상단에 깔리고, 버튼(64x26)보다
+                 3dp 큰 67x29 프레임 크기 덕분에 그림자의 우측/하단 여분만 버튼 바깥으로
+                 비쳐 보임(좌측/상단은 버튼 자신이 가림). 버튼 자체의 stateListAnimator를
+                 @null로 꺼서 AppCompat 기본 버튼 스타일의 resting elevation(사각 경계 기준
+                 자동 그림자, 버튼 위쪽까지 삐져나와 보이던 원인)도 제거함 -->
+            <FrameLayout
+                android:layout_width="67dp"
+                android:layout_height="29dp"
+                android:layout_marginEnd="8dp">
 
-            <Button
-                android:id="@+id/btnSaveRecord"
-                android:layout_width="wrap_content"
-                android:layout_height="40dp"
-                android:paddingHorizontal="20dp"
-                android:text="@string/btn_save_record"
-                android:textColor="@color/text_primary"
-                android:textSize="14sp"
-                android:background="@drawable/btn_outline_bg"
-                app:backgroundTint="@null" />
+                <View
+                    android:layout_width="67dp"
+                    android:layout_height="29dp"
+                    android:layout_gravity="top|start"
+                    android:background="@drawable/bg_btn_record_shadow" />
+
+                <Button
+                    android:id="@+id/btnSkipRecord"
+                    android:layout_width="64dp"
+                    android:layout_height="26dp"
+                    android:layout_gravity="top|start"
+                    android:stateListAnimator="@null"
+                    android:paddingHorizontal="0dp"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
+                    android:minHeight="0dp"
+                    android:minWidth="0dp"
+                    android:text="@string/btn_skip_record"
+                    android:fontFamily="@font/spoqahansansneo_medium"
+                    android:textColor="@color/text_primary"
+                    android:alpha="0.66"
+                    android:textSize="10sp"
+                    android:background="@drawable/btn_outline_bg"
+                    app:backgroundTint="@null" />
+
+            </FrameLayout>
+
+            <FrameLayout
+                android:layout_width="67dp"
+                android:layout_height="29dp">
+
+                <View
+                    android:layout_width="67dp"
+                    android:layout_height="29dp"
+                    android:layout_gravity="top|start"
+                    android:background="@drawable/bg_btn_record_shadow" />
+
+                <Button
+                    android:id="@+id/btnSaveRecord"
+                    android:layout_width="64dp"
+                    android:layout_height="26dp"
+                    android:layout_gravity="top|start"
+                    android:stateListAnimator="@null"
+                    android:paddingHorizontal="0dp"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
+                    android:minHeight="0dp"
+                    android:minWidth="0dp"
+                    android:text="@string/btn_save_record"
+                    android:fontFamily="@font/spoqahansansneo_medium"
+                    android:textColor="@color/text_primary"
+                    android:alpha="0.66"
+                    android:textSize="10sp"
+                    android:background="@drawable/btn_outline_bg"
+                    app:backgroundTint="@null" />
+
+            </FrameLayout>
 
         </LinearLayout>
 

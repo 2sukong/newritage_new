@@ -33,12 +33,40 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/measurement_title"
-            android:textSize="13sp"
+            android:fontFamily="@font/spoqahansansneo_regular"
+            android:textSize="14sp"
             android:textColor="@color/text_primary"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent" />
+
+        <LinearLayout
+            android:id="@+id/btnHelp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:padding="8dp"
+            android:layout_marginEnd="16dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/measurement_help"
+                android:fontFamily="@font/inter_semibold"
+                android:textSize="10sp"
+                android:textColor="#81A68D" />
+
+            <ImageView
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_marginStart="4dp"
+                android:src="@drawable/icon_help" />
+        </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -65,9 +93,9 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:text="@string/pressure_status_title"
-                android:textSize="18sp"
+                android:textSize="24sp"
                 android:textColor="@color/text_primary"
-                android:fontFamily="@font/inter_medium"
+                android:fontFamily="@font/spoqahansansneo_medium"
                 android:layout_marginStart="24dp"
                 android:layout_marginEnd="24dp"
                 android:layout_marginTop="16dp"
@@ -80,8 +108,10 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:text="@string/pressure_status_calm_desc"
-                android:textSize="14sp"
-                android:textColor="@color/text_add"
+                android:fontFamily="@font/spoqahansansneo_regular"
+                android:textSize="16sp"
+                android:textColor="@color/text_primary"
+                android:alpha="0.66"
                 android:layout_marginStart="24dp"
                 android:layout_marginEnd="24dp"
                 app:layout_constraintTop_toBottomOf="@id/tvStatusTitle"
@@ -115,7 +145,8 @@
                     android:layout_height="wrap_content"
                     android:text="측정 중…"
                     android:textColor="@color/text_add"
-                    android:textSize="13sp" />
+                    android:fontFamily="@font/spoqahansansneo_regular"
+                    android:textSize="12sp" />
 
                 <LinearLayout
                     android:layout_width="wrap_content"
@@ -135,9 +166,20 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="0"
-                            android:textSize="40sp"
+                            android:textSize="45sp"
                             android:textColor="@color/text_other"
-                            android:textStyle="bold" />
+                            android:fontFamily="@font/spoqahansansneo_bold" />
+
+                        <TextView
+                            android:id="@+id/tvPressureUnit"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="2dp"
+                            android:layout_marginBottom="2dp"
+                            android:text="kPa"
+                            android:textSize="13sp"
+                            android:textColor="@color/text_other"
+                            android:fontFamily="@font/spoqahansansneo_medium" />
                     </LinearLayout>
                 </LinearLayout>
             </FrameLayout>
@@ -145,12 +187,16 @@
             <!-- 일시정지 + 명상 시간 -->
             <LinearLayout
                 android:id="@+id/cardTimer"
-                android:layout_width="0dp"
+                android:layout_width="340dp"
                 android:layout_height="wrap_content"
+                android:minHeight="51dp"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
                 android:background="@drawable/bg_timer_card"
-                android:padding="12dp"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp"
                 android:layout_marginTop="24dp"
                 android:layout_marginStart="16dp"
                 android:layout_marginEnd="16dp"
@@ -163,8 +209,7 @@
                     android:layout_width="32dp"
                     android:layout_height="32dp"
                     android:background="?attr/selectableItemBackgroundBorderless"
-                    android:src="@drawable/ic_pause_circle"
-                    android:tint="@color/text_accent_sage" />
+                    android:src="@drawable/ic_pause_circle" />
 
                 <LinearLayout
                     android:layout_width="wrap_content"
@@ -173,20 +218,13 @@
                     android:layout_marginStart="12dp">
 
                     <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/measurement_session_time"
-                        android:textSize="12sp"
-                        android:textColor="@color/text_accent_sage" />
-
-                    <TextView
                         android:id="@+id/tvTimer"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="00:00"
                         android:textSize="16sp"
                         android:textColor="@color/text_primary"
-                        android:fontFamily="@font/inter_medium"/>
+                        android:fontFamily="@font/spoqahansansneo_medium"/>
                 </LinearLayout>
             </LinearLayout>
 
@@ -196,36 +234,87 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:text="@string/realtime_chart_label"
-                android:textSize="18sp"
+                android:textSize="20sp"
                 android:textColor="@color/text_primary"
-                android:fontFamily="@font/inter_medium"
-                android:layout_marginStart="16dp"
+                android:fontFamily="@font/spoqahansansneo_medium"
+                android:layout_marginStart="24dp"
+                android:layout_marginEnd="24dp"
                 android:layout_marginTop="24dp"
                 app:layout_constraintTop_toBottomOf="@id/cardTimer"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent" />
 
             <!-- 실시간 그래프 -->
-            <LinearLayout
+            <FrameLayout
                 android:id="@+id/cardChart"
-                android:layout_width="0dp"
-                android:layout_height="220dp"
+                android:layout_width="341dp"
+                android:layout_height="278dp"
                 android:layout_marginStart="16dp"
                 android:layout_marginEnd="16dp"
                 android:layout_marginTop="8dp"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="2dp"
+                android:layout_marginBottom="16dp"
                 app:layout_constraintTop_toBottomOf="@id/tvChartLabel"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent">
+                app:layout_constraintEnd_toEndOf="parent">
 
                 <com.github.mikephil.charting.charts.LineChart
                     android:id="@+id/lineChart"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_margin="4dp" />
-            </LinearLayout>
+
+                <!-- 실시간 압력 그래프의 마지막 값을 가리키는 바늘. 좌상단(0,0)이 바늘의
+                     뾰족한 끝이 되도록 needle.xml이 그려져 있어, MeasurementActivity에서
+                     pivotX/pivotY=0으로 회전하고 x/y만 매 tick 갱신해 그래프 곡선 위에 끝이 닿도록 한다. -->
+                <ImageView
+                    android:id="@+id/ivNeedle"
+                    android:layout_width="9.54dp"
+                    android:layout_height="25.54dp"
+                    android:layout_gravity="top|start"
+                    android:src="@drawable/needle"
+                    android:scaleType="fitXY"
+                    android:visibility="gone"
+                    android:contentDescription="@null" />
+
+                <!-- 높음/적정/낮음 기준 텍스트. 점선 없이 텍스트만 표시하며, 곡선·바늘보다
+                     오른쪽인 카드 우측 끝에 고정한다(세로 위치는 MeasurementActivity의
+                     positionLevelLabels()에서 baseline 기준값에 맞춰 1회 계산). -->
+                <TextView
+                    android:id="@+id/tvLevelHigh"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="top|end"
+                    android:layout_marginEnd="4dp"
+                    android:text="@string/chart_level_high"
+                    android:fontFamily="@font/spoqahansansneo_regular"
+                    android:textColor="@color/text_primary"
+                    android:alpha="0.66"
+                    android:textSize="10sp" />
+
+                <TextView
+                    android:id="@+id/tvLevelModerate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="top|end"
+                    android:layout_marginEnd="4dp"
+                    android:text="@string/chart_level_moderate"
+                    android:fontFamily="@font/spoqahansansneo_regular"
+                    android:textColor="@color/text_primary"
+                    android:alpha="0.66"
+                    android:textSize="10sp" />
+
+                <TextView
+                    android:id="@+id/tvLevelLow"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="top|end"
+                    android:layout_marginEnd="4dp"
+                    android:text="@string/chart_level_low"
+                    android:fontFamily="@font/spoqahansansneo_regular"
+                    android:textColor="@color/text_primary"
+                    android:alpha="0.66"
+                    android:textSize="10sp" />
+            </FrameLayout>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>
@@ -242,7 +331,7 @@
         android:insetBottom="0dp"
         android:textColor="@color/text_primary"
         android:textSize="15sp"
-        android:fontFamily="@font/inter_medium"
+        android:fontFamily="@font/spoqahansansneo_medium"
         android:stateListAnimator="@null"
         android:elevation="8dp"
         android:outlineProvider="background"

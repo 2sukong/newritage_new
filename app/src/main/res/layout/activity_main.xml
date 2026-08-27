@@ -31,7 +31,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/measurement_title"
-                android:fontFamily="@font/spoqaHanSansNeo_Regular"
+                android:fontFamily="@font/spoqahansansneo_regular"
                 android:textSize="14sp"
                 android:textColor="@color/text_primary"
                 app:layout_constraintStart_toStartOf="parent"
@@ -89,17 +89,18 @@
                     android:id="@+id/tvInstruction"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="@string/measurement_instruction"
-                    android:fontFamily="@font/spoqaHanSansNeo_Regular"
-                    android:textSize="16sp"
-                    android:textColor="@color/text_add"
-                    android:lineSpacingExtra="4dp"
                     android:layout_marginStart="24dp"
-                    android:layout_marginEnd="24dp"
                     android:layout_marginTop="28dp"
-                    app:layout_constraintTop_toTopOf="parent"
+                    android:layout_marginEnd="24dp"
+                    android:alpha="0.66"
+                    android:fontFamily="@font/spoqahansansneo_regular"
+                    android:lineSpacingExtra="4dp"
+                    android:text="@string/measurement_instruction"
+                    android:textColor="@color/text_primary"
+                    android:textSize="16sp"
+                    app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent" />
+                    app:layout_constraintTop_toTopOf="parent" />
 
                 <!-- 원형 게이지 (측정 화면의 원과 동일한 크기를 공유) -->
                 <FrameLayout
@@ -107,13 +108,13 @@
                     android:layout_width="227dp"
                     android:layout_height="227dp"
                     android:layout_marginTop="32dp"
-                    android:gravity="center"
                     android:background="@drawable/bg_gauge_shadow_base"
                     android:elevation="6dp"
+                    android:gravity="center"
                     android:outlineProvider="background"
-                    app:layout_constraintTop_toBottomOf="@id/tvInstruction"
+                    app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent">
+                    app:layout_constraintTop_toBottomOf="@id/tvInstruction">
 
                     <com.newritage.app.ui.util.WaveView
                         android:id="@+id/waveView"
@@ -124,11 +125,11 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
                         android:layout_marginTop="40dp"
                         android:layout_marginBottom="24dp"
-                        android:layout_gravity="center_horizontal"
+                        android:fontFamily="@font/spoqahansansneo_regular"
                         android:text="@string/measurement_waiting"
-                        android:fontFamily="@font/spoqaHanSansNeo_Regular"
                         android:textColor="@color/text_secondary"
                         android:textSize="12sp" />
 
@@ -136,20 +137,20 @@
                         android:id="@+id/groupIdle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:gravity="center"
                         android:layout_gravity="center"
+                        android:background="?attr/selectableItemBackgroundBorderless"
                         android:clickable="true"
                         android:focusable="true"
-                        android:background="?attr/selectableItemBackgroundBorderless">
+                        android:gravity="center"
+                        android:orientation="vertical">
 
                         <ImageView
                             android:layout_width="70dp"
                             android:layout_height="70dp"
                             android:layout_marginLeft="3dp"
                             android:layout_marginTop="6dp"
-                            android:src="@drawable/ic_play_triangle"
-                            android:contentDescription="@string/btn_start_measure" />
+                            android:contentDescription="@string/btn_start_measure"
+                            android:src="@drawable/ic_play_triangle" />
                     </LinearLayout>
                 </FrameLayout>
 
@@ -158,18 +159,18 @@
                     android:id="@+id/badgeConnection"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:background="@drawable/bg_connection_badge"
-                    android:paddingStart="12dp"
-                    android:paddingEnd="12dp"
-                    android:paddingTop="6dp"
-                    android:paddingLeft="50dp"
-                    android:paddingBottom="6dp"
                     android:layout_marginTop="-18dp"
                     android:layout_marginEnd="-50dp"
-                    app:layout_constraintTop_toBottomOf="@id/gaugeContainer"
-                    app:layout_constraintEnd_toEndOf="@id/gaugeContainer">
+                    android:background="@drawable/bg_connection_badge"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingStart="12dp"
+                    android:paddingLeft="50dp"
+                    android:paddingTop="6dp"
+                    android:paddingEnd="12dp"
+                    android:paddingBottom="6dp"
+                    app:layout_constraintEnd_toEndOf="@id/gaugeContainer"
+                    app:layout_constraintTop_toBottomOf="@id/gaugeContainer">
 
                     <View
                         android:id="@+id/dotConnection"
@@ -182,10 +183,10 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="6dp"
-                        android:text="@string/connection_disconnected"
                         android:fontFamily="@font/inter_medium"
-                        android:textSize="10sp"
-                        android:textColor="@color/text_primary" />
+                        android:text="@string/connection_disconnected"
+                        android:textColor="@color/text_primary"
+                        android:textSize="10sp" />
                 </LinearLayout>
 
                 <!-- 측정 모드 선택 (자율 모드 / 가이드 모드) -->
@@ -193,38 +194,38 @@
                     android:id="@+id/rowModeSelect"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
                     android:layout_marginTop="24dp"
-                    app:layout_constraintTop_toBottomOf="@id/badgeConnection"
+                    android:orientation="horizontal"
+                    app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent">
+                    app:layout_constraintTop_toBottomOf="@id/badgeConnection">
 
                     <TextView
                         android:id="@+id/btnModeAutonomous"
                         android:layout_width="108dp"
                         android:layout_height="33dp"
-                        android:gravity="center"
-                        android:text="@string/mode_autonomous"
-                        android:fontFamily="@font/inter_medium"
-                        android:textSize="12sp"
-                        android:textColor="@color/white"
                         android:background="@drawable/bg_mode_button_selected"
                         android:clickable="true"
-                        android:focusable="true" />
+                        android:focusable="true"
+                        android:fontFamily="@font/inter_medium"
+                        android:gravity="center"
+                        android:text="@string/mode_autonomous"
+                        android:textColor="@color/white"
+                        android:textSize="12sp" />
 
                     <TextView
                         android:id="@+id/btnModeGuide"
                         android:layout_width="108dp"
                         android:layout_height="33dp"
                         android:layout_marginStart="14dp"
-                        android:gravity="center"
-                        android:text="@string/mode_guide"
-                        android:textSize="12sp"
-                        android:fontFamily="@font/inter_medium"
-                        android:textColor="@color/mode_unselected_text"
                         android:background="@drawable/bg_mode_button_unselected"
                         android:clickable="true"
-                        android:focusable="true" />
+                        android:focusable="true"
+                        android:fontFamily="@font/inter_medium"
+                        android:gravity="center"
+                        android:text="@string/mode_guide"
+                        android:textColor="@color/mode_unselected_text"
+                        android:textSize="12sp" />
 
                 </LinearLayout>
 
@@ -233,22 +234,22 @@
                     android:id="@+id/rowThresholdAlert"
                     android:layout_width="230dp"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
                     android:layout_marginTop="8dp"
-                    app:layout_constraintTop_toBottomOf="@id/rowModeSelect"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent">
+                    app:layout_constraintTop_toBottomOf="@id/rowModeSelect">
 
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="@string/threshold_alert_toggle_label"
-                        android:gravity="right"
                         android:fontFamily="@font/inter_medium"
-                        android:textSize="10sp"
-                        android:textColor="@color/text_add" />
+                        android:gravity="right"
+                        android:text="@string/threshold_alert_toggle_label"
+                        android:textColor="@color/text_add"
+                        android:textSize="10sp" />
 
                     <com.google.android.material.switchmaterial.SwitchMaterial
                         android:id="@+id/switchThresholdAlert"
@@ -264,44 +265,45 @@
                     android:id="@+id/cardGuide"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/bg_card_surface_bordered"
-                    android:paddingTop="18dp"
-                    android:paddingBottom="19dp"
-                    android:paddingStart="16dp"
-                    android:paddingEnd="16dp"
-                    android:layout_marginTop="24dp"
                     android:layout_marginStart="16dp"
+                    android:layout_marginTop="24dp"
                     android:layout_marginEnd="16dp"
-                    app:layout_constraintTop_toBottomOf="@id/rowThresholdAlert"
+                    android:background="@drawable/bg_card_surface_bordered"
+                    android:paddingStart="16dp"
+                    android:paddingTop="18dp"
+                    android:paddingEnd="16dp"
+                    android:paddingBottom="19dp"
+                    app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent">
+                    app:layout_constraintTop_toBottomOf="@id/rowThresholdAlert">
 
                     <TextView
                         android:id="@+id/tvGuideTitle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:fontFamily="@font/spoqahansansneo_bold"
                         android:text="@string/guide_title"
-                        android:textSize="15sp"
                         android:textColor="@color/text_primary"
-                        android:fontFamily="@font/spoqaHanSansNeo_Bold"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:layout_constraintStart_toStartOf="parent" />
+                        android:textSize="15sp"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
 
                     <LinearLayout
                         android:id="@+id/rowGuide1"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical"
                         android:layout_marginTop="12dp"
-                        app:layout_constraintTop_toBottomOf="@id/tvGuideTitle"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent">
+                        app:layout_constraintTop_toBottomOf="@id/tvGuideTitle">
 
                         <FrameLayout
                             android:layout_width="23dp"
                             android:layout_height="23dp"
                             android:background="@drawable/bg_icon_circle">
+
                             <ImageView
                                 android:layout_width="16dp"
                                 android:layout_height="16dp"
@@ -312,29 +314,30 @@
                         <TextView
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1"
                             android:layout_marginStart="9dp"
+                            android:layout_weight="1"
+                            android:fontFamily="@font/spoqahansansneo_regular"
                             android:text="@string/guide_step_1"
-                            android:fontFamily="@font/spoqaHanSansNeo_Regular"
-                            android:textSize="12sp"
-                            android:textColor="@color/text_primary" />
+                            android:textColor="@color/text_primary"
+                            android:textSize="12sp" />
                     </LinearLayout>
 
                     <LinearLayout
                         android:id="@+id/rowGuide2"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical"
                         android:layout_marginTop="4dp"
-                        app:layout_constraintTop_toBottomOf="@id/rowGuide1"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent">
+                        app:layout_constraintTop_toBottomOf="@id/rowGuide1">
 
                         <FrameLayout
                             android:layout_width="23dp"
                             android:layout_height="23dp"
                             android:background="@drawable/bg_icon_circle">
+
                             <ImageView
                                 android:layout_width="16dp"
                                 android:layout_height="16dp"
@@ -345,29 +348,30 @@
                         <TextView
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1"
                             android:layout_marginStart="9dp"
+                            android:layout_weight="1"
+                            android:fontFamily="@font/spoqahansansneo_regular"
                             android:text="@string/guide_step_2"
-                            android:fontFamily="@font/spoqaHanSansNeo_Regular"
-                            android:textSize="12sp"
-                            android:textColor="@color/text_primary" />
+                            android:textColor="@color/text_primary"
+                            android:textSize="12sp" />
                     </LinearLayout>
 
                     <LinearLayout
                         android:id="@+id/rowGuide3"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical"
                         android:layout_marginTop="4dp"
-                        app:layout_constraintTop_toBottomOf="@id/rowGuide2"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent">
+                        app:layout_constraintTop_toBottomOf="@id/rowGuide2">
 
                         <FrameLayout
                             android:layout_width="23dp"
                             android:layout_height="23dp"
                             android:background="@drawable/bg_icon_circle">
+
                             <ImageView
                                 android:layout_width="16dp"
                                 android:layout_height="16dp"
@@ -378,30 +382,31 @@
                         <TextView
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1"
                             android:layout_marginStart="9dp"
+                            android:layout_weight="1"
+                            android:fontFamily="@font/spoqahansansneo_regular"
                             android:text="@string/guide_step_3"
-                            android:fontFamily="@font/spoqaHanSansNeo_Regular"
-                            android:textSize="12sp"
-                            android:textColor="@color/text_primary" />
+                            android:textColor="@color/text_primary"
+                            android:textSize="12sp" />
                     </LinearLayout>
 
                     <LinearLayout
                         android:id="@+id/rowGuide4"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical"
                         android:layout_marginTop="4dp"
-                        app:layout_constraintTop_toBottomOf="@id/rowGuide3"
-                        app:layout_constraintStart_toStartOf="parent"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintBottom_toBottomOf="parent">
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/rowGuide3">
 
                         <FrameLayout
                             android:layout_width="23dp"
                             android:layout_height="23dp"
                             android:background="@drawable/bg_icon_circle">
+
                             <ImageView
                                 android:layout_width="16dp"
                                 android:layout_height="16dp"
@@ -412,17 +417,18 @@
                         <TextView
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1"
                             android:layout_marginStart="9dp"
+                            android:layout_weight="1"
+                            android:fontFamily="@font/spoqahansansneo_regular"
                             android:text="@string/guide_step_4"
-                            android:fontFamily="@font/spoqaHanSansNeo_Regular"
-                            android:textSize="12sp"
-                            android:textColor="@color/text_primary" />
+                            android:textColor="@color/text_primary"
+                            android:textSize="12sp" />
                     </LinearLayout>
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
             </androidx.constraintlayout.widget.ConstraintLayout>
+
         </ScrollView>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
@@ -484,12 +490,44 @@
 
     </LinearLayout>
 
+    <!-- 하단 내비게이션 카드 위의 그림자. 두 개의 View로 구성됨:
+         1) bottomNavShadowNotch: bottomNav의 "위쪽" 끝(top)에 맞춰 배치하되 높이(24dp)만큼
+            카드 내부로 겹쳐 들어간다. bottomNav보다 먼저 그려지므로(=z-order상 아래), 카드가
+            불투명하게 덮는 부분(위쪽 둥근 모서리 두 곳을 제외한 나머지)은 가려져서 안 보이고,
+            카드의 둥근 모서리 곡선 바깥쪽에 남는 투명한 notch(빈 틈)에서만 이 View의 색이
+            비쳐 보인다 — 그 부분에도 그림자가 자연스럽게 이어지도록 채워주는 역할.
+         2) bottomNavShadowReach: 카드 바로 위(bottomNav의 top보다 위)에 이어 붙여서, 카드에서
+            멀어질수록 옅어지는 그라데이션으로 그림자가 "위로 뻗어" 보이게 한다. 이전엔 이
+            영역이 36dp라 그림자 밴드가 화면 상당 부분을 덮는 것처럼 보였어서(사용자 피드백),
+            20dp로 줄여 카드 바로 위에만 좁고 자연스럽게 걸치도록 했다.
+         두 View 모두 겹치는 경계(bottomNav의 top 지점)에서 같은 색상(#20000000)으로 시작/종료
+         하도록 맞춰서 이어붙인 자리에 눈에 띄는 경계선이 남지 않게 했다. -->
+    <View
+        android:id="@+id/bottomNavShadowNotch"
+        android:layout_width="0dp"
+        android:layout_height="24dp"
+        android:background="@drawable/bg_bottom_nav_shadow_notch"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/bottomNav" />
+
+    <View
+        android:id="@+id/bottomNavShadowReach"
+        android:layout_width="0dp"
+        android:layout_height="20dp"
+        android:background="@drawable/gradient_bottom_nav_shadow"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/bottomNav" />
+
     <!-- 하단 내비게이션 -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNav"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:background="@color/surface"
+        android:background="@drawable/bg_bottom_nav"
+        android:outlineProvider="background"
+        android:elevation="6dp"
         app:menu="@menu/bottom_nav_menu"
         app:itemIconTint="@color/menu"
         app:itemTextColor="@color/menu"
@@ -500,6 +538,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:itemTextAppearanceInactive="@style/BottomNavTextInactive"
-        app:itemTextAppearanceActive="@style/BottomNavTextActive"/>/>
+        app:itemTextAppearanceActive="@style/BottomNavTextActive"
+        app:itemTextAppearanceActiveBoldEnabled="false"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
