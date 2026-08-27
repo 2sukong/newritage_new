@@ -511,20 +511,13 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@id/bottomNav" />
 
-    <View
-        android:id="@+id/bottomNavShadowReach"
-        android:layout_width="0dp"
-        android:layout_height="20dp"
-        android:background="@drawable/gradient_bottom_nav_shadow"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/bottomNav" />
-
     <!-- 하단 내비게이션 -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNav"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="85dp"
+        android:paddingStart="29dp"
+        android:paddingEnd="25dp"
         android:background="@drawable/bg_bottom_nav"
         android:outlineProvider="background"
         android:elevation="6dp"
@@ -532,6 +525,8 @@
         app:itemIconTint="@color/menu"
         app:itemTextColor="@color/menu"
         app:itemIconSize="25dp"
+        app:itemPaddingTop="25dp"
+        app:itemPaddingBottom="23dp"
         app:labelVisibilityMode="labeled"
         app:itemRippleColor="@android:color/transparent"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -539,6 +534,15 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:itemTextAppearanceInactive="@style/BottomNavTextInactive"
         app:itemTextAppearanceActive="@style/BottomNavTextActive"
-        app:itemTextAppearanceActiveBoldEnabled="false"/>
+        app:itemTextAppearanceActiveBoldEnabled="false" />
+
+    <View
+        android:id="@+id/bottomNavShadowReach"
+        android:layout_width="0dp"
+        android:layout_height="28dp"
+        android:background="@drawable/gradient_bottom_nav_shadow"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/bottomNav" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

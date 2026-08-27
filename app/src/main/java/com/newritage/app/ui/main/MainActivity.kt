@@ -2,13 +2,16 @@ package com.newritage.app.ui.main
 
 import android.content.Intent
 import android.content.res.ColorStateList
+import android.graphics.Typeface
 import android.os.Bundle
 import android.view.View
+import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.newritage.app.R
@@ -60,6 +63,7 @@ class MainActivity : AppCompatActivity() {
         binding.waveView.setWaveStyle(WaveStyle.IDLE)
         setupHomeButton()
         setupBottomNav()
+        fixBottomNavLabelTypeface()
         setupDevDateBar()
         connectBle()
         lifecycleScope.launch { DebugDataSeeder.seedIfEnabled(this@MainActivity) }
@@ -283,6 +287,28 @@ class MainActivity : AppCompatActivity() {
                     false
                 }
                 else -> false
+            }
+        }
+    }
+
+    /**
+     * BottomNavigationView는 선택된 항목을 표시할 때 내부적으로 largeLabel에
+     * setTypeface(typeface, style)을 호출하는데, 커스텀 폰트(spoqahansansneo_bold)는
+     * 시스템에 굵기별 패밀리로 등록돼 있지 않아 이 호출이 커스텀 폰트를 시스템 기본 폰트로
+     * 되돌려버린다. 그 결과 탭을 누르는 순간에만(=largeLabel이 보이는 순간) 글꼴과 크기가
+     * 달라져 보인다. 라벨 TextView들에 커스텀 타이프페이스를 다시 직접 지정해 되돌린다.
+     */
+    private fun fixBottomNavLabelTypeface() {
+        val typeface = ResourcesCompat.getFont(this, R.font.spoqahansansneo_bold) ?: return
+        applyTypefaceRecursively(binding.bottomNav, typeface)
+    }
+
+    private fun applyTypefaceRecursively(view: View, typeface: Typeface) {
+        if (view is TextView) {
+            view.typeface = typeface
+        } else if (view is ViewGroup) {
+            for (i in 0 until view.childCount) {
+                applyTypefaceRecursively(view.getChildAt(i), typeface)
             }
         }
     }
